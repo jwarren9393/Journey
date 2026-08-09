@@ -3,7 +3,7 @@ name: Release
 on:
   push:
     tags:
-      - 'v*'
+      - 'build-*'
 
 permissions:
   contents: write
@@ -31,9 +31,9 @@ jobs:
       - name: Package portable zip
         shell: pwsh
         run: |
-          $version = "${{ github.ref_name }}".TrimStart('v')
+          $build = "${{ github.ref_name }}".Replace('build-', '')
           $source = "build/windows/x64/runner/Release"
-          $archive = "journey-windows-x64-$version.zip"
+          $archive = "journey-windows-x64-build-$build.zip"
           Compress-Archive -Path "$source/*" -DestinationPath $archive
           echo "ARCHIVE_NAME=$archive" >> $env:GITHUB_ENV
 
@@ -41,7 +41,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: journey-windows-x64
-          path: journey-windows-x64-*.zip
+          path: journey-windows-x64-build-*.zip
 
   build-android:
     name: Android
@@ -70,14 +70,14 @@ jobs:
 
       - name: Rename APK
         run: |
-          VERSION="${GITHUB_REF_NAME#v}"
-          cp build/app/outputs/flutter-apk/app-release.apk "journey-android-$VERSION.apk"
+          BUILD="${GITHUB_REF_NAME#build-}"
+          cp build/app/outputs/flutter-apk/app-release.apk "journey-android-build-$BUILD.apk"
 
       - name: Upload Android artifact
         uses: actions/upload-artifact@v4
         with:
           name: journey-android
-          path: journey-android-*.apk
+          path: journey-android-build-*.apk
 
   publish:
     name: Publish GitHub Release
@@ -99,5 +99,5 @@ jobs:
         with:
           generate_release_notes: true
           files: |
-            journey-windows-x64-*.zip
-            journey-android-*.apk
+            journey-windows-x64-build-*.zip
+            journey-android-build-*.apk

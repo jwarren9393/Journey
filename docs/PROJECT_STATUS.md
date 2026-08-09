@@ -70,6 +70,16 @@ Journey is a **personal, casual writing app** — not a commercial author platfo
 
 ## Changelog
 
+### 2026-08-08 — Icon & versioning policy
+- New dark glassmorphism app icon (path → open book); `assets/icons/app_icon.png`
+- Version locked to **1.0.0**; only build number (`+N`) increments
+- GitHub release tags now `build-N` (e.g. `build-17`)
+
+### 2026-08-08 — App icon
+- Custom Journey icon (pen, inkwell, book) from `assets/icons/app_icon.png`
+- Generated Android mipmaps + adaptive icon and Windows `app_icon.ico` via `flutter_launcher_icons`
+- Android display name set to "Journey"
+
 ### 2026-08-08 — Releases & README
 - GitHub Actions release workflow (Windows zip + Android APK on `v*` tags)
 - Version bumped to 1.6.0+16; `file_picker` upgraded to 12.x (Gradle 9 / win32 6 compat)
@@ -131,3 +141,4 @@ Journey is a **personal, casual writing app** — not a commercial author platfo
 - [x] `PROJECT_STATUS.md` updated
 - [x] `PROJECT_REFERENCE.md` updated
 - [x] `README.md` updated (user-facing features & releases)
+- [x] `ROADMAP.md` updated if applicable

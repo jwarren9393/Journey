@@ -8,6 +8,10 @@
 2. **`docs/PROJECT_REFERENCE.md`** — full project reference (update when you change behavior, structure, or features)
 3. **`docs/ROADMAP.md`** — phased plan (update when phases complete or scope shifts)
 
+## Versioning
+
+Journey stays at **version 1.0.0**. Only the **build number** after `+` in `pubspec.yaml` increments (e.g. `1.0.0+17`). Do not bump the major/minor/patch version unless the user explicitly asks.
+
 ## Required after every session
 
 Before finishing, update these living documents:
@@ -42,6 +46,7 @@ If you completed a roadmap item, check it off in `docs/ROADMAP.md`.
 ```bash
 flutter pub get
 dart run build_runner build    # after Drift schema changes
+dart run flutter_launcher_icons # after changing assets/icons/app_icon.png
 flutter analyze
 flutter test
 flutter run                    # pick Android or Windows device

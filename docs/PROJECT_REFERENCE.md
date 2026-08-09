@@ -4,7 +4,7 @@
 > Upload this file to give full project context. Agents must update it whenever code, structure, or behavior changes.
 
 **Last updated:** 2026-08-06  
-**Version:** 1.6.0 (Phase 5 complete)
+**Version:** 1.0.0 (build number in `pubspec.yaml`; user-facing version stays 1.0.0)
 
 ---
 
@@ -347,7 +347,9 @@ Material 3 with `useMaterial3: true`. Theme mode from app preferences (system / 
 
 **Runtime:** flutter, cupertino_icons, flutter_riverpod, go_router, drift, drift_flutter, sqlite3_flutter_libs, path_provider, uuid, shared_preferences, http, google_generative_ai, url_launcher, share_plus, file_picker
 
-**Dev:** flutter_test, flutter_lints, drift_dev, build_runner
+**Dev:** flutter_test, flutter_lints, drift_dev, build_runner, flutter_launcher_icons
+
+**App icon:** Source `assets/icons/app_icon.png` (1024×1024). Regenerate platform icons with `dart run flutter_launcher_icons`.
 
 ---
 
@@ -356,6 +358,7 @@ Material 3 with `useMaterial3: true`. Theme mode from app preferences (system / 
 ```bash
 flutter pub get
 dart run build_runner build    # Regenerate app_database.g.dart after schema changes
+dart run flutter_launcher_icons # Regenerate Android/Windows icons after changing app_icon.png
 flutter run                    # Android emulator or Windows desktop
 flutter build apk              # Android release
 flutter build windows          # Windows release

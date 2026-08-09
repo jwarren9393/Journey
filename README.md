@@ -73,7 +73,7 @@ AI is **off until you enable it** in Settings. You bring your own keys — data 
 
 ### Windows (portable)
 
-1. Download `journey-windows-x64-*.zip` from [Releases](https://github.com/jwarren9393/Journey/releases).
+1. Download `journey-windows-x64-build-*.zip` from [Releases](https://github.com/jwarren9393/Journey/releases).
 2. Extract the zip to any folder (e.g. `D:\Apps\Journey`).
 3. Run `journey.exe`.
 
@@ -83,7 +83,7 @@ Your books are stored locally on that PC in the app’s data directory — copy 
 
 ### Android
 
-1. Download `journey-android-*.apk` from [Releases](https://github.com/jwarren9393/Journey/releases).
+1. Download `journey-android-build-*.apk` from [Releases](https://github.com/jwarren9393/Journey/releases).
 2. Install the APK (enable “Install unknown apps” for your browser/files app if prompted).
 
 **Note:** Release builds are currently signed with a debug key for convenience. For production distribution, use a proper signing key.
@@ -131,12 +131,15 @@ dart run build_runner build
 
 ### GitHub Releases (maintainers)
 
-Pushing a version tag builds and publishes both artifacts automatically:
+Pushing a **build tag** builds and publishes both artifacts automatically:
 
 ```bash
-git tag v1.6.0
-git push origin v1.6.0
+# Bump only the build number in pubspec.yaml (e.g. 1.0.0+18), then:
+git tag build-18
+git push origin build-18
 ```
+
+Release artifacts are named `journey-windows-x64-build-<N>.zip` and `journey-android-build-<N>.apk`. The app version shown to users stays **1.0.0**; the build number distinguishes releases.
 
 See [.github/workflows/release.yml](.github/workflows/release.yml).
 
