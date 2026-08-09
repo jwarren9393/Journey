@@ -29,11 +29,14 @@ class NoteEditorPage extends ConsumerStatefulWidget {
 class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
   final _titleController = TextEditingController();
   final _contentController = TextEditingController();
+  final _loreKeywordsController = TextEditingController();
   final _debouncer = Debouncer();
 
   String? _loadedNoteId;
   NoteType _type = NoteType.general;
   String _attachmentPath = '';
+  bool _loreAlwaysInclude = false;
+  int _lorePriority = 5;
   List<BookTag> _selectedTags = [];
   bool _isSaving = false;
   bool _hasUnsavedChanges = false;
@@ -44,6 +47,7 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
     _debouncer.dispose();
     _titleController.dispose();
     _contentController.dispose();
+    _loreKeywordsController.dispose();
     super.dispose();
   }
 
@@ -77,8 +81,11 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
           _loadedNoteId = note.id;
           _titleController.text = note.title;
           _contentController.text = note.content;
+          _loreKeywordsController.text = note.loreKeywords;
           _type = note.type;
           _attachmentPath = note.attachmentPath;
+          _loreAlwaysInclude = note.loreAlwaysInclude;
+          _lorePriority = note.lorePriority;
           _selectedTags = List.of(note.tags);
           _hasUnsavedChanges = false;
           _saveFailed = false;
@@ -141,6 +148,55 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
                 minLines: 10,
                 maxLines: null,
                 onChanged: (_) => _markDirty(note),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'AI lore triggers',
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Used only when you run an AI action — never automatically.',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _loreKeywordsController,
+                decoration: const InputDecoration(
+                  labelText: 'Keywords (comma-separated)',
+                  border: OutlineInputBorder(),
+                  hintText: 'Marcus, Silver Oak',
+                ),
+                onChanged: (_) => _markDirty(note),
+              ),
+              const SizedBox(height: 12),
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: const Text('Always include in AI context'),
+                subtitle: const Text('Within token budget when AI runs'),
+                value: _loreAlwaysInclude,
+                onChanged: (value) {
+                  setState(() => _loreAlwaysInclude = value);
+                  _markDirty(note);
+                },
+              ),
+              Slider(
+                value: _lorePriority.toDouble(),
+                min: 0,
+                max: 10,
+                divisions: 10,
+                label: 'Priority $_lorePriority',
+                onChanged: (value) {
+                  setState(() => _lorePriority = value.round());
+                  _markDirty(note);
+                },
+              ),
+              Align(
+                alignment: Alignment.centerRight,
+                child: Text(
+                  'Priority: $_lorePriority (higher = included first)',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
               ),
               const SizedBox(height: 16),
               Text('Tags', style: Theme.of(context).textTheme.titleSmall),
@@ -242,6 +298,9 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
           content: _contentController.text,
           type: _type,
           attachmentPath: _attachmentPath,
+          loreKeywords: _loreKeywordsController.text,
+          loreAlwaysInclude: _loreAlwaysInclude,
+          lorePriority: _lorePriority,
         ),
       );
       await ref.tags.setTagsForNote(

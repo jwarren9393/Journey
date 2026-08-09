@@ -46,21 +46,42 @@ AI is **off until you enable it** in Settings. You bring your own keys — data 
 | Action | Description |
 |--------|-------------|
 | Continue writing | Next paragraph from cursor or chapter end |
-| Rephrase / Expand / Tighten | Selection transforms |
-| Sensory enhance | Rewrite with sight, sound, smell, etc. |
-| Show, don't tell | 2–3 showing alternatives for flat exposition |
+| Rephrase / Expand / Tighten | Selection transforms (Rephrase, Expand, Sensory enhance return **multiple variants** to browse) |
+| Show, don't tell | 3 showing alternatives for flat exposition |
+| Scene paths | 6 beat ideas for what could happen next in a scene |
 | Summarize chapter | Short recap for the author |
 | Tone & voice meter | Compare chapter to a reference scene or voice description |
 | Check continuity | Flag contradictions vs. worldbuilding notes |
-| Ask the world bible | Q&A over your notes |
+| Fix continuity | Propose note updates — review before applying |
+| Ask the world bible | Q&A over your notes (keyword-triggered lore when relevant) |
 | Discover entities | Scan text → pre-filled character/place notes |
+
+**Per-book AI context** (Chapters tab — manual edit or on-demand AI update)
+
+| Item | Description |
+|------|-------------|
+| Author's note | Style guide injected into AI prompts (POV, tense, tone) |
+| Canon summary | Running bullet facts; **Update from book/chapter** when you choose |
+
+**Story Lab** (book menu — brainstorm sandbox, separate from manuscript)
+
+| Action | Description |
+|--------|-------------|
+| Brainstorm chat | Send a message → AI replies (only when you send) |
+| Canon pins | Long-press your message to pin a fact |
+| Scene ideas | Generate 6 scene starters |
+| Glossary extract | Pull terms → pre-filled notes |
+| Summarize brainstorm | Fold messages into editable Story Lab summary |
 
 **Book & outline**
 
 | Action | Where |
 |--------|--------|
 | AI recap | Book menu |
-| Check continuity | Book menu |
+| Check continuity | Book menu / editor |
+| Fix continuity | Book menu / editor |
+| Update canon summary | Book menu / Chapters tab |
+| Story Lab | Book menu |
 | Ask the world bible | Book menu |
 | Analyze pacing | Outline tab — heatmap labels (High Action, Dialogue Heavy, …) |
 | Plot bridge | Outline tab — bridge ideas between chapters |

@@ -26,6 +26,9 @@ class NoteRepositoryImpl implements NoteRepository {
     required String title,
     String content = '',
     String attachmentPath = '',
+    String loreKeywords = '',
+    bool loreAlwaysInclude = false,
+    int lorePriority = 5,
   }) async {
     final now = DateTime.now();
     final sortOrder = await _database.nextNoteSortOrder(bookId);
@@ -38,6 +41,9 @@ class NoteRepositoryImpl implements NoteRepository {
         title: title.trim(),
         content: Value(content),
         attachmentPath: Value(attachmentPath),
+        loreKeywords: Value(loreKeywords),
+        loreAlwaysInclude: Value(loreAlwaysInclude),
+        lorePriority: Value(lorePriority.clamp(0, 10)),
         sortOrder: sortOrder,
         createdAt: now,
         updatedAt: now,
@@ -55,6 +61,9 @@ class NoteRepositoryImpl implements NoteRepository {
         title: Value(note.title.trim()),
         content: Value(note.content),
         attachmentPath: Value(note.attachmentPath),
+        loreKeywords: Value(note.loreKeywords),
+        loreAlwaysInclude: Value(note.loreAlwaysInclude),
+        lorePriority: Value(note.lorePriority.clamp(0, 10)),
         sortOrder: Value(note.sortOrder),
         createdAt: Value(note.createdAt),
         updatedAt: Value(DateTime.now()),

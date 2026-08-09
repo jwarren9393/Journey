@@ -1,6 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:journey/core/ai/ai_context.dart';
+import 'package:journey/core/ai/continuity_fix_parser.dart';
 import 'package:journey/core/ai/extracted_entity_parser.dart';
+import 'package:journey/core/ai/variants_parser.dart';
 import 'package:journey/core/ai/note_context_service.dart';
 import 'package:journey/core/ai/pacing_label_parser.dart';
 import 'package:journey/core/ai/prompt_templates.dart';
@@ -31,8 +33,8 @@ void main() {
       );
 
       expect(prompt, contains('He was terrified.'));
-      expect(prompt, contains('Option 1:'));
-      expect(prompt, contains('2-3 alternative'));
+      expect(prompt, contains('---VARIANT---'));
+      expect(prompt, contains('3 alternative'));
     });
 
     test('toneVoiceMeter includes reference chapter and current chapter', () {
@@ -102,6 +104,9 @@ void main() {
         title: 'Marcus',
         content: 'Left-handed swordsman with green eyes.',
         attachmentPath: '',
+        loreKeywords: '',
+        loreAlwaysInclude: false,
+        lorePriority: 5,
         sortOrder: 0,
         createdAt: now,
         updatedAt: now,
@@ -180,6 +185,9 @@ void main() {
         title: 'Marcus',
         content: 'Left-handed.',
         attachmentPath: '',
+        loreKeywords: '',
+        loreAlwaysInclude: false,
+        lorePriority: 5,
         sortOrder: 0,
         createdAt: now,
         updatedAt: now,
@@ -191,6 +199,9 @@ void main() {
         title: 'Silver Oak',
         content: 'A riverside tavern.',
         attachmentPath: '',
+        loreKeywords: '',
+        loreAlwaysInclude: false,
+        lorePriority: 5,
         sortOrder: 1,
         createdAt: now,
         updatedAt: now,
@@ -371,6 +382,9 @@ void main() {
             title: 'The River Road',
             description: 'A fantasy journey along a forgotten trade route.',
             category: 'Fantasy',
+            authorsNote: '',
+            canonSummary: '',
+            storyLabSummary: '',
             createdAt: now,
             updatedAt: now,
           ),
@@ -394,6 +408,118 @@ void main() {
       expect(prompt, contains('The hero leaves home.'));
       expect(prompt, contains('TAGLINE:'));
       expect(prompt, contains('QUERY PITCH:'));
+    });
+  });
+
+  group('PromptTemplates Phase 6', () {
+    final now = DateTime(2026);
+
+    test('updateCanonSummary includes existing canon and manuscript', () {
+      final prompt = PromptTemplates.forAction(
+        AiAction.updateCanonSummary,
+        AiContext(
+          book: Book(
+            id: 'b1',
+            title: 'Test Book',
+            description: '',
+            category: '',
+            authorsNote: 'Third person past tense.',
+            canonSummary: '- Marcus is left-handed.',
+            storyLabSummary: '',
+            createdAt: now,
+            updatedAt: now,
+          ),
+          recentChapters: [
+            Chapter(
+              id: 'c1',
+              bookId: 'b1',
+              title: 'Chapter 1',
+              content: 'Marcus threw a punch with his right hand.',
+              outlineSummary: '',
+              sortOrder: 0,
+              createdAt: now,
+              updatedAt: now,
+            ),
+          ],
+        ),
+      );
+
+      expect(prompt, contains('Third person past tense.'));
+      expect(prompt, contains('Marcus is left-handed'));
+      expect(prompt, contains('right hand'));
+    });
+
+    test('fixContinuity asks for JSON note fixes', () {
+      final prompt = PromptTemplates.forAction(
+        AiAction.fixContinuity,
+        AiContext(
+          chapter: Chapter(
+            id: 'c1',
+            bookId: 'b1',
+            title: 'Ch 1',
+            content: 'Test',
+            outlineSummary: '',
+            sortOrder: 0,
+            createdAt: now,
+            updatedAt: now,
+          ),
+        ),
+      );
+
+      expect(prompt, contains('JSON array'));
+      expect(prompt, contains('proposedContent'));
+    });
+
+    test('scenePaths asks for six beat ideas', () {
+      final prompt = PromptTemplates.forAction(
+        AiAction.scenePaths,
+        AiContext(
+          selectedText: 'She reached for the door.',
+        ),
+      );
+
+      expect(prompt, contains('6 brief beat ideas'));
+      expect(prompt, contains('She reached for the door.'));
+    });
+  });
+
+  group('VariantsParser', () {
+    test('splits on variant separator', () {
+      const raw = 'First version\n---VARIANT---\nSecond version';
+      final variants = VariantsParser.parse(raw);
+      expect(variants, hasLength(2));
+      expect(variants.first, 'First version');
+    });
+  });
+
+  group('ContinuityFixParser', () {
+    final now = DateTime(2026);
+    final notes = [
+      BookNote(
+        id: 'n1',
+        bookId: 'b1',
+        type: NoteType.character,
+        title: 'Marcus',
+        content: 'Left-handed.',
+        attachmentPath: '',
+        loreKeywords: '',
+        loreAlwaysInclude: false,
+        lorePriority: 5,
+        sortOrder: 0,
+        createdAt: now,
+        updatedAt: now,
+      ),
+    ];
+
+    test('parses fix proposals by note title', () {
+      const raw = '''
+[{"noteTitle": "Marcus", "proposedContent": "Ambidextrous.", "reason": "Chapter shows right hand."}]
+''';
+
+      final fixes = ContinuityFixParser.parse(raw, notes: notes);
+      expect(fixes, hasLength(1));
+      expect(fixes.first.noteId, 'n1');
+      expect(fixes.first.proposedContent, 'Ambidextrous.');
     });
   });
 }

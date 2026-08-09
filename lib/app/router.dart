@@ -5,6 +5,7 @@ import 'package:journey/core/providers/app_preferences_provider.dart';
 import 'package:journey/features/books/presentation/pages/book_detail_page.dart';
 import 'package:journey/features/books/presentation/pages/book_search_page.dart';
 import 'package:journey/features/books/presentation/pages/note_editor_page.dart';
+import 'package:journey/features/books/presentation/pages/story_lab_page.dart';
 import 'package:journey/features/books/presentation/pages/library_page.dart';
 import 'package:journey/features/editor/presentation/pages/editor_page.dart';
 import 'package:journey/features/onboarding/presentation/pages/onboarding_page.dart';
@@ -74,6 +75,14 @@ final routerProvider = Provider<GoRouter>((ref) {
         },
       ),
       GoRoute(
+        path: '${AppRoutes.books}/:bookId/story-lab',
+        name: 'story-lab',
+        builder: (context, state) {
+          final bookId = state.pathParameters['bookId']!;
+          return StoryLabPage(bookId: bookId);
+        },
+      ),
+      GoRoute(
         path: '${AppRoutes.books}/:bookId/chapters/:chapterId',
         name: 'editor',
         builder: (context, state) {
@@ -115,4 +124,6 @@ abstract final class AppRoutes {
 
   static String editor(String bookId, String chapterId) =>
       '$books/$bookId/chapters/$chapterId';
+
+  static String storyLab(String bookId) => '$books/$bookId/story-lab';
 }

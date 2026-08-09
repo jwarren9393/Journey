@@ -64,6 +64,18 @@ class _BookDetailPageState extends ConsumerState<BookDetailPage>
                 child: Text('Check continuity'),
               ),
               PopupMenuItem(
+                value: BookDetailMenuAction.fixContinuity,
+                child: Text('Fix continuity'),
+              ),
+              PopupMenuItem(
+                value: BookDetailMenuAction.storyLab,
+                child: Text('Story Lab'),
+              ),
+              PopupMenuItem(
+                value: BookDetailMenuAction.updateCanon,
+                child: Text('Update canon summary'),
+              ),
+              PopupMenuItem(
                 value: BookDetailMenuAction.askWorldBible,
                 child: Text('Ask the world bible'),
               ),
@@ -153,6 +165,16 @@ class _BookDetailPageState extends ConsumerState<BookDetailPage>
     switch (action) {
       case BookDetailMenuAction.continuityCheck:
         _runContinuityCheck();
+      case BookDetailMenuAction.fixContinuity:
+        _runFixContinuity();
+      case BookDetailMenuAction.storyLab:
+        context.push(AppRoutes.storyLab(widget.bookId));
+      case BookDetailMenuAction.updateCanon:
+        AiBookActions.runUpdateCanonSummary(
+          context: context,
+          ref: ref,
+          bookId: widget.bookId,
+        );
       case BookDetailMenuAction.askWorldBible:
         AiBookActions.runAskWorldBible(
           context: context,
@@ -213,10 +235,41 @@ class _BookDetailPageState extends ConsumerState<BookDetailPage>
       book: book,
     );
   }
+
+  Future<void> _runFixContinuity() async {
+    final book = await ref.books.getById(widget.bookId);
+    final chapters = await ref.read(
+      chaptersStreamProvider(widget.bookId).future,
+    );
+    if (!mounted) {
+      return;
+    }
+
+    if (chapters.isEmpty) {
+      showAppSnackBar(context, 'Add a chapter before fixing continuity.');
+      return;
+    }
+
+    final latestChapter = chapters.reduce(
+      (current, next) =>
+          next.updatedAt.isAfter(current.updatedAt) ? next : current,
+    );
+
+    await AiBookActions.runFixContinuity(
+      context: context,
+      ref: ref,
+      bookId: widget.bookId,
+      chapter: latestChapter,
+      book: book,
+    );
+  }
 }
 
 enum BookDetailMenuAction {
   continuityCheck,
+  fixContinuity,
+  storyLab,
+  updateCanon,
   askWorldBible,
   recap,
   edit,

@@ -2,11 +2,14 @@ import 'package:journey/core/ai/ai_context.dart';
 import 'package:journey/core/ai/ai_provider_config.dart';
 import 'package:journey/core/ai/clients/google_gemini_client.dart';
 import 'package:journey/core/ai/clients/nanogpt_client.dart';
-import 'package:journey/core/ai/models/extracted_entity.dart';
+import 'package:journey/core/ai/continuity_fix_parser.dart';
 import 'package:journey/core/ai/extracted_entity_parser.dart';
+import 'package:journey/core/ai/models/continuity_fix.dart';
+import 'package:journey/core/ai/models/extracted_entity.dart';
 import 'package:journey/core/ai/note_context_service.dart';
 import 'package:journey/core/ai/pacing_label_parser.dart';
 import 'package:journey/core/ai/prompt_templates.dart';
+import 'package:journey/core/ai/variants_parser.dart';
 import 'package:journey/core/utils/error_messages.dart';
 
 abstract interface class AiService {
@@ -26,6 +29,13 @@ class JourneyAiService implements AiService {
 
   final GoogleGeminiClient _googleClient;
   final NanoGptClient _nanoGptClient;
+
+  static const _variantActions = {
+    AiAction.rephrase,
+    AiAction.expand,
+    AiAction.sensoryEnhance,
+    AiAction.showDontTell,
+  };
 
   @override
   Future<AiResult> run({
@@ -70,24 +80,38 @@ class JourneyAiService implements AiService {
           ),
       };
 
-      final extractedEntities = action == AiAction.extractEntities
+      final extractedEntities = action == AiAction.extractEntities ||
+              action == AiAction.storyLabGlossary
           ? ExtractedEntityParser.parse(
               text,
               existingNoteTitles: NoteContextService.existingNoteTitles(
                 context.notes,
               ),
             )
-          : const <ExtractedEntity>[];
+          : <ExtractedEntity>[];
 
       final pacingLabels = action == AiAction.pacingHeatmap
           ? PacingLabelParser.parse(text, context.recentChapters)
-          : const <String, String>{};
+          : <String, String>{};
+
+      final continuityFixes = action == AiAction.fixContinuity
+          ? ContinuityFixParser.parse(text, notes: context.notes)
+          : <ContinuityFix>[];
+
+      final variants = _variantActions.contains(action) ||
+              (action == AiAction.showDontTell && context.requestVariants)
+          ? VariantsParser.parse(text)
+          : <String>[];
+
+      final displayText = variants.length > 1 ? variants.first : text;
 
       return AiResult(
-        text: text,
+        text: displayText,
         action: action,
         extractedEntities: extractedEntities,
         pacingLabels: pacingLabels,
+        variants: variants,
+        continuityFixes: continuityFixes,
       );
     } on GoogleGeminiException catch (error) {
       throw AiServiceException('Google Gemini: ${error.message}');

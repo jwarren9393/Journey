@@ -12,6 +12,9 @@ abstract interface class NoteRepository {
     required String title,
     String content = '',
     String attachmentPath = '',
+    String loreKeywords = '',
+    bool loreAlwaysInclude = false,
+    int lorePriority = 5,
   });
 
   Future<BookNote> update(BookNote note);

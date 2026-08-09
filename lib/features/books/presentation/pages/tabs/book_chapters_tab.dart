@@ -11,7 +11,9 @@ import 'package:journey/features/books/domain/services/book_exporter.dart';
 import 'package:journey/features/books/presentation/providers/book_providers.dart';
 import 'package:journey/features/books/presentation/providers/chapter_providers.dart';
 import 'package:journey/shared/widgets/ai_result_sheet.dart';
+import 'package:journey/shared/widgets/book_canon_summary_card.dart';
 import 'package:journey/shared/widgets/book_description_card.dart';
+import 'package:journey/shared/widgets/book_writing_guide_card.dart';
 import 'package:journey/shared/widgets/book_edit_dialog.dart';
 import 'package:journey/shared/widgets/empty_state.dart';
 import 'package:journey/shared/widgets/error_state.dart';
@@ -53,9 +55,17 @@ class BookChaptersTab extends ConsumerWidget {
               children: [
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-                  child: BookDescriptionCard(
-                    description: book.description,
-                    onEdit: () => editBook(context, ref, bookId, book: book),
+                  child: Column(
+                    children: [
+                      BookDescriptionCard(
+                        description: book.description,
+                        onEdit: () => editBook(context, ref, bookId, book: book),
+                      ),
+                      const SizedBox(height: 8),
+                      BookWritingGuideCard(book: book),
+                      const SizedBox(height: 8),
+                      BookCanonSummaryCard(book: book, bookId: bookId),
+                    ],
                   ),
                 ),
                 Expanded(

@@ -2,6 +2,16 @@ import 'package:journey/features/books/domain/models/book_note.dart';
 import 'package:journey/features/books/domain/models/chapter.dart';
 import 'package:journey/features/books/domain/models/note_type.dart';
 
+class TriggeredNotesResult {
+  const TriggeredNotesResult({
+    required this.notes,
+    required this.triggeredTitles,
+  });
+
+  final List<BookNote> notes;
+  final List<String> triggeredTitles;
+}
+
 abstract final class NoteContextService {
   static const _stopWords = {
     'a',
@@ -56,7 +66,94 @@ abstract final class NoteContextService {
     'your',
   };
 
+  static const _defaultCharBudget = 6000;
+
   static List<BookNote> findRelevantNotes(
+    List<BookNote> allNotes,
+    String query, {
+    int limit = 8,
+  }) {
+    return findTriggeredNotes(allNotes, query, limit: limit).notes;
+  }
+
+  /// Keyword-triggered lore with always-include notes, priority, and budget.
+  static TriggeredNotesResult findTriggeredNotes(
+    List<BookNote> allNotes,
+    String scanText, {
+    int limit = 12,
+    int charBudget = _defaultCharBudget,
+  }) {
+    final terms = _tokenize(scanText);
+    final scored = <({BookNote note, int score, bool keywordHit})>[];
+
+    for (final note in allNotes) {
+      if (note.loreAlwaysInclude) {
+        scored.add((note: note, score: 1000 + note.lorePriority, keywordHit: false));
+        continue;
+      }
+
+      var score = note.lorePriority;
+      var keywordHit = false;
+
+      for (final keyword in note.keywordList) {
+        final keywordLower = keyword.toLowerCase();
+        if (terms.contains(keywordLower) ||
+            scanText.toLowerCase().contains(keywordLower)) {
+          score += 20;
+          keywordHit = true;
+        }
+      }
+
+      if (terms.isNotEmpty) {
+        score += _scoreNote(note, terms);
+        if (score > note.lorePriority) {
+          keywordHit = true;
+        }
+      }
+
+      if (keywordHit || note.loreAlwaysInclude) {
+        scored.add((note: note, score: score, keywordHit: keywordHit));
+      }
+    }
+
+    scored.sort((a, b) => b.score.compareTo(a.score));
+
+    final selected = <BookNote>[];
+    final triggeredTitles = <String>[];
+    var usedChars = 0;
+
+    for (final entry in scored) {
+      if (selected.length >= limit) {
+        break;
+      }
+
+      final noteChars = entry.note.content.length + entry.note.title.length + 32;
+      if (usedChars + noteChars > charBudget && selected.isNotEmpty) {
+        continue;
+      }
+
+      selected.add(entry.note);
+      usedChars += noteChars;
+      if (entry.keywordHit || entry.note.loreAlwaysInclude) {
+        triggeredTitles.add(entry.note.title);
+      }
+    }
+
+    if (selected.isEmpty && terms.isNotEmpty) {
+      final fallback = findRelevantNotesLegacy(allNotes, scanText, limit: limit);
+      return TriggeredNotesResult(
+        notes: fallback,
+        triggeredTitles: fallback.map((note) => note.title).toList(),
+      );
+    }
+
+    return TriggeredNotesResult(
+      notes: selected,
+      triggeredTitles: triggeredTitles,
+    );
+  }
+
+  static List<BookNote> findRelevantNotesLegacy(
     List<BookNote> allNotes,
     String query, {
     int limit = 8,
@@ -92,26 +189,11 @@ abstract final class NoteContextService {
         )
         .toList();
 
-    final relevant = findRelevantNotes(
+    return findTriggeredNotes(
       worldbuilding,
       chapter.content,
       limit: limit,
-    );
-
-    final selected = <BookNote>[...relevant];
-    final selectedIds = selected.map((note) => note.id).toSet();
-
-    for (final note in worldbuilding) {
-      if (selected.length >= limit) {
-        break;
-      }
-      if (!selectedIds.contains(note.id)) {
-        selected.add(note);
-        selectedIds.add(note.id);
-      }
-    }
-
-    return selected;
+    ).notes;
   }
 
   static String formatNotesForPrompt(List<BookNote> notes) {
@@ -129,6 +211,26 @@ abstract final class NoteContextService {
       buffer.writeln();
     }
     return buffer.toString().trim();
+  }
+
+  static String formatBookContext({
+    required String authorsNote,
+    required String canonSummary,
+  }) {
+    final buffer = StringBuffer();
+    if (authorsNote.trim().isNotEmpty) {
+      buffer.writeln("AUTHOR'S NOTE (style guide for this book):");
+      buffer.writeln(authorsNote.trim());
+      buffer.writeln();
+    }
+    if (canonSummary.trim().isNotEmpty) {
+      buffer.writeln('CANON SUMMARY (established facts):');
+      buffer.writeln(canonSummary.trim());
+      buffer.writeln();
+    }
+
+    final result = buffer.toString().trim();
+    return result.isEmpty ? '' : '$result\n\n';
   }
 
   static Set<String> existingNoteTitles(List<BookNote> notes) {

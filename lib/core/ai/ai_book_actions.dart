@@ -3,14 +3,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:journey/app/router.dart';
 import 'package:journey/core/ai/ai_context.dart';
-import 'package:journey/core/ai/note_context_service.dart';
+import 'package:journey/core/ai/ai_context_builder.dart';
 import 'package:journey/core/providers/app_providers.dart';
 import 'package:journey/features/books/domain/models/book.dart';
 import 'package:journey/features/books/domain/models/book_note.dart';
 import 'package:journey/features/books/domain/models/chapter.dart';
+import 'package:journey/features/books/presentation/providers/book_providers.dart';
+import 'package:journey/features/books/presentation/providers/chapter_providers.dart';
 import 'package:journey/features/books/presentation/providers/note_providers.dart';
 import 'package:journey/features/editor/presentation/widgets/ask_world_bible_dialog.dart';
 import 'package:journey/shared/widgets/ai_result_sheet.dart';
+import 'package:journey/shared/widgets/continuity_fix_sheet.dart';
 import 'package:journey/shared/widgets/error_state.dart';
 import 'package:journey/shared/widgets/extract_entities_sheet.dart';
 
@@ -19,6 +22,26 @@ abstract final class AiBookActions {
     return ref.read(
       notesStreamProvider(NotesQuery(bookId: bookId)).future,
     );
+  }
+
+  static void _showLoreTriggeredSnackBar(
+    BuildContext context,
+    List<String> titles,
+  ) {
+    if (titles.isEmpty || !context.mounted) {
+      return;
+    }
+
+    final preview = titles.take(3).join(', ');
+    final suffix = titles.length > 3 ? ' (+${titles.length - 3} more)' : '';
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text('Lore included: $preview$suffix'),
+          duration: const Duration(seconds: 3),
+        ),
+      );
   }
 
   static Future<void> runContinuityCheck({
@@ -30,14 +53,10 @@ abstract final class AiBookActions {
   }) async {
     try {
       final notes = await _loadNotes(ref, bookId);
-      final relevantNotes = NoteContextService.notesForContinuityCheck(
-        notes,
-        chapter,
-      );
-      final aiContext = AiContext(
+      final aiContext = AiContextBuilder.forContinuity(
         book: book,
         chapter: chapter,
-        notes: relevantNotes,
+        allNotes: notes,
       );
       final runner = ref.read(aiActionRunnerProvider);
       final resultFuture = runner.run(
@@ -49,9 +68,50 @@ abstract final class AiBookActions {
         return;
       }
 
+      _showLoreTriggeredSnackBar(context, aiContext.triggeredNoteTitles);
+
       await showAiResultSheet(
         context: context,
         action: AiAction.continuityCheck,
+        resultFuture: resultFuture,
+      );
+    } catch (error) {
+      if (!context.mounted) {
+        return;
+      }
+      showErrorSnackBar(context, error);
+    }
+  }
+
+  static Future<void> runFixContinuity({
+    required BuildContext context,
+    required WidgetRef ref,
+    required String bookId,
+    required Chapter chapter,
+    Book? book,
+  }) async {
+    try {
+      final notes = await _loadNotes(ref, bookId);
+      final aiContext = AiContextBuilder.forContinuity(
+        book: book,
+        chapter: chapter,
+        allNotes: notes,
+      );
+      final runner = ref.read(aiActionRunnerProvider);
+      final resultFuture = runner.run(
+        action: AiAction.fixContinuity,
+        context: aiContext,
+      );
+
+      if (!context.mounted) {
+        return;
+      }
+
+      _showLoreTriggeredSnackBar(context, aiContext.triggeredNoteTitles);
+
+      await showContinuityFixSheet(
+        context: context,
+        bookId: bookId,
         resultFuture: resultFuture,
       );
     } catch (error) {
@@ -76,16 +136,11 @@ abstract final class AiBookActions {
 
     try {
       final notes = await _loadNotes(ref, bookId);
-      final relevantNotes = NoteContextService.findRelevantNotes(
-        notes,
-        question,
-        limit: 10,
-      );
-      final aiContext = AiContext(
+      final aiContext = AiContextBuilder.forWorldBible(
         book: book,
+        question: question,
+        allNotes: notes,
         chapter: chapter,
-        userPrompt: question,
-        notes: relevantNotes,
       );
       final runner = ref.read(aiActionRunnerProvider);
       final resultFuture = runner.run(
@@ -96,6 +151,8 @@ abstract final class AiBookActions {
       if (!context.mounted) {
         return;
       }
+
+      _showLoreTriggeredSnackBar(context, aiContext.triggeredNoteTitles);
 
       await showAiResultSheet(
         context: context,
@@ -156,6 +213,69 @@ abstract final class AiBookActions {
           if (context.mounted) {
             context.push(AppRoutes.noteEditor(bookId, noteId));
           }
+        },
+      );
+    } catch (error) {
+      if (!context.mounted) {
+        return;
+      }
+      showErrorSnackBar(context, error);
+    }
+  }
+
+  static Future<void> runUpdateCanonSummary({
+    required BuildContext context,
+    required WidgetRef ref,
+    required String bookId,
+    Chapter? focusChapter,
+  }) async {
+    try {
+      final book = await ref.books.getById(bookId);
+      if (book == null || !context.mounted) {
+        return;
+      }
+
+      final chapters = await ref.read(
+        chaptersStreamProvider(bookId).future,
+      );
+      final chaptersWithText = chapters
+          .where((chapter) => chapter.content.trim().isNotEmpty)
+          .toList();
+
+      if (chaptersWithText.isEmpty) {
+        if (!context.mounted) {
+          return;
+        }
+        showAppSnackBar(
+          context,
+          'Add manuscript text before updating the canon summary.',
+        );
+        return;
+      }
+
+      final aiContext = AiContextBuilder.forCanonUpdate(
+        book: book,
+        chapters: focusChapter != null ? [focusChapter] : chaptersWithText,
+        focusChapter: focusChapter,
+      );
+      final runner = ref.read(aiActionRunnerProvider);
+      final resultFuture = runner.run(
+        action: AiAction.updateCanonSummary,
+        context: aiContext,
+      );
+
+      if (!context.mounted) {
+        return;
+      }
+
+      await showAiResultSheet(
+        context: context,
+        action: AiAction.updateCanonSummary,
+        resultFuture: resultFuture,
+        replaceLabel: 'Save canon summary',
+        onReplace: (text) async {
+          await ref.books.update(book.copyWith(canonSummary: text));
+          ref.invalidate(bookProvider(bookId));
         },
       );
     } catch (error) {

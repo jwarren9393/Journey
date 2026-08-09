@@ -4,8 +4,10 @@ import 'package:journey/core/database/tables.dart';
 import 'package:journey/features/books/domain/models/book.dart' as domain;
 import 'package:journey/features/books/domain/models/book_note.dart' as domain;
 import 'package:journey/features/books/domain/models/book_tag.dart' as domain;
+import 'package:journey/features/books/domain/models/canon_pin.dart' as domain;
 import 'package:journey/features/books/domain/models/chapter.dart' as domain;
 import 'package:journey/features/books/domain/models/note_type.dart';
+import 'package:journey/features/books/domain/models/story_lab_message.dart' as domain;
 
 part 'app_database.g.dart';
 
@@ -16,23 +18,41 @@ part 'app_database.g.dart';
     BookNotesTable,
     BookTagsTable,
     BookNoteTagsTable,
+    CanonPinsTable,
+    StoryLabMessagesTable,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
         onUpgrade: (migrator, from, to) async {
           if (from < 2) {
             await migrator.addColumn(booksTable, booksTable.category);
-            await migrator.addColumn(chaptersTable, chaptersTable.outlineSummary);
+            await migrator.addColumn(
+              chaptersTable,
+              chaptersTable.outlineSummary,
+            );
             await migrator.createTable(bookNotesTable);
             await migrator.createTable(bookTagsTable);
             await migrator.createTable(bookNoteTagsTable);
+          }
+          if (from < 3) {
+            await migrator.addColumn(booksTable, booksTable.authorsNote);
+            await migrator.addColumn(booksTable, booksTable.canonSummary);
+            await migrator.addColumn(booksTable, booksTable.storyLabSummary);
+            await migrator.addColumn(bookNotesTable, bookNotesTable.loreKeywords);
+            await migrator.addColumn(
+              bookNotesTable,
+              bookNotesTable.loreAlwaysInclude,
+            );
+            await migrator.addColumn(bookNotesTable, bookNotesTable.lorePriority);
+            await migrator.createTable(canonPinsTable);
+            await migrator.createTable(storyLabMessagesTable);
           }
         },
       );
@@ -73,6 +93,9 @@ class AppDatabase extends _$AppDatabase {
     await (delete(bookNotesTable)..where((t) => t.bookId.equals(id))).go();
     await (delete(bookTagsTable)..where((t) => t.bookId.equals(id))).go();
     await (delete(chaptersTable)..where((t) => t.bookId.equals(id))).go();
+    await (delete(canonPinsTable)..where((t) => t.bookId.equals(id))).go();
+    await (delete(storyLabMessagesTable)..where((t) => t.bookId.equals(id)))
+        .go();
     await (delete(booksTable)..where((t) => t.id.equals(id))).go();
   }
 
@@ -236,12 +259,62 @@ class AppDatabase extends _$AppDatabase {
     return rows.map((row) => _mapTag(row.readTable(bookTagsTable))).toList();
   }
 
+  Stream<List<domain.CanonPin>> watchCanonPinsByBookId(String bookId) {
+    return (select(canonPinsTable)
+          ..where((t) => t.bookId.equals(bookId))
+          ..orderBy([(table) => OrderingTerm.asc(table.createdAt)]))
+        .watch()
+        .map((rows) => rows.map(_mapCanonPin).toList());
+  }
+
+  Future<domain.CanonPin> insertCanonPin(
+    CanonPinsTableCompanion companion,
+  ) async {
+    await into(canonPinsTable).insert(companion);
+    final row = await (select(canonPinsTable)
+          ..where((t) => t.id.equals(companion.id.value)))
+        .getSingle();
+    return _mapCanonPin(row);
+  }
+
+  Future<void> deleteCanonPin(String id) async {
+    await (delete(canonPinsTable)..where((t) => t.id.equals(id))).go();
+  }
+
+  Stream<List<domain.StoryLabMessage>> watchStoryLabMessagesByBookId(
+    String bookId,
+  ) {
+    return (select(storyLabMessagesTable)
+          ..where((t) => t.bookId.equals(bookId))
+          ..orderBy([(table) => OrderingTerm.asc(table.createdAt)]))
+        .watch()
+        .map((rows) => rows.map(_mapStoryLabMessage).toList());
+  }
+
+  Future<domain.StoryLabMessage> insertStoryLabMessage(
+    StoryLabMessagesTableCompanion companion,
+  ) async {
+    await into(storyLabMessagesTable).insert(companion);
+    final row = await (select(storyLabMessagesTable)
+          ..where((t) => t.id.equals(companion.id.value)))
+        .getSingle();
+    return _mapStoryLabMessage(row);
+  }
+
+  Future<void> deleteStoryLabMessagesForBook(String bookId) async {
+    await (delete(storyLabMessagesTable)..where((t) => t.bookId.equals(bookId)))
+        .go();
+  }
+
   domain.Book _mapBook(BooksTableData row) {
     return domain.Book(
       id: row.id,
       title: row.title,
       description: row.description,
       category: row.category,
+      authorsNote: row.authorsNote,
+      canonSummary: row.canonSummary,
+      storyLabSummary: row.storyLabSummary,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
     );
@@ -269,6 +342,9 @@ class AppDatabase extends _$AppDatabase {
       title: row.title,
       content: row.content,
       attachmentPath: row.attachmentPath,
+      loreKeywords: row.loreKeywords,
+      loreAlwaysInclude: row.loreAlwaysInclude,
+      lorePriority: row.lorePriority,
       sortOrder: row.sortOrder,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
@@ -284,10 +360,31 @@ class AppDatabase extends _$AppDatabase {
     );
   }
 
+  domain.CanonPin _mapCanonPin(CanonPinsTableData row) {
+    return domain.CanonPin(
+      id: row.id,
+      bookId: row.bookId,
+      text: row.pinText,
+      createdAt: row.createdAt,
+    );
+  }
+
+  domain.StoryLabMessage _mapStoryLabMessage(StoryLabMessagesTableData row) {
+    return domain.StoryLabMessage(
+      id: row.id,
+      bookId: row.bookId,
+      role: domain.StoryLabRole.fromStorage(row.role),
+      content: row.content,
+      createdAt: row.createdAt,
+    );
+  }
+
   Future<void> deleteAllData() async {
     await delete(bookNoteTagsTable).go();
     await delete(bookNotesTable).go();
     await delete(bookTagsTable).go();
+    await delete(canonPinsTable).go();
+    await delete(storyLabMessagesTable).go();
     await delete(chaptersTable).go();
     await delete(booksTable).go();
   }

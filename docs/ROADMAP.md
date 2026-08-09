@@ -118,6 +118,50 @@ Hook into existing export flow (`share_plus` / book detail export menu).
 - Full semantic search across full manuscript body (separate from world-bible note query)
 - Auto-generated prose for plot bridges (suggestions only)
 
+## Phase 6: Grounded long-form memory (complete)
+
+**Goal:** Layered, budgeted AI context that compounds over time — still **100% user-initiated**. No background AI, no auto-summarize on save, no passive checking while typing.
+
+**Design principles:**
+- Journey works fully offline as a writing app with AI disabled
+- Every AI call starts from an explicit menu action, button, or Send in Story Lab
+- Review-before-apply for destructive-ish AI outputs (fix continuity, canon save)
+
+### 6A — Per-book context (complete)
+
+- [x] **Author's note** — per-book style guide on Chapters tab; injected into all AI prompts when AI runs
+- [x] **Canon summary** — editable bullets; **AI: Update from book/chapter** on demand only
+
+### 6B — Triggered lore (complete)
+
+- [x] Note fields: keywords, always-include, priority (0–10)
+- [x] `NoteContextService.findTriggeredNotes` — keyword scan + budget when AI actions run
+- [x] "Lore included" snackbar after user-initiated AI (informational only)
+
+### 6C — Fix continuity (complete)
+
+- [x] **Fix continuity** — proposes note body updates as JSON; review sheet before apply
+
+### 6D — Variant swipes (complete)
+
+- [x] Rephrase, Expand, Sensory enhance, Show don't tell return multiple variants with pager UI
+
+### 6E — Scene paths (complete)
+
+- [x] **Scene paths** — 6 in-scene beat ideas from editor AI menu
+
+### 6F — Story Lab (complete)
+
+- [x] Story Lab page (`/books/:bookId/story-lab`) — brainstorm chat, canon pins, scene ideas, glossary extract, summarize
+- [x] Schema: `canon_pins`, `story_lab_messages`, `story_lab_summary` on book
+- [x] Backup v2 includes Phase 6 data
+
+### Phase 6 excluded
+
+- Auto-summarize on chapter save or message count
+- Always-on lore injection while typing
+- Character roleplay chat in main editor
+
 ## Open Questions
 
 Use this section to capture decisions as we discuss them:

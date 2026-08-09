@@ -10,7 +10,11 @@ import 'package:journey/features/books/data/repositories/book_repository_impl.da
 import 'package:journey/features/books/data/repositories/chapter_repository_impl.dart';
 import 'package:journey/features/books/domain/repositories/book_repository.dart';
 import 'package:journey/features/books/domain/repositories/chapter_repository.dart';
+import 'package:journey/features/books/data/repositories/canon_pin_repository_impl.dart';
 import 'package:journey/features/books/data/repositories/note_repository_impl.dart';
+import 'package:journey/features/books/data/repositories/story_lab_repository_impl.dart';
+import 'package:journey/features/books/domain/repositories/canon_pin_repository.dart';
+import 'package:journey/features/books/domain/repositories/story_lab_repository.dart';
 import 'package:journey/features/books/data/repositories/tag_repository_impl.dart';
 import 'package:journey/features/books/domain/repositories/note_repository.dart';
 import 'package:journey/features/books/domain/repositories/tag_repository.dart';
@@ -37,6 +41,14 @@ final noteRepositoryProvider = Provider<NoteRepository>((ref) {
 
 final tagRepositoryProvider = Provider<TagRepository>((ref) {
   return TagRepositoryImpl(ref.watch(databaseProvider));
+});
+
+final canonPinRepositoryProvider = Provider<CanonPinRepository>((ref) {
+  return CanonPinRepositoryImpl(ref.watch(databaseProvider));
+});
+
+final storyLabRepositoryProvider = Provider<StoryLabRepository>((ref) {
+  return StoryLabRepositoryImpl(ref.watch(databaseProvider));
 });
 
 final sharedPreferencesProvider = Provider<SharedPreferences>((ref) {

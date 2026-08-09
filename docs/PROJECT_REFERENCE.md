@@ -3,8 +3,8 @@
 > **Living document for Gemini / NotebookLM / external collaborators.**  
 > Upload this file to give full project context. Agents must update it whenever code, structure, or behavior changes.
 
-**Last updated:** 2026-08-06  
-**Version:** 1.0.0 (build number in `pubspec.yaml`; user-facing version stays 1.0.0)
+**Last updated:** 2026-08-08  
+**Version:** 1.0.0 (build 18 in `pubspec.yaml`)
 
 ---
 
@@ -12,7 +12,7 @@
 
 **Journey** is a **personal, casual** book-writing app for **Android** and **Windows** — not a commercial author platform. An **AI assistant is woven into features** through contextual actions (continue writing, rephrase, recap, etc.), not an always-on chat panel.
 
-**Current maturity:** Personal writing app with AI, focus mode, search, export, notes/worldbuilding, outline planning, tags, book categories, onboarding, appearance settings, local backup, and desktop polish.
+**Current maturity:** Personal writing app with optional user-initiated AI, focus mode, search, export, notes/worldbuilding, outline planning, Story Lab, per-book canon/author's note, triggered lore, and desktop polish.
 
 **Primary user flow:**
 1. Open app → Library
@@ -92,7 +92,10 @@ lib/
 | id | String (UUID) | Primary key |
 | title | String | Required |
 | description | String | Optional, default empty |
-| category | String | Optional casual grouping (e.g. Fantasy, Journal) |
+| category | String | Optional casual grouping |
+| authorsNote | String | Per-book AI style guide (Phase 6) |
+| canonSummary | String | Running canon bullets (Phase 6) |
+| storyLabSummary | String | Folded Story Lab summary (Phase 6) |
 | createdAt | DateTime | |
 | updatedAt | DateTime | Updated on save |
 
@@ -119,6 +122,9 @@ lib/
 | title | String | Required |
 | content | String | Plain text |
 | attachmentPath | String | Optional local file path |
+| loreKeywords | String | Comma-separated trigger keywords (Phase 6) |
+| loreAlwaysInclude | bool | Include in AI context when AI runs (Phase 6) |
+| lorePriority | int | 0–10, higher included first (Phase 6) |
 | sortOrder | int | Display order |
 | tags | List<BookTag> | Via junction table |
 
@@ -129,11 +135,27 @@ lib/
 | bookId | String | FK → Book |
 | name | String | Tag label (per book) |
 
+### CanonPin (Phase 6)
+| Field | Type | Notes |
+|-------|------|-------|
+| id | String | UUID |
+| bookId | String | FK → Book |
+| text | String | Canon fact pinned from Story Lab |
+
+### StoryLabMessage (Phase 6)
+| Field | Type | Notes |
+|-------|------|-------|
+| id | String | UUID |
+| bookId | String | FK → Book |
+| role | String | `user` or `assistant` |
+| content | String | Message body |
+| createdAt | DateTime | |
+
 ### Database
 - **Engine:** SQLite via Drift
 - **File:** `journey` (managed by drift_flutter)
-- **Schema version:** 2
-- **Tables:** `books_table`, `chapters_table`, `book_notes_table`, `book_tags_table`, `book_note_tags_table`
+- **Schema version:** 3
+- **Tables:** `books_table`, `chapters_table`, `book_notes_table`, `book_tags_table`, `book_note_tags_table`, `canon_pins_table`, `story_lab_messages_table`
 - **Cascade:** Deleting a book deletes chapters, notes, and tags
 
 ---
@@ -266,6 +288,13 @@ lib/
 - `pacingHeatmap` — Outline tab (batch labels; color-coded chips)
 - `plotBridge` — Outline tab (middle chapters; 3 bridge concepts)
 - `blurbPitchGenerator` — book detail menu / post-export snackbar (tagline, hook, blurb, query pitch)
+- `fixContinuity` — editor / book menu (review-before-apply note updates)
+- `updateCanonSummary` — Chapters tab / book menu (on-demand)
+- `scenePaths` — editor menu (6 beat ideas)
+- `storyLabBrainstorm` — Story Lab Send button
+- `storyLabSceneIdeas` — Story Lab menu
+- `storyLabGlossary` — Story Lab menu → extract entities sheet
+- `storyLabSummarize` — Story Lab menu → save storyLabSummary
 - `recapBook` — book detail app bar
 
 ### Settings storage keys (SharedPreferences)

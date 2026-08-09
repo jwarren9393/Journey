@@ -12,6 +12,8 @@ class BackupService {
 
   final AppDatabase _database;
 
+  static const backupVersion = 2;
+
   Future<String> exportBackup() async {
     final payload = await _buildPayload();
     final json = const JsonEncoder.withIndent('  ').convert(payload);
@@ -43,13 +45,13 @@ class BackupService {
   Future<void> importBackup(String jsonContent) async {
     final payload = jsonDecode(jsonContent) as Map<String, dynamic>;
     final version = payload['version'] as int? ?? 1;
-    if (version != 1) {
+    if (version != 1 && version != backupVersion) {
       throw const BackupException('Unsupported backup version.');
     }
 
     await _database.transaction(() async {
       await _database.deleteAllData();
-      await _importPayload(payload);
+      await _importPayload(payload, version: version);
     });
   }
 
@@ -59,22 +61,30 @@ class BackupService {
     final notes = await _database.select(_database.bookNotesTable).get();
     final tags = await _database.select(_database.bookTagsTable).get();
     final noteTags = await _database.select(_database.bookNoteTagsTable).get();
+    final canonPins = await _database.select(_database.canonPinsTable).get();
+    final storyLabMessages =
+        await _database.select(_database.storyLabMessagesTable).get();
 
     return {
-      'version': 1,
+      'version': backupVersion,
       'exportedAt': DateTime.now().toIso8601String(),
       'books': books.map((row) => row.toJson()).toList(),
       'chapters': chapters.map((row) => row.toJson()).toList(),
       'notes': notes.map((row) => row.toJson()).toList(),
       'tags': tags.map((row) => row.toJson()).toList(),
       'noteTags': noteTags.map((row) => row.toJson()).toList(),
+      'canonPins': canonPins.map((row) => row.toJson()).toList(),
+      'storyLabMessages': storyLabMessages.map((row) => row.toJson()).toList(),
     };
   }
 
-  Future<void> _importPayload(Map<String, dynamic> payload) async {
+  Future<void> _importPayload(
+    Map<String, dynamic> payload, {
+    required int version,
+  }) async {
     for (final row in payload['books'] as List<dynamic>) {
       await _database.into(_database.booksTable).insert(
-            _bookCompanion(row as Map<String, dynamic>),
+            _bookCompanion(row as Map<String, dynamic>, version: version),
           );
     }
     for (final row in payload['chapters'] as List<dynamic>) {
@@ -84,7 +94,7 @@ class BackupService {
     }
     for (final row in payload['notes'] as List<dynamic>) {
       await _database.into(_database.bookNotesTable).insert(
-            _noteCompanion(row as Map<String, dynamic>),
+            _noteCompanion(row as Map<String, dynamic>, version: version),
           );
     }
     for (final row in payload['tags'] as List<dynamic>) {
@@ -101,14 +111,50 @@ class BackupService {
             ),
           );
     }
+
+    if (version >= backupVersion) {
+      for (final row in payload['canonPins'] as List<dynamic>? ?? []) {
+        await _database.into(_database.canonPinsTable).insert(
+              CanonPinsTableCompanion.insert(
+                id: row['id'] as String,
+                bookId: row['bookId'] as String,
+                pinText: row['text'] as String,
+                createdAt: DateTime.parse(row['createdAt'] as String),
+              ),
+            );
+      }
+      for (final row in payload['storyLabMessages'] as List<dynamic>? ?? []) {
+        await _database.into(_database.storyLabMessagesTable).insert(
+              StoryLabMessagesTableCompanion.insert(
+                id: row['id'] as String,
+                bookId: row['bookId'] as String,
+                role: row['role'] as String,
+                content: row['content'] as String,
+                createdAt: DateTime.parse(row['createdAt'] as String),
+              ),
+            );
+      }
+    }
   }
 
-  BooksTableCompanion _bookCompanion(Map<String, dynamic> json) {
+  BooksTableCompanion _bookCompanion(
+    Map<String, dynamic> json, {
+    required int version,
+  }) {
     return BooksTableCompanion.insert(
       id: json['id'] as String,
       title: json['title'] as String,
       description: Value(json['description'] as String? ?? ''),
       category: Value(json['category'] as String? ?? ''),
+      authorsNote: Value(
+        version >= backupVersion ? json['authorsNote'] as String? ?? '' : '',
+      ),
+      canonSummary: Value(
+        version >= backupVersion ? json['canonSummary'] as String? ?? '' : '',
+      ),
+      storyLabSummary: Value(
+        version >= backupVersion ? json['storyLabSummary'] as String? ?? '' : '',
+      ),
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),
     );
@@ -127,7 +173,10 @@ class BackupService {
     );
   }
 
-  BookNotesTableCompanion _noteCompanion(Map<String, dynamic> json) {
+  BookNotesTableCompanion _noteCompanion(
+    Map<String, dynamic> json, {
+    required int version,
+  }) {
     return BookNotesTableCompanion.insert(
       id: json['id'] as String,
       bookId: json['bookId'] as String,
@@ -135,6 +184,15 @@ class BackupService {
       title: json['title'] as String,
       content: Value(json['content'] as String? ?? ''),
       attachmentPath: Value(json['attachmentPath'] as String? ?? ''),
+      loreKeywords: Value(
+        version >= backupVersion ? json['loreKeywords'] as String? ?? '' : '',
+      ),
+      loreAlwaysInclude: Value(
+        version >= backupVersion ? json['loreAlwaysInclude'] as bool? ?? false : false,
+      ),
+      lorePriority: Value(
+        version >= backupVersion ? json['lorePriority'] as int? ?? 5 : 5,
+      ),
       sortOrder: json['sortOrder'] as int,
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),

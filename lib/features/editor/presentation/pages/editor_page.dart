@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:journey/core/ai/ai_book_actions.dart';
 import 'package:journey/core/ai/ai_context.dart';
+import 'package:journey/core/ai/ai_context_builder.dart';
 import 'package:journey/core/preferences/app_preferences.dart';
 import 'package:journey/core/providers/app_preferences_provider.dart';
 import 'package:journey/core/providers/app_providers.dart';
@@ -11,6 +12,7 @@ import 'package:journey/features/books/domain/models/book.dart';
 import 'package:journey/features/books/domain/models/chapter.dart';
 import 'package:journey/features/books/presentation/providers/book_providers.dart';
 import 'package:journey/features/books/presentation/providers/chapter_providers.dart';
+import 'package:journey/features/books/presentation/providers/note_providers.dart';
 import 'package:journey/features/editor/presentation/widgets/editor_chapter_sidebar.dart';
 import 'package:journey/features/editor/presentation/widgets/sensory_sense_dialog.dart';
 import 'package:journey/features/editor/presentation/widgets/tone_voice_meter_dialog.dart';
@@ -213,10 +215,18 @@ class _EditorPageState extends ConsumerState<EditorPage> {
                   value: AiAction.toneVoiceMeter,
                   child: Text('Tone & voice meter'),
                 ),
+                const PopupMenuItem(
+                  value: AiAction.scenePaths,
+                  child: Text('Scene paths'),
+                ),
                 const PopupMenuDivider(),
                 const PopupMenuItem(
                   value: AiAction.continuityCheck,
                   child: Text('Check continuity'),
+                ),
+                const PopupMenuItem(
+                  value: AiAction.fixContinuity,
+                  child: Text('Fix continuity'),
                 ),
                 const PopupMenuItem(
                   value: AiAction.askWorldBible,
@@ -420,6 +430,22 @@ class _EditorPageState extends ConsumerState<EditorPage> {
           book: book,
         );
         return;
+      case AiAction.fixContinuity:
+        await AiBookActions.runFixContinuity(
+          context: context,
+          ref: ref,
+          bookId: widget.bookId,
+          chapter: liveChapter,
+          book: book,
+        );
+        return;
+      case AiAction.scenePaths:
+        await _runScenePaths(
+          chapter: liveChapter,
+          book: book,
+          selectedText: selectedText,
+        );
+        return;
       case AiAction.askWorldBible:
         await AiBookActions.runAskWorldBible(
           context: context,
@@ -441,6 +467,11 @@ class _EditorPageState extends ConsumerState<EditorPage> {
       case AiAction.pacingHeatmap:
       case AiAction.plotBridge:
       case AiAction.blurbPitchGenerator:
+      case AiAction.updateCanonSummary:
+      case AiAction.storyLabBrainstorm:
+      case AiAction.storyLabSceneIdeas:
+      case AiAction.storyLabGlossary:
+      case AiAction.storyLabSummarize:
         return;
       case AiAction.continueWriting:
       case AiAction.rephrase:
@@ -458,6 +489,10 @@ class _EditorPageState extends ConsumerState<EditorPage> {
               action != AiAction.showDontTell &&
               action != AiAction.continueWriting &&
               action != AiAction.summarizeChapter,
+          requestVariants: action == AiAction.rephrase ||
+              action == AiAction.expand ||
+              action == AiAction.sensoryEnhance ||
+              action == AiAction.showDontTell,
         );
         return;
     }
@@ -504,18 +539,39 @@ class _EditorPageState extends ConsumerState<EditorPage> {
     String? selectedText,
     bool canReplace = false,
     bool allowInsert = true,
+    bool requestVariants = false,
     Chapter? referenceChapter,
     String? userPrompt,
     SensorySense sensorySense = SensorySense.auto,
   }) async {
-    final aiContext = AiContext(
-      selectedText: selectedText,
-      chapter: chapter,
+    final notes = await ref.read(
+      notesStreamProvider(NotesQuery(bookId: widget.bookId)).future,
+    );
+
+    final aiContext = AiContextBuilder.forEditorAction(
       book: book,
+      chapter: chapter,
+      allNotes: notes,
+      selectedText: selectedText,
+      requestVariants: requestVariants,
       referenceChapter: referenceChapter,
       userPrompt: userPrompt,
       sensorySense: sensorySense,
     );
+
+    if (aiContext.triggeredNoteTitles.isNotEmpty && mounted) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(
+              'Lore included: ${aiContext.triggeredNoteTitles.take(3).join(', ')}'
+              '${aiContext.triggeredNoteTitles.length > 3 ? ' (+${aiContext.triggeredNoteTitles.length - 3} more)' : ''}',
+            ),
+            duration: const Duration(seconds: 3),
+          ),
+        );
+    }
 
     final runner = ref.read(aiActionRunnerProvider);
     final resultFuture = runner.run(action: action, context: aiContext);
@@ -536,6 +592,40 @@ class _EditorPageState extends ConsumerState<EditorPage> {
               _debouncer.run(() => _save(chapter));
             }
           : null,
+    );
+  }
+
+  Future<void> _runScenePaths({
+    required Chapter chapter,
+    required Book? book,
+    String? selectedText,
+  }) async {
+    final notes = await ref.read(
+      notesStreamProvider(NotesQuery(bookId: widget.bookId)).future,
+    );
+
+    final aiContext = AiContextBuilder.forEditorAction(
+      book: book,
+      chapter: chapter,
+      allNotes: notes,
+      selectedText: selectedText,
+    );
+
+    final runner = ref.read(aiActionRunnerProvider);
+    final resultFuture = runner.run(
+      action: AiAction.scenePaths,
+      context: aiContext,
+    );
+
+    await showAiResultSheet(
+      context: context,
+      action: AiAction.scenePaths,
+      resultFuture: resultFuture,
+      insertLabel: 'Append to chapter',
+      onInsert: (text) {
+        _insertText(text, replaceSelection: false);
+        _debouncer.run(() => _save(chapter));
+      },
     );
   }
 

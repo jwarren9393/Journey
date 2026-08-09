@@ -8,6 +8,8 @@ Future<void> showAiResultSheet({
   required Future<AiResult> resultFuture,
   void Function(String text)? onInsert,
   void Function(String text)? onReplace,
+  String? replaceLabel,
+  String? insertLabel,
 }) {
   return showModalBottomSheet<void>(
     context: context,
@@ -19,23 +21,36 @@ Future<void> showAiResultSheet({
         resultFuture: resultFuture,
         onInsert: onInsert,
         onReplace: onReplace,
+        replaceLabel: replaceLabel,
+        insertLabel: insertLabel,
       );
     },
   );
 }
 
-class _AiResultSheet extends StatelessWidget {
+class _AiResultSheet extends StatefulWidget {
   const _AiResultSheet({
     required this.action,
     required this.resultFuture,
     required this.onInsert,
-    this.onReplace,
+    required this.onReplace,
+    this.replaceLabel,
+    this.insertLabel,
   });
 
   final AiAction action;
   final Future<AiResult> resultFuture;
   final void Function(String text)? onInsert;
   final void Function(String text)? onReplace;
+  final String? replaceLabel;
+  final String? insertLabel;
+
+  @override
+  State<_AiResultSheet> createState() => _AiResultSheetState();
+}
+
+class _AiResultSheetState extends State<_AiResultSheet> {
+  int _variantIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -52,12 +67,12 @@ class _AiResultSheet extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              _actionLabel(action),
+              _actionLabel(widget.action),
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 12),
             FutureBuilder<AiResult>(
-              future: resultFuture,
+              future: widget.resultFuture,
               builder: (context, snapshot) {
                 if (snapshot.connectionState != ConnectionState.done) {
                   return const Padding(
@@ -89,42 +104,77 @@ class _AiResultSheet extends StatelessWidget {
                 }
 
                 final result = snapshot.data!;
+                final variants = result.variants.length > 1
+                    ? result.variants
+                    : [result.text];
+                final currentText = variants[_variantIndex.clamp(
+                  0,
+                  variants.length - 1,
+                )];
+                final hasVariants = variants.length > 1;
+
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    if (hasVariants)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          IconButton(
+                            tooltip: 'Previous variant',
+                            onPressed: _variantIndex > 0
+                                ? () => setState(() => _variantIndex--)
+                                : null,
+                            icon: const Icon(Icons.chevron_left),
+                          ),
+                          Text('${_variantIndex + 1} / ${variants.length}'),
+                          IconButton(
+                            tooltip: 'Next variant',
+                            onPressed: _variantIndex < variants.length - 1
+                                ? () => setState(() => _variantIndex++)
+                                : null,
+                            icon: const Icon(Icons.chevron_right),
+                          ),
+                        ],
+                      ),
                     ConstrainedBox(
                       constraints: BoxConstraints(
                         maxHeight: MediaQuery.sizeOf(context).height * 0.45,
                       ),
                       child: SingleChildScrollView(
-                        child: SelectableText(result.text),
+                        child: SelectableText(currentText),
                       ),
                     ),
                     const SizedBox(height: 16),
-                    if (onInsert != null || onReplace != null)
+                    if (widget.onInsert != null || widget.onReplace != null)
                       Row(
                         children: [
-                          if (onReplace != null)
+                          if (widget.onReplace != null)
                             Expanded(
                               child: OutlinedButton(
                                 onPressed: () {
-                                  onReplace!(result.text);
-                                  Navigator.of(context).pop();
-                                },
-                                child: const Text('Replace'),
-                              ),
-                            ),
-                          if (onReplace != null) const SizedBox(width: 8),
-                          if (onInsert != null)
-                            Expanded(
-                              child: FilledButton(
-                                onPressed: () {
-                                  onInsert!(result.text);
+                                  widget.onReplace!(currentText);
                                   Navigator.of(context).pop();
                                 },
                                 child: Text(
-                                  onReplace == null ? 'Insert' : 'Append',
+                                  widget.replaceLabel ??
+                                      (widget.onInsert == null
+                                          ? 'Apply'
+                                          : 'Replace'),
                                 ),
+                              ),
+                            ),
+                          if (widget.onReplace != null &&
+                              widget.onInsert != null)
+                            const SizedBox(width: 8),
+                          if (widget.onInsert != null)
+                            Expanded(
+                              child: FilledButton(
+                                onPressed: () {
+                                  widget.onInsert!(currentText);
+                                  Navigator.of(context).pop();
+                                },
+                                child: Text(widget.insertLabel ?? 'Append'),
                               ),
                             ),
                         ],
@@ -159,11 +209,18 @@ class _AiResultSheet extends StatelessWidget {
       AiAction.showDontTell => "Show, don't tell",
       AiAction.toneVoiceMeter => 'Tone & voice meter',
       AiAction.continuityCheck => 'Continuity check',
+      AiAction.fixContinuity => 'Fix continuity',
       AiAction.extractEntities => 'Discover entities',
       AiAction.askWorldBible => 'Ask the world bible',
       AiAction.pacingHeatmap => 'Pacing heatmap',
       AiAction.plotBridge => 'Plot bridge',
       AiAction.blurbPitchGenerator => 'Blurb & pitch',
+      AiAction.updateCanonSummary => 'Update canon summary',
+      AiAction.scenePaths => 'Scene paths',
+      AiAction.storyLabBrainstorm => 'Story Lab',
+      AiAction.storyLabSceneIdeas => 'Scene ideas',
+      AiAction.storyLabGlossary => 'Glossary',
+      AiAction.storyLabSummarize => 'Summarize brainstorm',
     };
   }
 }

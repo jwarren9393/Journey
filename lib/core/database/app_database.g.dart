@@ -51,6 +51,42 @@ class $BooksTableTable extends BooksTable
     requiredDuringInsert: false,
     defaultValue: const Constant(''),
   );
+  static const VerificationMeta _authorsNoteMeta = const VerificationMeta(
+    'authorsNote',
+  );
+  @override
+  late final GeneratedColumn<String> authorsNote = GeneratedColumn<String>(
+    'authors_note',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
+  static const VerificationMeta _canonSummaryMeta = const VerificationMeta(
+    'canonSummary',
+  );
+  @override
+  late final GeneratedColumn<String> canonSummary = GeneratedColumn<String>(
+    'canon_summary',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
+  static const VerificationMeta _storyLabSummaryMeta = const VerificationMeta(
+    'storyLabSummary',
+  );
+  @override
+  late final GeneratedColumn<String> storyLabSummary = GeneratedColumn<String>(
+    'story_lab_summary',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -79,6 +115,9 @@ class $BooksTableTable extends BooksTable
     title,
     description,
     category,
+    authorsNote,
+    canonSummary,
+    storyLabSummary,
     createdAt,
     updatedAt,
   ];
@@ -122,6 +161,33 @@ class $BooksTableTable extends BooksTable
         category.isAcceptableOrUnknown(data['category']!, _categoryMeta),
       );
     }
+    if (data.containsKey('authors_note')) {
+      context.handle(
+        _authorsNoteMeta,
+        authorsNote.isAcceptableOrUnknown(
+          data['authors_note']!,
+          _authorsNoteMeta,
+        ),
+      );
+    }
+    if (data.containsKey('canon_summary')) {
+      context.handle(
+        _canonSummaryMeta,
+        canonSummary.isAcceptableOrUnknown(
+          data['canon_summary']!,
+          _canonSummaryMeta,
+        ),
+      );
+    }
+    if (data.containsKey('story_lab_summary')) {
+      context.handle(
+        _storyLabSummaryMeta,
+        storyLabSummary.isAcceptableOrUnknown(
+          data['story_lab_summary']!,
+          _storyLabSummaryMeta,
+        ),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -163,6 +229,18 @@ class $BooksTableTable extends BooksTable
         DriftSqlType.string,
         data['${effectivePrefix}category'],
       )!,
+      authorsNote: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}authors_note'],
+      )!,
+      canonSummary: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}canon_summary'],
+      )!,
+      storyLabSummary: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}story_lab_summary'],
+      )!,
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -185,6 +263,9 @@ class BooksTableData extends DataClass implements Insertable<BooksTableData> {
   final String title;
   final String description;
   final String category;
+  final String authorsNote;
+  final String canonSummary;
+  final String storyLabSummary;
   final DateTime createdAt;
   final DateTime updatedAt;
   const BooksTableData({
@@ -192,6 +273,9 @@ class BooksTableData extends DataClass implements Insertable<BooksTableData> {
     required this.title,
     required this.description,
     required this.category,
+    required this.authorsNote,
+    required this.canonSummary,
+    required this.storyLabSummary,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -202,6 +286,9 @@ class BooksTableData extends DataClass implements Insertable<BooksTableData> {
     map['title'] = Variable<String>(title);
     map['description'] = Variable<String>(description);
     map['category'] = Variable<String>(category);
+    map['authors_note'] = Variable<String>(authorsNote);
+    map['canon_summary'] = Variable<String>(canonSummary);
+    map['story_lab_summary'] = Variable<String>(storyLabSummary);
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     return map;
@@ -213,6 +300,9 @@ class BooksTableData extends DataClass implements Insertable<BooksTableData> {
       title: Value(title),
       description: Value(description),
       category: Value(category),
+      authorsNote: Value(authorsNote),
+      canonSummary: Value(canonSummary),
+      storyLabSummary: Value(storyLabSummary),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
     );
@@ -228,6 +318,9 @@ class BooksTableData extends DataClass implements Insertable<BooksTableData> {
       title: serializer.fromJson<String>(json['title']),
       description: serializer.fromJson<String>(json['description']),
       category: serializer.fromJson<String>(json['category']),
+      authorsNote: serializer.fromJson<String>(json['authorsNote']),
+      canonSummary: serializer.fromJson<String>(json['canonSummary']),
+      storyLabSummary: serializer.fromJson<String>(json['storyLabSummary']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
@@ -240,6 +333,9 @@ class BooksTableData extends DataClass implements Insertable<BooksTableData> {
       'title': serializer.toJson<String>(title),
       'description': serializer.toJson<String>(description),
       'category': serializer.toJson<String>(category),
+      'authorsNote': serializer.toJson<String>(authorsNote),
+      'canonSummary': serializer.toJson<String>(canonSummary),
+      'storyLabSummary': serializer.toJson<String>(storyLabSummary),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
@@ -250,6 +346,9 @@ class BooksTableData extends DataClass implements Insertable<BooksTableData> {
     String? title,
     String? description,
     String? category,
+    String? authorsNote,
+    String? canonSummary,
+    String? storyLabSummary,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) => BooksTableData(
@@ -257,6 +356,9 @@ class BooksTableData extends DataClass implements Insertable<BooksTableData> {
     title: title ?? this.title,
     description: description ?? this.description,
     category: category ?? this.category,
+    authorsNote: authorsNote ?? this.authorsNote,
+    canonSummary: canonSummary ?? this.canonSummary,
+    storyLabSummary: storyLabSummary ?? this.storyLabSummary,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
   );
@@ -268,6 +370,15 @@ class BooksTableData extends DataClass implements Insertable<BooksTableData> {
           ? data.description.value
           : this.description,
       category: data.category.present ? data.category.value : this.category,
+      authorsNote: data.authorsNote.present
+          ? data.authorsNote.value
+          : this.authorsNote,
+      canonSummary: data.canonSummary.present
+          ? data.canonSummary.value
+          : this.canonSummary,
+      storyLabSummary: data.storyLabSummary.present
+          ? data.storyLabSummary.value
+          : this.storyLabSummary,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
@@ -280,6 +391,9 @@ class BooksTableData extends DataClass implements Insertable<BooksTableData> {
           ..write('title: $title, ')
           ..write('description: $description, ')
           ..write('category: $category, ')
+          ..write('authorsNote: $authorsNote, ')
+          ..write('canonSummary: $canonSummary, ')
+          ..write('storyLabSummary: $storyLabSummary, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -287,8 +401,17 @@ class BooksTableData extends DataClass implements Insertable<BooksTableData> {
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, title, description, category, createdAt, updatedAt);
+  int get hashCode => Object.hash(
+    id,
+    title,
+    description,
+    category,
+    authorsNote,
+    canonSummary,
+    storyLabSummary,
+    createdAt,
+    updatedAt,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -297,6 +420,9 @@ class BooksTableData extends DataClass implements Insertable<BooksTableData> {
           other.title == this.title &&
           other.description == this.description &&
           other.category == this.category &&
+          other.authorsNote == this.authorsNote &&
+          other.canonSummary == this.canonSummary &&
+          other.storyLabSummary == this.storyLabSummary &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
 }
@@ -306,6 +432,9 @@ class BooksTableCompanion extends UpdateCompanion<BooksTableData> {
   final Value<String> title;
   final Value<String> description;
   final Value<String> category;
+  final Value<String> authorsNote;
+  final Value<String> canonSummary;
+  final Value<String> storyLabSummary;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   final Value<int> rowid;
@@ -314,6 +443,9 @@ class BooksTableCompanion extends UpdateCompanion<BooksTableData> {
     this.title = const Value.absent(),
     this.description = const Value.absent(),
     this.category = const Value.absent(),
+    this.authorsNote = const Value.absent(),
+    this.canonSummary = const Value.absent(),
+    this.storyLabSummary = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -323,6 +455,9 @@ class BooksTableCompanion extends UpdateCompanion<BooksTableData> {
     required String title,
     this.description = const Value.absent(),
     this.category = const Value.absent(),
+    this.authorsNote = const Value.absent(),
+    this.canonSummary = const Value.absent(),
+    this.storyLabSummary = const Value.absent(),
     required DateTime createdAt,
     required DateTime updatedAt,
     this.rowid = const Value.absent(),
@@ -335,6 +470,9 @@ class BooksTableCompanion extends UpdateCompanion<BooksTableData> {
     Expression<String>? title,
     Expression<String>? description,
     Expression<String>? category,
+    Expression<String>? authorsNote,
+    Expression<String>? canonSummary,
+    Expression<String>? storyLabSummary,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<int>? rowid,
@@ -344,6 +482,9 @@ class BooksTableCompanion extends UpdateCompanion<BooksTableData> {
       if (title != null) 'title': title,
       if (description != null) 'description': description,
       if (category != null) 'category': category,
+      if (authorsNote != null) 'authors_note': authorsNote,
+      if (canonSummary != null) 'canon_summary': canonSummary,
+      if (storyLabSummary != null) 'story_lab_summary': storyLabSummary,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (rowid != null) 'rowid': rowid,
@@ -355,6 +496,9 @@ class BooksTableCompanion extends UpdateCompanion<BooksTableData> {
     Value<String>? title,
     Value<String>? description,
     Value<String>? category,
+    Value<String>? authorsNote,
+    Value<String>? canonSummary,
+    Value<String>? storyLabSummary,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
     Value<int>? rowid,
@@ -364,6 +508,9 @@ class BooksTableCompanion extends UpdateCompanion<BooksTableData> {
       title: title ?? this.title,
       description: description ?? this.description,
       category: category ?? this.category,
+      authorsNote: authorsNote ?? this.authorsNote,
+      canonSummary: canonSummary ?? this.canonSummary,
+      storyLabSummary: storyLabSummary ?? this.storyLabSummary,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       rowid: rowid ?? this.rowid,
@@ -385,6 +532,15 @@ class BooksTableCompanion extends UpdateCompanion<BooksTableData> {
     if (category.present) {
       map['category'] = Variable<String>(category.value);
     }
+    if (authorsNote.present) {
+      map['authors_note'] = Variable<String>(authorsNote.value);
+    }
+    if (canonSummary.present) {
+      map['canon_summary'] = Variable<String>(canonSummary.value);
+    }
+    if (storyLabSummary.present) {
+      map['story_lab_summary'] = Variable<String>(storyLabSummary.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -404,6 +560,9 @@ class BooksTableCompanion extends UpdateCompanion<BooksTableData> {
           ..write('title: $title, ')
           ..write('description: $description, ')
           ..write('category: $category, ')
+          ..write('authorsNote: $authorsNote, ')
+          ..write('canonSummary: $canonSummary, ')
+          ..write('storyLabSummary: $storyLabSummary, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('rowid: $rowid')
@@ -994,6 +1153,45 @@ class $BookNotesTableTable extends BookNotesTable
     requiredDuringInsert: false,
     defaultValue: const Constant(''),
   );
+  static const VerificationMeta _loreKeywordsMeta = const VerificationMeta(
+    'loreKeywords',
+  );
+  @override
+  late final GeneratedColumn<String> loreKeywords = GeneratedColumn<String>(
+    'lore_keywords',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
+  static const VerificationMeta _loreAlwaysIncludeMeta = const VerificationMeta(
+    'loreAlwaysInclude',
+  );
+  @override
+  late final GeneratedColumn<bool> loreAlwaysInclude = GeneratedColumn<bool>(
+    'lore_always_include',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("lore_always_include" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _lorePriorityMeta = const VerificationMeta(
+    'lorePriority',
+  );
+  @override
+  late final GeneratedColumn<int> lorePriority = GeneratedColumn<int>(
+    'lore_priority',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(5),
+  );
   static const VerificationMeta _sortOrderMeta = const VerificationMeta(
     'sortOrder',
   );
@@ -1035,6 +1233,9 @@ class $BookNotesTableTable extends BookNotesTable
     title,
     content,
     attachmentPath,
+    loreKeywords,
+    loreAlwaysInclude,
+    lorePriority,
     sortOrder,
     createdAt,
     updatedAt,
@@ -1095,6 +1296,33 @@ class $BookNotesTableTable extends BookNotesTable
         ),
       );
     }
+    if (data.containsKey('lore_keywords')) {
+      context.handle(
+        _loreKeywordsMeta,
+        loreKeywords.isAcceptableOrUnknown(
+          data['lore_keywords']!,
+          _loreKeywordsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('lore_always_include')) {
+      context.handle(
+        _loreAlwaysIncludeMeta,
+        loreAlwaysInclude.isAcceptableOrUnknown(
+          data['lore_always_include']!,
+          _loreAlwaysIncludeMeta,
+        ),
+      );
+    }
+    if (data.containsKey('lore_priority')) {
+      context.handle(
+        _lorePriorityMeta,
+        lorePriority.isAcceptableOrUnknown(
+          data['lore_priority']!,
+          _lorePriorityMeta,
+        ),
+      );
+    }
     if (data.containsKey('sort_order')) {
       context.handle(
         _sortOrderMeta,
@@ -1152,6 +1380,18 @@ class $BookNotesTableTable extends BookNotesTable
         DriftSqlType.string,
         data['${effectivePrefix}attachment_path'],
       )!,
+      loreKeywords: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}lore_keywords'],
+      )!,
+      loreAlwaysInclude: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}lore_always_include'],
+      )!,
+      lorePriority: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}lore_priority'],
+      )!,
       sortOrder: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}sort_order'],
@@ -1181,6 +1421,9 @@ class BookNotesTableData extends DataClass
   final String title;
   final String content;
   final String attachmentPath;
+  final String loreKeywords;
+  final bool loreAlwaysInclude;
+  final int lorePriority;
   final int sortOrder;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -1191,6 +1434,9 @@ class BookNotesTableData extends DataClass
     required this.title,
     required this.content,
     required this.attachmentPath,
+    required this.loreKeywords,
+    required this.loreAlwaysInclude,
+    required this.lorePriority,
     required this.sortOrder,
     required this.createdAt,
     required this.updatedAt,
@@ -1204,6 +1450,9 @@ class BookNotesTableData extends DataClass
     map['title'] = Variable<String>(title);
     map['content'] = Variable<String>(content);
     map['attachment_path'] = Variable<String>(attachmentPath);
+    map['lore_keywords'] = Variable<String>(loreKeywords);
+    map['lore_always_include'] = Variable<bool>(loreAlwaysInclude);
+    map['lore_priority'] = Variable<int>(lorePriority);
     map['sort_order'] = Variable<int>(sortOrder);
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
@@ -1218,6 +1467,9 @@ class BookNotesTableData extends DataClass
       title: Value(title),
       content: Value(content),
       attachmentPath: Value(attachmentPath),
+      loreKeywords: Value(loreKeywords),
+      loreAlwaysInclude: Value(loreAlwaysInclude),
+      lorePriority: Value(lorePriority),
       sortOrder: Value(sortOrder),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
@@ -1236,6 +1488,9 @@ class BookNotesTableData extends DataClass
       title: serializer.fromJson<String>(json['title']),
       content: serializer.fromJson<String>(json['content']),
       attachmentPath: serializer.fromJson<String>(json['attachmentPath']),
+      loreKeywords: serializer.fromJson<String>(json['loreKeywords']),
+      loreAlwaysInclude: serializer.fromJson<bool>(json['loreAlwaysInclude']),
+      lorePriority: serializer.fromJson<int>(json['lorePriority']),
       sortOrder: serializer.fromJson<int>(json['sortOrder']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
@@ -1251,6 +1506,9 @@ class BookNotesTableData extends DataClass
       'title': serializer.toJson<String>(title),
       'content': serializer.toJson<String>(content),
       'attachmentPath': serializer.toJson<String>(attachmentPath),
+      'loreKeywords': serializer.toJson<String>(loreKeywords),
+      'loreAlwaysInclude': serializer.toJson<bool>(loreAlwaysInclude),
+      'lorePriority': serializer.toJson<int>(lorePriority),
       'sortOrder': serializer.toJson<int>(sortOrder),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
@@ -1264,6 +1522,9 @@ class BookNotesTableData extends DataClass
     String? title,
     String? content,
     String? attachmentPath,
+    String? loreKeywords,
+    bool? loreAlwaysInclude,
+    int? lorePriority,
     int? sortOrder,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -1274,6 +1535,9 @@ class BookNotesTableData extends DataClass
     title: title ?? this.title,
     content: content ?? this.content,
     attachmentPath: attachmentPath ?? this.attachmentPath,
+    loreKeywords: loreKeywords ?? this.loreKeywords,
+    loreAlwaysInclude: loreAlwaysInclude ?? this.loreAlwaysInclude,
+    lorePriority: lorePriority ?? this.lorePriority,
     sortOrder: sortOrder ?? this.sortOrder,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
@@ -1288,6 +1552,15 @@ class BookNotesTableData extends DataClass
       attachmentPath: data.attachmentPath.present
           ? data.attachmentPath.value
           : this.attachmentPath,
+      loreKeywords: data.loreKeywords.present
+          ? data.loreKeywords.value
+          : this.loreKeywords,
+      loreAlwaysInclude: data.loreAlwaysInclude.present
+          ? data.loreAlwaysInclude.value
+          : this.loreAlwaysInclude,
+      lorePriority: data.lorePriority.present
+          ? data.lorePriority.value
+          : this.lorePriority,
       sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
@@ -1303,6 +1576,9 @@ class BookNotesTableData extends DataClass
           ..write('title: $title, ')
           ..write('content: $content, ')
           ..write('attachmentPath: $attachmentPath, ')
+          ..write('loreKeywords: $loreKeywords, ')
+          ..write('loreAlwaysInclude: $loreAlwaysInclude, ')
+          ..write('lorePriority: $lorePriority, ')
           ..write('sortOrder: $sortOrder, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
@@ -1318,6 +1594,9 @@ class BookNotesTableData extends DataClass
     title,
     content,
     attachmentPath,
+    loreKeywords,
+    loreAlwaysInclude,
+    lorePriority,
     sortOrder,
     createdAt,
     updatedAt,
@@ -1332,6 +1611,9 @@ class BookNotesTableData extends DataClass
           other.title == this.title &&
           other.content == this.content &&
           other.attachmentPath == this.attachmentPath &&
+          other.loreKeywords == this.loreKeywords &&
+          other.loreAlwaysInclude == this.loreAlwaysInclude &&
+          other.lorePriority == this.lorePriority &&
           other.sortOrder == this.sortOrder &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
@@ -1344,6 +1626,9 @@ class BookNotesTableCompanion extends UpdateCompanion<BookNotesTableData> {
   final Value<String> title;
   final Value<String> content;
   final Value<String> attachmentPath;
+  final Value<String> loreKeywords;
+  final Value<bool> loreAlwaysInclude;
+  final Value<int> lorePriority;
   final Value<int> sortOrder;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
@@ -1355,6 +1640,9 @@ class BookNotesTableCompanion extends UpdateCompanion<BookNotesTableData> {
     this.title = const Value.absent(),
     this.content = const Value.absent(),
     this.attachmentPath = const Value.absent(),
+    this.loreKeywords = const Value.absent(),
+    this.loreAlwaysInclude = const Value.absent(),
+    this.lorePriority = const Value.absent(),
     this.sortOrder = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
@@ -1367,6 +1655,9 @@ class BookNotesTableCompanion extends UpdateCompanion<BookNotesTableData> {
     required String title,
     this.content = const Value.absent(),
     this.attachmentPath = const Value.absent(),
+    this.loreKeywords = const Value.absent(),
+    this.loreAlwaysInclude = const Value.absent(),
+    this.lorePriority = const Value.absent(),
     required int sortOrder,
     required DateTime createdAt,
     required DateTime updatedAt,
@@ -1385,6 +1676,9 @@ class BookNotesTableCompanion extends UpdateCompanion<BookNotesTableData> {
     Expression<String>? title,
     Expression<String>? content,
     Expression<String>? attachmentPath,
+    Expression<String>? loreKeywords,
+    Expression<bool>? loreAlwaysInclude,
+    Expression<int>? lorePriority,
     Expression<int>? sortOrder,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
@@ -1397,6 +1691,9 @@ class BookNotesTableCompanion extends UpdateCompanion<BookNotesTableData> {
       if (title != null) 'title': title,
       if (content != null) 'content': content,
       if (attachmentPath != null) 'attachment_path': attachmentPath,
+      if (loreKeywords != null) 'lore_keywords': loreKeywords,
+      if (loreAlwaysInclude != null) 'lore_always_include': loreAlwaysInclude,
+      if (lorePriority != null) 'lore_priority': lorePriority,
       if (sortOrder != null) 'sort_order': sortOrder,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
@@ -1411,6 +1708,9 @@ class BookNotesTableCompanion extends UpdateCompanion<BookNotesTableData> {
     Value<String>? title,
     Value<String>? content,
     Value<String>? attachmentPath,
+    Value<String>? loreKeywords,
+    Value<bool>? loreAlwaysInclude,
+    Value<int>? lorePriority,
     Value<int>? sortOrder,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
@@ -1423,6 +1723,9 @@ class BookNotesTableCompanion extends UpdateCompanion<BookNotesTableData> {
       title: title ?? this.title,
       content: content ?? this.content,
       attachmentPath: attachmentPath ?? this.attachmentPath,
+      loreKeywords: loreKeywords ?? this.loreKeywords,
+      loreAlwaysInclude: loreAlwaysInclude ?? this.loreAlwaysInclude,
+      lorePriority: lorePriority ?? this.lorePriority,
       sortOrder: sortOrder ?? this.sortOrder,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -1451,6 +1754,15 @@ class BookNotesTableCompanion extends UpdateCompanion<BookNotesTableData> {
     if (attachmentPath.present) {
       map['attachment_path'] = Variable<String>(attachmentPath.value);
     }
+    if (loreKeywords.present) {
+      map['lore_keywords'] = Variable<String>(loreKeywords.value);
+    }
+    if (loreAlwaysInclude.present) {
+      map['lore_always_include'] = Variable<bool>(loreAlwaysInclude.value);
+    }
+    if (lorePriority.present) {
+      map['lore_priority'] = Variable<int>(lorePriority.value);
+    }
     if (sortOrder.present) {
       map['sort_order'] = Variable<int>(sortOrder.value);
     }
@@ -1475,6 +1787,9 @@ class BookNotesTableCompanion extends UpdateCompanion<BookNotesTableData> {
           ..write('title: $title, ')
           ..write('content: $content, ')
           ..write('attachmentPath: $attachmentPath, ')
+          ..write('loreKeywords: $loreKeywords, ')
+          ..write('loreAlwaysInclude: $loreAlwaysInclude, ')
+          ..write('lorePriority: $lorePriority, ')
           ..write('sortOrder: $sortOrder, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
@@ -1967,6 +2282,680 @@ class BookNoteTagsTableCompanion
   }
 }
 
+class $CanonPinsTableTable extends CanonPinsTable
+    with TableInfo<$CanonPinsTableTable, CanonPinsTableData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CanonPinsTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _bookIdMeta = const VerificationMeta('bookId');
+  @override
+  late final GeneratedColumn<String> bookId = GeneratedColumn<String>(
+    'book_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES books_table (id)',
+    ),
+  );
+  static const VerificationMeta _pinTextMeta = const VerificationMeta(
+    'pinText',
+  );
+  @override
+  late final GeneratedColumn<String> pinText = GeneratedColumn<String>(
+    'pin_text',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, bookId, pinText, createdAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'canon_pins_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CanonPinsTableData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('book_id')) {
+      context.handle(
+        _bookIdMeta,
+        bookId.isAcceptableOrUnknown(data['book_id']!, _bookIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_bookIdMeta);
+    }
+    if (data.containsKey('pin_text')) {
+      context.handle(
+        _pinTextMeta,
+        pinText.isAcceptableOrUnknown(data['pin_text']!, _pinTextMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_pinTextMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  CanonPinsTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CanonPinsTableData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      bookId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}book_id'],
+      )!,
+      pinText: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}pin_text'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $CanonPinsTableTable createAlias(String alias) {
+    return $CanonPinsTableTable(attachedDatabase, alias);
+  }
+}
+
+class CanonPinsTableData extends DataClass
+    implements Insertable<CanonPinsTableData> {
+  final String id;
+  final String bookId;
+  final String pinText;
+  final DateTime createdAt;
+  const CanonPinsTableData({
+    required this.id,
+    required this.bookId,
+    required this.pinText,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['book_id'] = Variable<String>(bookId);
+    map['pin_text'] = Variable<String>(pinText);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  CanonPinsTableCompanion toCompanion(bool nullToAbsent) {
+    return CanonPinsTableCompanion(
+      id: Value(id),
+      bookId: Value(bookId),
+      pinText: Value(pinText),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory CanonPinsTableData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CanonPinsTableData(
+      id: serializer.fromJson<String>(json['id']),
+      bookId: serializer.fromJson<String>(json['bookId']),
+      pinText: serializer.fromJson<String>(json['pinText']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'bookId': serializer.toJson<String>(bookId),
+      'pinText': serializer.toJson<String>(pinText),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  CanonPinsTableData copyWith({
+    String? id,
+    String? bookId,
+    String? pinText,
+    DateTime? createdAt,
+  }) => CanonPinsTableData(
+    id: id ?? this.id,
+    bookId: bookId ?? this.bookId,
+    pinText: pinText ?? this.pinText,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  CanonPinsTableData copyWithCompanion(CanonPinsTableCompanion data) {
+    return CanonPinsTableData(
+      id: data.id.present ? data.id.value : this.id,
+      bookId: data.bookId.present ? data.bookId.value : this.bookId,
+      pinText: data.pinText.present ? data.pinText.value : this.pinText,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CanonPinsTableData(')
+          ..write('id: $id, ')
+          ..write('bookId: $bookId, ')
+          ..write('pinText: $pinText, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, bookId, pinText, createdAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CanonPinsTableData &&
+          other.id == this.id &&
+          other.bookId == this.bookId &&
+          other.pinText == this.pinText &&
+          other.createdAt == this.createdAt);
+}
+
+class CanonPinsTableCompanion extends UpdateCompanion<CanonPinsTableData> {
+  final Value<String> id;
+  final Value<String> bookId;
+  final Value<String> pinText;
+  final Value<DateTime> createdAt;
+  final Value<int> rowid;
+  const CanonPinsTableCompanion({
+    this.id = const Value.absent(),
+    this.bookId = const Value.absent(),
+    this.pinText = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CanonPinsTableCompanion.insert({
+    required String id,
+    required String bookId,
+    required String pinText,
+    required DateTime createdAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       bookId = Value(bookId),
+       pinText = Value(pinText),
+       createdAt = Value(createdAt);
+  static Insertable<CanonPinsTableData> custom({
+    Expression<String>? id,
+    Expression<String>? bookId,
+    Expression<String>? pinText,
+    Expression<DateTime>? createdAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (bookId != null) 'book_id': bookId,
+      if (pinText != null) 'pin_text': pinText,
+      if (createdAt != null) 'created_at': createdAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CanonPinsTableCompanion copyWith({
+    Value<String>? id,
+    Value<String>? bookId,
+    Value<String>? pinText,
+    Value<DateTime>? createdAt,
+    Value<int>? rowid,
+  }) {
+    return CanonPinsTableCompanion(
+      id: id ?? this.id,
+      bookId: bookId ?? this.bookId,
+      pinText: pinText ?? this.pinText,
+      createdAt: createdAt ?? this.createdAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (bookId.present) {
+      map['book_id'] = Variable<String>(bookId.value);
+    }
+    if (pinText.present) {
+      map['pin_text'] = Variable<String>(pinText.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CanonPinsTableCompanion(')
+          ..write('id: $id, ')
+          ..write('bookId: $bookId, ')
+          ..write('pinText: $pinText, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $StoryLabMessagesTableTable extends StoryLabMessagesTable
+    with TableInfo<$StoryLabMessagesTableTable, StoryLabMessagesTableData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $StoryLabMessagesTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _bookIdMeta = const VerificationMeta('bookId');
+  @override
+  late final GeneratedColumn<String> bookId = GeneratedColumn<String>(
+    'book_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES books_table (id)',
+    ),
+  );
+  static const VerificationMeta _roleMeta = const VerificationMeta('role');
+  @override
+  late final GeneratedColumn<String> role = GeneratedColumn<String>(
+    'role',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _contentMeta = const VerificationMeta(
+    'content',
+  );
+  @override
+  late final GeneratedColumn<String> content = GeneratedColumn<String>(
+    'content',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, bookId, role, content, createdAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'story_lab_messages_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<StoryLabMessagesTableData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('book_id')) {
+      context.handle(
+        _bookIdMeta,
+        bookId.isAcceptableOrUnknown(data['book_id']!, _bookIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_bookIdMeta);
+    }
+    if (data.containsKey('role')) {
+      context.handle(
+        _roleMeta,
+        role.isAcceptableOrUnknown(data['role']!, _roleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_roleMeta);
+    }
+    if (data.containsKey('content')) {
+      context.handle(
+        _contentMeta,
+        content.isAcceptableOrUnknown(data['content']!, _contentMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_contentMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  StoryLabMessagesTableData map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return StoryLabMessagesTableData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      bookId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}book_id'],
+      )!,
+      role: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}role'],
+      )!,
+      content: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}content'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $StoryLabMessagesTableTable createAlias(String alias) {
+    return $StoryLabMessagesTableTable(attachedDatabase, alias);
+  }
+}
+
+class StoryLabMessagesTableData extends DataClass
+    implements Insertable<StoryLabMessagesTableData> {
+  final String id;
+  final String bookId;
+  final String role;
+  final String content;
+  final DateTime createdAt;
+  const StoryLabMessagesTableData({
+    required this.id,
+    required this.bookId,
+    required this.role,
+    required this.content,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['book_id'] = Variable<String>(bookId);
+    map['role'] = Variable<String>(role);
+    map['content'] = Variable<String>(content);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  StoryLabMessagesTableCompanion toCompanion(bool nullToAbsent) {
+    return StoryLabMessagesTableCompanion(
+      id: Value(id),
+      bookId: Value(bookId),
+      role: Value(role),
+      content: Value(content),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory StoryLabMessagesTableData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return StoryLabMessagesTableData(
+      id: serializer.fromJson<String>(json['id']),
+      bookId: serializer.fromJson<String>(json['bookId']),
+      role: serializer.fromJson<String>(json['role']),
+      content: serializer.fromJson<String>(json['content']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'bookId': serializer.toJson<String>(bookId),
+      'role': serializer.toJson<String>(role),
+      'content': serializer.toJson<String>(content),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  StoryLabMessagesTableData copyWith({
+    String? id,
+    String? bookId,
+    String? role,
+    String? content,
+    DateTime? createdAt,
+  }) => StoryLabMessagesTableData(
+    id: id ?? this.id,
+    bookId: bookId ?? this.bookId,
+    role: role ?? this.role,
+    content: content ?? this.content,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  StoryLabMessagesTableData copyWithCompanion(
+    StoryLabMessagesTableCompanion data,
+  ) {
+    return StoryLabMessagesTableData(
+      id: data.id.present ? data.id.value : this.id,
+      bookId: data.bookId.present ? data.bookId.value : this.bookId,
+      role: data.role.present ? data.role.value : this.role,
+      content: data.content.present ? data.content.value : this.content,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('StoryLabMessagesTableData(')
+          ..write('id: $id, ')
+          ..write('bookId: $bookId, ')
+          ..write('role: $role, ')
+          ..write('content: $content, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, bookId, role, content, createdAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is StoryLabMessagesTableData &&
+          other.id == this.id &&
+          other.bookId == this.bookId &&
+          other.role == this.role &&
+          other.content == this.content &&
+          other.createdAt == this.createdAt);
+}
+
+class StoryLabMessagesTableCompanion
+    extends UpdateCompanion<StoryLabMessagesTableData> {
+  final Value<String> id;
+  final Value<String> bookId;
+  final Value<String> role;
+  final Value<String> content;
+  final Value<DateTime> createdAt;
+  final Value<int> rowid;
+  const StoryLabMessagesTableCompanion({
+    this.id = const Value.absent(),
+    this.bookId = const Value.absent(),
+    this.role = const Value.absent(),
+    this.content = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  StoryLabMessagesTableCompanion.insert({
+    required String id,
+    required String bookId,
+    required String role,
+    required String content,
+    required DateTime createdAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       bookId = Value(bookId),
+       role = Value(role),
+       content = Value(content),
+       createdAt = Value(createdAt);
+  static Insertable<StoryLabMessagesTableData> custom({
+    Expression<String>? id,
+    Expression<String>? bookId,
+    Expression<String>? role,
+    Expression<String>? content,
+    Expression<DateTime>? createdAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (bookId != null) 'book_id': bookId,
+      if (role != null) 'role': role,
+      if (content != null) 'content': content,
+      if (createdAt != null) 'created_at': createdAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  StoryLabMessagesTableCompanion copyWith({
+    Value<String>? id,
+    Value<String>? bookId,
+    Value<String>? role,
+    Value<String>? content,
+    Value<DateTime>? createdAt,
+    Value<int>? rowid,
+  }) {
+    return StoryLabMessagesTableCompanion(
+      id: id ?? this.id,
+      bookId: bookId ?? this.bookId,
+      role: role ?? this.role,
+      content: content ?? this.content,
+      createdAt: createdAt ?? this.createdAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (bookId.present) {
+      map['book_id'] = Variable<String>(bookId.value);
+    }
+    if (role.present) {
+      map['role'] = Variable<String>(role.value);
+    }
+    if (content.present) {
+      map['content'] = Variable<String>(content.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('StoryLabMessagesTableCompanion(')
+          ..write('id: $id, ')
+          ..write('bookId: $bookId, ')
+          ..write('role: $role, ')
+          ..write('content: $content, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -1976,6 +2965,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $BookTagsTableTable bookTagsTable = $BookTagsTableTable(this);
   late final $BookNoteTagsTableTable bookNoteTagsTable =
       $BookNoteTagsTableTable(this);
+  late final $CanonPinsTableTable canonPinsTable = $CanonPinsTableTable(this);
+  late final $StoryLabMessagesTableTable storyLabMessagesTable =
+      $StoryLabMessagesTableTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -1986,6 +2978,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     bookNotesTable,
     bookTagsTable,
     bookNoteTagsTable,
+    canonPinsTable,
+    storyLabMessagesTable,
   ];
 }
 
@@ -1995,6 +2989,9 @@ typedef $$BooksTableTableCreateCompanionBuilder =
       required String title,
       Value<String> description,
       Value<String> category,
+      Value<String> authorsNote,
+      Value<String> canonSummary,
+      Value<String> storyLabSummary,
       required DateTime createdAt,
       required DateTime updatedAt,
       Value<int> rowid,
@@ -2005,6 +3002,9 @@ typedef $$BooksTableTableUpdateCompanionBuilder =
       Value<String> title,
       Value<String> description,
       Value<String> category,
+      Value<String> authorsNote,
+      Value<String> canonSummary,
+      Value<String> storyLabSummary,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
       Value<int> rowid,
@@ -2067,6 +3067,49 @@ final class $$BooksTableTableReferences
       manager.$state.copyWith(prefetchedData: cache),
     );
   }
+
+  static MultiTypedResultKey<$CanonPinsTableTable, List<CanonPinsTableData>>
+  _canonPinsTableRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.canonPinsTable,
+    aliasName: 'books_table__id__canon_pins_table__book_id',
+  );
+
+  $$CanonPinsTableTableProcessedTableManager get canonPinsTableRefs {
+    final manager = $$CanonPinsTableTableTableManager(
+      $_db,
+      $_db.canonPinsTable,
+    ).filter((f) => f.bookId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_canonPinsTableRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<
+    $StoryLabMessagesTableTable,
+    List<StoryLabMessagesTableData>
+  >
+  _storyLabMessagesTableRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.storyLabMessagesTable,
+        aliasName: 'books_table__id__story_lab_messages_table__book_id',
+      );
+
+  $$StoryLabMessagesTableTableProcessedTableManager
+  get storyLabMessagesTableRefs {
+    final manager = $$StoryLabMessagesTableTableTableManager(
+      $_db,
+      $_db.storyLabMessagesTable,
+    ).filter((f) => f.bookId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _storyLabMessagesTableRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
 }
 
 class $$BooksTableTableFilterComposer
@@ -2095,6 +3138,21 @@ class $$BooksTableTableFilterComposer
 
   ColumnFilters<String> get category => $composableBuilder(
     column: $table.category,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get authorsNote => $composableBuilder(
+    column: $table.authorsNote,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get canonSummary => $composableBuilder(
+    column: $table.canonSummary,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get storyLabSummary => $composableBuilder(
+    column: $table.storyLabSummary,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -2182,6 +3240,57 @@ class $$BooksTableTableFilterComposer
     );
     return f(composer);
   }
+
+  Expression<bool> canonPinsTableRefs(
+    Expression<bool> Function($$CanonPinsTableTableFilterComposer f) f,
+  ) {
+    final $$CanonPinsTableTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.canonPinsTable,
+      getReferencedColumn: (t) => t.bookId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CanonPinsTableTableFilterComposer(
+            $db: $db,
+            $table: $db.canonPinsTable,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> storyLabMessagesTableRefs(
+    Expression<bool> Function($$StoryLabMessagesTableTableFilterComposer f) f,
+  ) {
+    final $$StoryLabMessagesTableTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.storyLabMessagesTable,
+          getReferencedColumn: (t) => t.bookId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$StoryLabMessagesTableTableFilterComposer(
+                $db: $db,
+                $table: $db.storyLabMessagesTable,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
 }
 
 class $$BooksTableTableOrderingComposer
@@ -2210,6 +3319,21 @@ class $$BooksTableTableOrderingComposer
 
   ColumnOrderings<String> get category => $composableBuilder(
     column: $table.category,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get authorsNote => $composableBuilder(
+    column: $table.authorsNote,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get canonSummary => $composableBuilder(
+    column: $table.canonSummary,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get storyLabSummary => $composableBuilder(
+    column: $table.storyLabSummary,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -2246,6 +3370,21 @@ class $$BooksTableTableAnnotationComposer
 
   GeneratedColumn<String> get category =>
       $composableBuilder(column: $table.category, builder: (column) => column);
+
+  GeneratedColumn<String> get authorsNote => $composableBuilder(
+    column: $table.authorsNote,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get canonSummary => $composableBuilder(
+    column: $table.canonSummary,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get storyLabSummary => $composableBuilder(
+    column: $table.storyLabSummary,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -2327,6 +3466,57 @@ class $$BooksTableTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> canonPinsTableRefs<T extends Object>(
+    Expression<T> Function($$CanonPinsTableTableAnnotationComposer a) f,
+  ) {
+    final $$CanonPinsTableTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.canonPinsTable,
+      getReferencedColumn: (t) => t.bookId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CanonPinsTableTableAnnotationComposer(
+            $db: $db,
+            $table: $db.canonPinsTable,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<T> storyLabMessagesTableRefs<T extends Object>(
+    Expression<T> Function($$StoryLabMessagesTableTableAnnotationComposer a) f,
+  ) {
+    final $$StoryLabMessagesTableTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.storyLabMessagesTable,
+          getReferencedColumn: (t) => t.bookId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$StoryLabMessagesTableTableAnnotationComposer(
+                $db: $db,
+                $table: $db.storyLabMessagesTable,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
 }
 
 class $$BooksTableTableTableManager
@@ -2346,6 +3536,8 @@ class $$BooksTableTableTableManager
             bool chaptersTableRefs,
             bool bookNotesTableRefs,
             bool bookTagsTableRefs,
+            bool canonPinsTableRefs,
+            bool storyLabMessagesTableRefs,
           })
         > {
   $$BooksTableTableTableManager(_$AppDatabase db, $BooksTableTable table)
@@ -2365,6 +3557,9 @@ class $$BooksTableTableTableManager
                 Value<String> title = const Value.absent(),
                 Value<String> description = const Value.absent(),
                 Value<String> category = const Value.absent(),
+                Value<String> authorsNote = const Value.absent(),
+                Value<String> canonSummary = const Value.absent(),
+                Value<String> storyLabSummary = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -2373,6 +3568,9 @@ class $$BooksTableTableTableManager
                 title: title,
                 description: description,
                 category: category,
+                authorsNote: authorsNote,
+                canonSummary: canonSummary,
+                storyLabSummary: storyLabSummary,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 rowid: rowid,
@@ -2383,6 +3581,9 @@ class $$BooksTableTableTableManager
                 required String title,
                 Value<String> description = const Value.absent(),
                 Value<String> category = const Value.absent(),
+                Value<String> authorsNote = const Value.absent(),
+                Value<String> canonSummary = const Value.absent(),
+                Value<String> storyLabSummary = const Value.absent(),
                 required DateTime createdAt,
                 required DateTime updatedAt,
                 Value<int> rowid = const Value.absent(),
@@ -2391,6 +3592,9 @@ class $$BooksTableTableTableManager
                 title: title,
                 description: description,
                 category: category,
+                authorsNote: authorsNote,
+                canonSummary: canonSummary,
+                storyLabSummary: storyLabSummary,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 rowid: rowid,
@@ -2408,6 +3612,8 @@ class $$BooksTableTableTableManager
                 chaptersTableRefs = false,
                 bookNotesTableRefs = false,
                 bookTagsTableRefs = false,
+                canonPinsTableRefs = false,
+                storyLabMessagesTableRefs = false,
               }) {
                 return PrefetchHooks(
                   db: db,
@@ -2415,6 +3621,8 @@ class $$BooksTableTableTableManager
                     if (chaptersTableRefs) db.chaptersTable,
                     if (bookNotesTableRefs) db.bookNotesTable,
                     if (bookTagsTableRefs) db.bookTagsTable,
+                    if (canonPinsTableRefs) db.canonPinsTable,
+                    if (storyLabMessagesTableRefs) db.storyLabMessagesTable,
                   ],
                   addJoins: null,
                   getPrefetchedDataCallback: (items) async {
@@ -2482,6 +3690,48 @@ class $$BooksTableTableTableManager
                               ),
                           typedResults: items,
                         ),
+                      if (canonPinsTableRefs)
+                        await $_getPrefetchedData<
+                          BooksTableData,
+                          $BooksTableTable,
+                          CanonPinsTableData
+                        >(
+                          currentTable: table,
+                          referencedTable: $$BooksTableTableReferences
+                              ._canonPinsTableRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$BooksTableTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).canonPinsTableRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.bookId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (storyLabMessagesTableRefs)
+                        await $_getPrefetchedData<
+                          BooksTableData,
+                          $BooksTableTable,
+                          StoryLabMessagesTableData
+                        >(
+                          currentTable: table,
+                          referencedTable: $$BooksTableTableReferences
+                              ._storyLabMessagesTableRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$BooksTableTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).storyLabMessagesTableRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.bookId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                     ];
                   },
                 );
@@ -2506,6 +3756,8 @@ typedef $$BooksTableTableProcessedTableManager =
         bool chaptersTableRefs,
         bool bookNotesTableRefs,
         bool bookTagsTableRefs,
+        bool canonPinsTableRefs,
+        bool storyLabMessagesTableRefs,
       })
     >;
 typedef $$ChaptersTableTableCreateCompanionBuilder =
@@ -2897,6 +4149,9 @@ typedef $$BookNotesTableTableCreateCompanionBuilder =
       required String title,
       Value<String> content,
       Value<String> attachmentPath,
+      Value<String> loreKeywords,
+      Value<bool> loreAlwaysInclude,
+      Value<int> lorePriority,
       required int sortOrder,
       required DateTime createdAt,
       required DateTime updatedAt,
@@ -2910,6 +4165,9 @@ typedef $$BookNotesTableTableUpdateCompanionBuilder =
       Value<String> title,
       Value<String> content,
       Value<String> attachmentPath,
+      Value<String> loreKeywords,
+      Value<bool> loreAlwaysInclude,
+      Value<int> lorePriority,
       Value<int> sortOrder,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
@@ -3002,6 +4260,21 @@ class $$BookNotesTableTableFilterComposer
 
   ColumnFilters<String> get attachmentPath => $composableBuilder(
     column: $table.attachmentPath,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get loreKeywords => $composableBuilder(
+    column: $table.loreKeywords,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get loreAlwaysInclude => $composableBuilder(
+    column: $table.loreAlwaysInclude,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get lorePriority => $composableBuilder(
+    column: $table.lorePriority,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -3103,6 +4376,21 @@ class $$BookNotesTableTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get loreKeywords => $composableBuilder(
+    column: $table.loreKeywords,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get loreAlwaysInclude => $composableBuilder(
+    column: $table.loreAlwaysInclude,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get lorePriority => $composableBuilder(
+    column: $table.lorePriority,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get sortOrder => $composableBuilder(
     column: $table.sortOrder,
     builder: (column) => ColumnOrderings(column),
@@ -3165,6 +4453,21 @@ class $$BookNotesTableTableAnnotationComposer
 
   GeneratedColumn<String> get attachmentPath => $composableBuilder(
     column: $table.attachmentPath,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get loreKeywords => $composableBuilder(
+    column: $table.loreKeywords,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get loreAlwaysInclude => $composableBuilder(
+    column: $table.loreAlwaysInclude,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get lorePriority => $composableBuilder(
+    column: $table.lorePriority,
     builder: (column) => column,
   );
 
@@ -3263,6 +4566,9 @@ class $$BookNotesTableTableTableManager
                 Value<String> title = const Value.absent(),
                 Value<String> content = const Value.absent(),
                 Value<String> attachmentPath = const Value.absent(),
+                Value<String> loreKeywords = const Value.absent(),
+                Value<bool> loreAlwaysInclude = const Value.absent(),
+                Value<int> lorePriority = const Value.absent(),
                 Value<int> sortOrder = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
@@ -3274,6 +4580,9 @@ class $$BookNotesTableTableTableManager
                 title: title,
                 content: content,
                 attachmentPath: attachmentPath,
+                loreKeywords: loreKeywords,
+                loreAlwaysInclude: loreAlwaysInclude,
+                lorePriority: lorePriority,
                 sortOrder: sortOrder,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
@@ -3287,6 +4596,9 @@ class $$BookNotesTableTableTableManager
                 required String title,
                 Value<String> content = const Value.absent(),
                 Value<String> attachmentPath = const Value.absent(),
+                Value<String> loreKeywords = const Value.absent(),
+                Value<bool> loreAlwaysInclude = const Value.absent(),
+                Value<int> lorePriority = const Value.absent(),
                 required int sortOrder,
                 required DateTime createdAt,
                 required DateTime updatedAt,
@@ -3298,6 +4610,9 @@ class $$BookNotesTableTableTableManager
                 title: title,
                 content: content,
                 attachmentPath: attachmentPath,
+                loreKeywords: loreKeywords,
+                loreAlwaysInclude: loreAlwaysInclude,
+                lorePriority: lorePriority,
                 sortOrder: sortOrder,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
@@ -4148,6 +5463,655 @@ typedef $$BookNoteTagsTableTableProcessedTableManager =
       BookNoteTagsTableData,
       PrefetchHooks Function({bool noteId, bool tagId})
     >;
+typedef $$CanonPinsTableTableCreateCompanionBuilder =
+    CanonPinsTableCompanion Function({
+      required String id,
+      required String bookId,
+      required String pinText,
+      required DateTime createdAt,
+      Value<int> rowid,
+    });
+typedef $$CanonPinsTableTableUpdateCompanionBuilder =
+    CanonPinsTableCompanion Function({
+      Value<String> id,
+      Value<String> bookId,
+      Value<String> pinText,
+      Value<DateTime> createdAt,
+      Value<int> rowid,
+    });
+
+final class $$CanonPinsTableTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $CanonPinsTableTable,
+          CanonPinsTableData
+        > {
+  $$CanonPinsTableTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $BooksTableTable _bookIdTable(_$AppDatabase db) =>
+      db.booksTable.createAlias('canon_pins_table__book_id__books_table__id');
+
+  $$BooksTableTableProcessedTableManager get bookId {
+    final $_column = $_itemColumn<String>('book_id')!;
+
+    final manager = $$BooksTableTableTableManager(
+      $_db,
+      $_db.booksTable,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_bookIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$CanonPinsTableTableFilterComposer
+    extends Composer<_$AppDatabase, $CanonPinsTableTable> {
+  $$CanonPinsTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get pinText => $composableBuilder(
+    column: $table.pinText,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$BooksTableTableFilterComposer get bookId {
+    final $$BooksTableTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.bookId,
+      referencedTable: $db.booksTable,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BooksTableTableFilterComposer(
+            $db: $db,
+            $table: $db.booksTable,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CanonPinsTableTableOrderingComposer
+    extends Composer<_$AppDatabase, $CanonPinsTableTable> {
+  $$CanonPinsTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get pinText => $composableBuilder(
+    column: $table.pinText,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$BooksTableTableOrderingComposer get bookId {
+    final $$BooksTableTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.bookId,
+      referencedTable: $db.booksTable,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BooksTableTableOrderingComposer(
+            $db: $db,
+            $table: $db.booksTable,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CanonPinsTableTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CanonPinsTableTable> {
+  $$CanonPinsTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get pinText =>
+      $composableBuilder(column: $table.pinText, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  $$BooksTableTableAnnotationComposer get bookId {
+    final $$BooksTableTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.bookId,
+      referencedTable: $db.booksTable,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BooksTableTableAnnotationComposer(
+            $db: $db,
+            $table: $db.booksTable,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CanonPinsTableTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CanonPinsTableTable,
+          CanonPinsTableData,
+          $$CanonPinsTableTableFilterComposer,
+          $$CanonPinsTableTableOrderingComposer,
+          $$CanonPinsTableTableAnnotationComposer,
+          $$CanonPinsTableTableCreateCompanionBuilder,
+          $$CanonPinsTableTableUpdateCompanionBuilder,
+          (CanonPinsTableData, $$CanonPinsTableTableReferences),
+          CanonPinsTableData,
+          PrefetchHooks Function({bool bookId})
+        > {
+  $$CanonPinsTableTableTableManager(
+    _$AppDatabase db,
+    $CanonPinsTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CanonPinsTableTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CanonPinsTableTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CanonPinsTableTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> bookId = const Value.absent(),
+                Value<String> pinText = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CanonPinsTableCompanion(
+                id: id,
+                bookId: bookId,
+                pinText: pinText,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String bookId,
+                required String pinText,
+                required DateTime createdAt,
+                Value<int> rowid = const Value.absent(),
+              }) => CanonPinsTableCompanion.insert(
+                id: id,
+                bookId: bookId,
+                pinText: pinText,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$CanonPinsTableTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({bookId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (bookId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.bookId,
+                                referencedTable: $$CanonPinsTableTableReferences
+                                    ._bookIdTable(db),
+                                referencedColumn:
+                                    $$CanonPinsTableTableReferences
+                                        ._bookIdTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$CanonPinsTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CanonPinsTableTable,
+      CanonPinsTableData,
+      $$CanonPinsTableTableFilterComposer,
+      $$CanonPinsTableTableOrderingComposer,
+      $$CanonPinsTableTableAnnotationComposer,
+      $$CanonPinsTableTableCreateCompanionBuilder,
+      $$CanonPinsTableTableUpdateCompanionBuilder,
+      (CanonPinsTableData, $$CanonPinsTableTableReferences),
+      CanonPinsTableData,
+      PrefetchHooks Function({bool bookId})
+    >;
+typedef $$StoryLabMessagesTableTableCreateCompanionBuilder =
+    StoryLabMessagesTableCompanion Function({
+      required String id,
+      required String bookId,
+      required String role,
+      required String content,
+      required DateTime createdAt,
+      Value<int> rowid,
+    });
+typedef $$StoryLabMessagesTableTableUpdateCompanionBuilder =
+    StoryLabMessagesTableCompanion Function({
+      Value<String> id,
+      Value<String> bookId,
+      Value<String> role,
+      Value<String> content,
+      Value<DateTime> createdAt,
+      Value<int> rowid,
+    });
+
+final class $$StoryLabMessagesTableTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $StoryLabMessagesTableTable,
+          StoryLabMessagesTableData
+        > {
+  $$StoryLabMessagesTableTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $BooksTableTable _bookIdTable(_$AppDatabase db) => db.booksTable
+      .createAlias('story_lab_messages_table__book_id__books_table__id');
+
+  $$BooksTableTableProcessedTableManager get bookId {
+    final $_column = $_itemColumn<String>('book_id')!;
+
+    final manager = $$BooksTableTableTableManager(
+      $_db,
+      $_db.booksTable,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_bookIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$StoryLabMessagesTableTableFilterComposer
+    extends Composer<_$AppDatabase, $StoryLabMessagesTableTable> {
+  $$StoryLabMessagesTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get role => $composableBuilder(
+    column: $table.role,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get content => $composableBuilder(
+    column: $table.content,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$BooksTableTableFilterComposer get bookId {
+    final $$BooksTableTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.bookId,
+      referencedTable: $db.booksTable,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BooksTableTableFilterComposer(
+            $db: $db,
+            $table: $db.booksTable,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$StoryLabMessagesTableTableOrderingComposer
+    extends Composer<_$AppDatabase, $StoryLabMessagesTableTable> {
+  $$StoryLabMessagesTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get role => $composableBuilder(
+    column: $table.role,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get content => $composableBuilder(
+    column: $table.content,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$BooksTableTableOrderingComposer get bookId {
+    final $$BooksTableTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.bookId,
+      referencedTable: $db.booksTable,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BooksTableTableOrderingComposer(
+            $db: $db,
+            $table: $db.booksTable,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$StoryLabMessagesTableTableAnnotationComposer
+    extends Composer<_$AppDatabase, $StoryLabMessagesTableTable> {
+  $$StoryLabMessagesTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get role =>
+      $composableBuilder(column: $table.role, builder: (column) => column);
+
+  GeneratedColumn<String> get content =>
+      $composableBuilder(column: $table.content, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  $$BooksTableTableAnnotationComposer get bookId {
+    final $$BooksTableTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.bookId,
+      referencedTable: $db.booksTable,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BooksTableTableAnnotationComposer(
+            $db: $db,
+            $table: $db.booksTable,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$StoryLabMessagesTableTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $StoryLabMessagesTableTable,
+          StoryLabMessagesTableData,
+          $$StoryLabMessagesTableTableFilterComposer,
+          $$StoryLabMessagesTableTableOrderingComposer,
+          $$StoryLabMessagesTableTableAnnotationComposer,
+          $$StoryLabMessagesTableTableCreateCompanionBuilder,
+          $$StoryLabMessagesTableTableUpdateCompanionBuilder,
+          (StoryLabMessagesTableData, $$StoryLabMessagesTableTableReferences),
+          StoryLabMessagesTableData,
+          PrefetchHooks Function({bool bookId})
+        > {
+  $$StoryLabMessagesTableTableTableManager(
+    _$AppDatabase db,
+    $StoryLabMessagesTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$StoryLabMessagesTableTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$StoryLabMessagesTableTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$StoryLabMessagesTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> bookId = const Value.absent(),
+                Value<String> role = const Value.absent(),
+                Value<String> content = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => StoryLabMessagesTableCompanion(
+                id: id,
+                bookId: bookId,
+                role: role,
+                content: content,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String bookId,
+                required String role,
+                required String content,
+                required DateTime createdAt,
+                Value<int> rowid = const Value.absent(),
+              }) => StoryLabMessagesTableCompanion.insert(
+                id: id,
+                bookId: bookId,
+                role: role,
+                content: content,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$StoryLabMessagesTableTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({bookId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (bookId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.bookId,
+                                referencedTable:
+                                    $$StoryLabMessagesTableTableReferences
+                                        ._bookIdTable(db),
+                                referencedColumn:
+                                    $$StoryLabMessagesTableTableReferences
+                                        ._bookIdTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$StoryLabMessagesTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $StoryLabMessagesTableTable,
+      StoryLabMessagesTableData,
+      $$StoryLabMessagesTableTableFilterComposer,
+      $$StoryLabMessagesTableTableOrderingComposer,
+      $$StoryLabMessagesTableTableAnnotationComposer,
+      $$StoryLabMessagesTableTableCreateCompanionBuilder,
+      $$StoryLabMessagesTableTableUpdateCompanionBuilder,
+      (StoryLabMessagesTableData, $$StoryLabMessagesTableTableReferences),
+      StoryLabMessagesTableData,
+      PrefetchHooks Function({bool bookId})
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -4162,4 +6126,8 @@ class $AppDatabaseManager {
       $$BookTagsTableTableTableManager(_db, _db.bookTagsTable);
   $$BookNoteTagsTableTableTableManager get bookNoteTagsTable =>
       $$BookNoteTagsTableTableTableManager(_db, _db.bookNoteTagsTable);
+  $$CanonPinsTableTableTableManager get canonPinsTable =>
+      $$CanonPinsTableTableTableManager(_db, _db.canonPinsTable);
+  $$StoryLabMessagesTableTableTableManager get storyLabMessagesTable =>
+      $$StoryLabMessagesTableTableTableManager(_db, _db.storyLabMessagesTable);
 }
