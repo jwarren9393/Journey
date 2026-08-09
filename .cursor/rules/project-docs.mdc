@@ -1,0 +1,18 @@
+---
+description: Journey project docs — read and update living documents
+alwaysApply: true
+---
+
+# Journey — Agent Documentation Protocol
+
+**Before any work:** Read `docs/PROJECT_STATUS.md`.
+
+**After any work:** Update:
+
+- `docs/PROJECT_STATUS.md` (status, changelog, next steps)
+- `docs/PROJECT_REFERENCE.md` (full project reference for Gemini/collaborators)
+- **`README.md`** when you add, remove, or materially change **user-visible** features (writing tools, AI actions, settings, export/backup, shortcuts, platforms, install/releases)
+
+Also update `docs/ROADMAP.md` when completing phase items.
+
+See `AGENTS.md` at repo root for full instructions.

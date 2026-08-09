@@ -1,0 +1,20 @@
+import 'package:journey/features/books/domain/models/book_note.dart';
+import 'package:journey/features/books/domain/models/note_type.dart';
+
+abstract interface class NoteRepository {
+  Stream<List<BookNote>> watchByBookId(String bookId, {NoteType? type});
+
+  Future<BookNote?> getById(String id);
+
+  Future<BookNote> create({
+    required String bookId,
+    required NoteType type,
+    required String title,
+    String content = '',
+    String attachmentPath = '',
+  });
+
+  Future<BookNote> update(BookNote note);
+
+  Future<void> delete(String id);
+}
