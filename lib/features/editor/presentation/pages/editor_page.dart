@@ -18,6 +18,7 @@ import 'package:journey/features/editor/presentation/widgets/sensory_sense_dialo
 import 'package:journey/features/editor/presentation/widgets/tone_voice_meter_dialog.dart';
 import 'package:journey/shared/widgets/ai_result_sheet.dart';
 import 'package:journey/shared/widgets/error_state.dart';
+import 'package:journey/shared/widgets/lore_lookup_panel.dart';
 import 'package:journey/shared/widgets/text_input_dialog.dart';
 
 class EditorPage extends ConsumerStatefulWidget {
@@ -36,6 +37,7 @@ class EditorPage extends ConsumerStatefulWidget {
 
 class _EditorPageState extends ConsumerState<EditorPage> {
   static const _sidebarBreakpoint = 1100.0;
+  static const _loreBreakpoint = 1400.0;
 
   final _controller = TextEditingController();
   final _debouncer = Debouncer();
@@ -113,22 +115,35 @@ class _EditorPageState extends ConsumerState<EditorPage> {
         return LayoutBuilder(
           builder: (context, constraints) {
             final showSidebar = constraints.maxWidth >= _sidebarBreakpoint;
-            if (!showSidebar) {
+            final showLore = constraints.maxWidth >= _loreBreakpoint;
+            if (!showSidebar && !showLore) {
               return editorScaffold;
             }
 
             return Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                SizedBox(
-                  width: 260,
-                  child: EditorChapterSidebar(
-                    bookId: widget.bookId,
-                    currentChapterId: widget.chapterId,
+                if (showSidebar) ...[
+                  SizedBox(
+                    width: 260,
+                    child: EditorChapterSidebar(
+                      bookId: widget.bookId,
+                      currentChapterId: widget.chapterId,
+                    ),
                   ),
-                ),
-                const VerticalDivider(width: 1),
+                  const VerticalDivider(width: 1),
+                ],
                 Expanded(child: editorScaffold),
+                if (showLore) ...[
+                  const VerticalDivider(width: 1),
+                  SizedBox(
+                    width: 340,
+                    child: LoreLookupPanel(
+                      bookId: widget.bookId,
+                      embedded: true,
+                    ),
+                  ),
+                ],
               ],
             );
           },
@@ -148,6 +163,11 @@ class _EditorPageState extends ConsumerState<EditorPage> {
       bindings: {
         const SingleActivator(LogicalKeyboardKey.keyF, control: true, shift: true):
             () => _setFocusMode(true),
+        const SingleActivator(LogicalKeyboardKey.keyL, control: true, shift: true):
+            () => showLoreLookupSheet(
+                  context: context,
+                  bookId: widget.bookId,
+                ),
       },
       child: Scaffold(
         appBar: AppBar(
@@ -159,6 +179,14 @@ class _EditorPageState extends ConsumerState<EditorPage> {
             ),
           ),
           actions: [
+            IconButton(
+              tooltip: 'Look up lore',
+              onPressed: () => showLoreLookupSheet(
+                context: context,
+                bookId: widget.bookId,
+              ),
+              icon: const Icon(Icons.menu_book_outlined),
+            ),
             IconButton(
               tooltip: 'Focus mode',
               onPressed: () => _setFocusMode(true),
@@ -472,6 +500,9 @@ class _EditorPageState extends ConsumerState<EditorPage> {
       case AiAction.storyLabSceneIdeas:
       case AiAction.storyLabGlossary:
       case AiAction.storyLabSummarize:
+      case AiAction.foundationsSparks:
+      case AiAction.foundationsGrow:
+      case AiAction.foundationsOpeningScenes:
         return;
       case AiAction.continueWriting:
       case AiAction.rephrase:
@@ -576,6 +607,10 @@ class _EditorPageState extends ConsumerState<EditorPage> {
     final runner = ref.read(aiActionRunnerProvider);
     final resultFuture = runner.run(action: action, context: aiContext);
 
+    if (!mounted) {
+      return;
+    }
+
     await showAiResultSheet(
       context: context,
       action: action,
@@ -616,6 +651,10 @@ class _EditorPageState extends ConsumerState<EditorPage> {
       action: AiAction.scenePaths,
       context: aiContext,
     );
+
+    if (!mounted) {
+      return;
+    }
 
     await showAiResultSheet(
       context: context,

@@ -79,7 +79,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         name: 'story-lab',
         builder: (context, state) {
           final bookId = state.pathParameters['bookId']!;
-          return StoryLabPage(bookId: bookId);
+          final tab = state.uri.queryParameters['tab'];
+          return StoryLabPage(
+            bookId: bookId,
+            initialTab: tab == 'brainstorm' ? 1 : 0,
+          );
         },
       ),
       GoRoute(
@@ -125,5 +129,11 @@ abstract final class AppRoutes {
   static String editor(String bookId, String chapterId) =>
       '$books/$bookId/chapters/$chapterId';
 
-  static String storyLab(String bookId) => '$books/$bookId/story-lab';
+  static String storyLab(String bookId, {String? tab}) {
+    final path = '$books/$bookId/story-lab';
+    if (tab == null || tab.isEmpty) {
+      return path;
+    }
+    return '$path?tab=$tab';
+  }
 }

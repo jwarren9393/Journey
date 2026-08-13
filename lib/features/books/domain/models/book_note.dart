@@ -1,4 +1,5 @@
 import 'package:journey/features/books/domain/models/book_tag.dart';
+import 'package:journey/features/books/domain/models/note_status.dart';
 import 'package:journey/features/books/domain/models/note_type.dart';
 
 class BookNote {
@@ -15,12 +16,14 @@ class BookNote {
     required this.sortOrder,
     required this.createdAt,
     required this.updatedAt,
+    this.status = NoteStatus.canon,
     this.tags = const [],
   });
 
   final String id;
   final String bookId;
   final NoteType type;
+  final NoteStatus status;
   final String title;
   final String content;
   final String attachmentPath;
@@ -47,10 +50,34 @@ class BookNote {
       .where((keyword) => keyword.isNotEmpty)
       .toList();
 
+  bool matchesQuery(String query) {
+    final needle = query.trim().toLowerCase();
+    if (needle.isEmpty) {
+      return true;
+    }
+    if (title.toLowerCase().contains(needle)) {
+      return true;
+    }
+    if (content.toLowerCase().contains(needle)) {
+      return true;
+    }
+    if (loreKeywords.toLowerCase().contains(needle)) {
+      return true;
+    }
+    if (type.label.toLowerCase().contains(needle)) {
+      return true;
+    }
+    if (status.label.toLowerCase().contains(needle)) {
+      return true;
+    }
+    return tags.any((tag) => tag.name.toLowerCase().contains(needle));
+  }
+
   BookNote copyWith({
     String? id,
     String? bookId,
     NoteType? type,
+    NoteStatus? status,
     String? title,
     String? content,
     String? attachmentPath,
@@ -66,6 +93,7 @@ class BookNote {
       id: id ?? this.id,
       bookId: bookId ?? this.bookId,
       type: type ?? this.type,
+      status: status ?? this.status,
       title: title ?? this.title,
       content: content ?? this.content,
       attachmentPath: attachmentPath ?? this.attachmentPath,

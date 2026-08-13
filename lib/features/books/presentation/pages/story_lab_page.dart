@@ -5,6 +5,7 @@ import 'package:journey/core/ai/ai_context.dart';
 import 'package:journey/core/ai/ai_context_builder.dart';
 import 'package:journey/core/providers/app_providers.dart';
 import 'package:journey/features/books/domain/models/story_lab_message.dart';
+import 'package:journey/features/books/presentation/pages/tabs/foundations_panel.dart';
 import 'package:journey/features/books/presentation/providers/book_providers.dart';
 import 'package:journey/features/books/presentation/providers/canon_pin_providers.dart';
 import 'package:journey/features/books/presentation/providers/note_providers.dart';
@@ -12,23 +13,43 @@ import 'package:journey/features/books/presentation/providers/story_lab_provider
 import 'package:journey/shared/widgets/ai_result_sheet.dart';
 import 'package:journey/shared/widgets/error_state.dart';
 import 'package:journey/shared/widgets/extract_entities_sheet.dart';
+import 'package:journey/shared/widgets/lore_lookup_panel.dart';
 
 class StoryLabPage extends ConsumerStatefulWidget {
-  const StoryLabPage({required this.bookId, super.key});
+  const StoryLabPage({
+    required this.bookId,
+    this.initialTab = 0,
+    super.key,
+  });
 
   final String bookId;
+  final int initialTab;
 
   @override
   ConsumerState<StoryLabPage> createState() => _StoryLabPageState();
 }
 
-class _StoryLabPageState extends ConsumerState<StoryLabPage> {
+class _StoryLabPageState extends ConsumerState<StoryLabPage>
+    with SingleTickerProviderStateMixin {
   final _composerController = TextEditingController();
   final _scrollController = ScrollController();
+  late final TabController _tabController;
   bool _isSending = false;
 
   @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(
+      length: 2,
+      vsync: this,
+      initialIndex: widget.initialTab.clamp(0, 1),
+    );
+    _tabController.addListener(() => setState(() {}));
+  }
+
+  @override
   void dispose() {
+    _tabController.dispose();
     _composerController.dispose();
     _scrollController.dispose();
     super.dispose();
@@ -43,36 +64,56 @@ class _StoryLabPageState extends ConsumerState<StoryLabPage> {
     return Scaffold(
       appBar: AppBar(
         title: bookAsync.when(
-          data: (book) => Text('Story Lab — ${book?.title ?? ''}'),
+          data: (book) => Text(book?.title ?? 'Story Lab'),
           loading: () => const Text('Story Lab'),
           error: (_, _) => const Text('Story Lab'),
         ),
         actions: [
-          PopupMenuButton<String>(
-            onSelected: _handleMenuAction,
-            itemBuilder: (context) => const [
-              PopupMenuItem(
-                value: 'scene_ideas',
-                child: Text('Generate scene ideas'),
-              ),
-              PopupMenuItem(
-                value: 'glossary',
-                child: Text('Extract glossary'),
-              ),
-              PopupMenuItem(
-                value: 'summarize',
-                child: Text('Summarize brainstorm'),
-              ),
-              PopupMenuDivider(),
-              PopupMenuItem(
-                value: 'clear',
-                child: Text('Clear messages'),
-              ),
-            ],
+          IconButton(
+            tooltip: 'Look up lore',
+            onPressed: () => showLoreLookupSheet(
+              context: context,
+              bookId: widget.bookId,
+            ),
+            icon: const Icon(Icons.menu_book_outlined),
           ),
+          if (_tabController.index == 1)
+            PopupMenuButton<String>(
+              onSelected: _handleMenuAction,
+              itemBuilder: (context) => const [
+                PopupMenuItem(
+                  value: 'scene_ideas',
+                  child: Text('Generate scene ideas'),
+                ),
+                PopupMenuItem(
+                  value: 'glossary',
+                  child: Text('Extract glossary'),
+                ),
+                PopupMenuItem(
+                  value: 'summarize',
+                  child: Text('Summarize brainstorm'),
+                ),
+                PopupMenuDivider(),
+                PopupMenuItem(
+                  value: 'clear',
+                  child: Text('Clear messages'),
+                ),
+              ],
+            ),
         ],
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: const [
+            Tab(text: 'Foundations'),
+            Tab(text: 'Brainstorm'),
+          ],
+        ),
       ),
-      body: Column(
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          FoundationsPanel(bookId: widget.bookId),
+          Column(
         children: [
           pinsAsync.when(
             loading: () => const SizedBox.shrink(),
@@ -222,6 +263,8 @@ class _StoryLabPageState extends ConsumerState<StoryLabPage> {
                 ],
               ),
             ),
+          ),
+        ],
           ),
         ],
       ),
@@ -391,6 +434,9 @@ class _StoryLabPageState extends ConsumerState<StoryLabPage> {
         storyLabMessagesStreamProvider(widget.bookId).future,
       );
       if (messages.isEmpty) {
+        if (!mounted) {
+          return;
+        }
         showAppSnackBar(context, 'Add some brainstorm messages first.');
         return;
       }
@@ -447,6 +493,9 @@ class _StoryLabPageState extends ConsumerState<StoryLabPage> {
         storyLabMessagesStreamProvider(widget.bookId).future,
       );
       if (messages.isEmpty) {
+        if (!mounted) {
+          return;
+        }
         showAppSnackBar(context, 'Add some brainstorm messages first.');
         return;
       }

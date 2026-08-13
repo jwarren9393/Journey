@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
@@ -110,18 +111,20 @@ class _BackupSettingsSectionState extends ConsumerState<BackupSettingsSection> {
     final result = await FilePicker.pickFiles(
       type: FileType.custom,
       allowedExtensions: const ['json'],
-      withData: true,
     );
     if (result == null || result.files.isEmpty) {
       return;
     }
 
     final file = result.files.first;
-    final content = file.bytes != null
-        ? String.fromCharCodes(file.bytes!)
-        : file.path != null
-            ? await File(file.path!).readAsString()
-            : null;
+    String? content;
+    try {
+      content = utf8.decode(await file.readAsBytes());
+    } catch (_) {
+      if (file.path != null) {
+        content = await File(file.path!).readAsString();
+      }
+    }
     if (content == null) {
       if (!mounted) {
         return;

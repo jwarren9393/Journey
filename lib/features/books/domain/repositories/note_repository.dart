@@ -1,4 +1,5 @@
 import 'package:journey/features/books/domain/models/book_note.dart';
+import 'package:journey/features/books/domain/models/note_status.dart';
 import 'package:journey/features/books/domain/models/note_type.dart';
 
 abstract interface class NoteRepository {
@@ -15,6 +16,7 @@ abstract interface class NoteRepository {
     String loreKeywords = '',
     bool loreAlwaysInclude = false,
     int lorePriority = 5,
+    NoteStatus status = NoteStatus.draft,
   });
 
   Future<BookNote> update(BookNote note);

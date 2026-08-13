@@ -3,8 +3,8 @@
 > **Living document for Gemini / NotebookLM / external collaborators.**  
 > Upload this file to give full project context. Agents must update it whenever code, structure, or behavior changes.
 
-**Last updated:** 2026-08-08  
-**Version:** 1.0.0 (build 18 in `pubspec.yaml`)
+**Last updated:** 2026-08-13  
+**Version:** 1.0.0 (build 21 in `pubspec.yaml`)
 
 ---
 
@@ -12,7 +12,7 @@
 
 **Journey** is a **personal, casual** book-writing app for **Android** and **Windows** — not a commercial author platform. An **AI assistant is woven into features** through contextual actions (continue writing, rephrase, recap, etc.), not an always-on chat panel.
 
-**Current maturity:** Personal writing app with optional user-initiated AI, focus mode, search, export, notes/worldbuilding, outline planning, Story Lab, per-book canon/author's note, triggered lore, and desktop polish.
+**Current maturity:** Personal writing app with optional user-initiated AI, Foundations (start from scratch → picture → grow notes), notes/worldbuilding, outline planning, Story Lab, triggered lore, and desktop polish.
 
 **Primary user flow:**
 1. Open app → Library
@@ -118,7 +118,8 @@ lib/
 |-------|------|-------|
 | id | String (UUID) | Primary key |
 | bookId | String | FK → Book |
-| type | NoteType | general, research, character, location, plot |
+| type | NoteType | general, research, character, location, plot, item, group, history, idea |
+| status | NoteStatus | spark, draft, canon (default canon for migrated rows; new notes default draft) |
 | title | String | Required |
 | content | String | Plain text |
 | attachmentPath | String | Optional local file path |
@@ -154,7 +155,7 @@ lib/
 ### Database
 - **Engine:** SQLite via Drift
 - **File:** `journey` (managed by drift_flutter)
-- **Schema version:** 3
+- **Schema version:** 4
 - **Tables:** `books_table`, `chapters_table`, `book_notes_table`, `book_tags_table`, `book_note_tags_table`, `canon_pins_table`, `story_lab_messages_table`
 - **Cascade:** Deleting a book deletes chapters, notes, and tags
 
@@ -179,7 +180,8 @@ lib/
 
 ### NoteRepository
 - `watchByBookId(bookId, {type?})` → Stream<List<BookNote>>
-- `getById(id)`, `create(...)`, `update(note)`, `delete(id)`
+- `getById(id)`, `create(..., status: draft)`, `update(note)`, `delete(id)`
+- Client-side `NoteSearch.filter` for query / type / status / tag / sort
 
 ### TagRepository
 - `watchByBookId(bookId)`
@@ -210,13 +212,18 @@ lib/
 ### Book detail (`/books/:bookId`) — tabbed hub
 - **Chapters tab:** description card, chapter list, FAB for new chapter
 - **Outline tab:** drag-reorder chapters, per-chapter outline notes, tap to open editor; **Analyze pacing** heatmap (color-coded chips); **Plot bridge** ideas on middle chapters (alt-route icon)
-- **Notes tab:** filter by type (General, Research, Character, Place, Plot), create notes with tags/attachments
-- App bar: search, menu (continuity check, world bible, AI recap, edit book, export, blurb & pitch)
+- **Notes tab:** search; filter by type/status/tag; sort; create notes with tags/attachments
+- App bar: search, menu (Foundations / Story Lab, continuity, world bible, recap, edit, export, blurb)
 
 ### Note editor (`/books/:bookId/notes/:noteId`)
-- Title, type, content with auto-save
+- Title, type, status (spark/draft/canon), content with auto-save
 - Tags (create or pick existing per book)
 - Optional file attachment (local path via file picker)
+- Lore keywords, always-include, priority
+
+### Foundations / Story Lab (`/books/:bookId/story-lab`)
+- **Foundations tab:** sparks → commit picture → grow notes; opening scene ideas; lore lookup
+- **Brainstorm tab:** chat, canon pins, scene ideas, glossary, summarize
 
 ### Book search (`/books/:bookId/search`)
 - Search bar filters chapter titles and body text within one book
@@ -225,7 +232,8 @@ lib/
 
 ### Editor (`/books/:bookId/chapters/:chapterId`)
 - **Focus mode** (fullscreen icon or Ctrl+Shift+F): hides chrome, larger text, immersive UI; exit button or Esc (desktop)
-- **Wide desktop (≥1100px):** chapter list sidebar for quick navigation
+- **Wide desktop (≥1100px):** chapter list sidebar; **≥1400px:** lore lookup panel
+- Lore lookup sheet from book icon or `Ctrl+Shift+L`
 - Respects appearance preferences (font size, line spacing)
 - Chapter rename via title tap or rename icon
 - AI menu (continue, rephrase, expand, tighten, sensory enhance, show don't tell, summarize, tone & voice meter), auto-save, save status indicator
@@ -295,6 +303,9 @@ lib/
 - `storyLabSceneIdeas` — Story Lab menu
 - `storyLabGlossary` — Story Lab menu → extract entities sheet
 - `storyLabSummarize` — Story Lab menu → save storyLabSummary
+- `foundationsSparks` — Foundations: 4 world portraits (JSON)
+- `foundationsGrow` — Foundations: 3 named pieces to keep as notes (JSON)
+- `foundationsOpeningScenes` — Foundations: 6 first-page ideas
 - `recapBook` — book detail app bar
 
 ### Settings storage keys (SharedPreferences)
@@ -395,6 +406,8 @@ flutter test
 flutter analyze
 ```
 
+`.dart_tool/` and `/build/` are gitignored. After a fresh clone, OS reinstall, or moving the repo to a new drive letter, run `flutter pub get`. If Windows debug fails with a CMake path mismatch (`F:` vs `D:`), run `flutter clean` then debug again.
+
 **Android:** `com.journey.journey`, Kotlin MainActivity, Gradle 9.x  
 **Windows:** `journey.exe`, CMake, default 1280×720 window
 
@@ -446,7 +459,10 @@ flutter analyze
 | `lib/features/books/domain/repositories/*.dart` | Repository interfaces |
 | `lib/features/books/data/repositories/*.dart` | Repository implementations |
 | `lib/features/books/presentation/pages/library_page.dart` | Library UI |
-| `lib/features/books/presentation/pages/book_detail_page.dart` | Chapter list UI |
+| `lib/features/books/presentation/pages/book_detail_page.dart` | Book hub |
+| `lib/features/books/presentation/pages/story_lab_page.dart` | Foundations + brainstorm |
+| `lib/features/books/presentation/pages/tabs/foundations_panel.dart` | Sparks / picture / grow |
+| `lib/shared/widgets/lore_lookup_panel.dart` | Searchable lore reference |
 | `lib/features/editor/presentation/pages/editor_page.dart` | Writing editor |
 | `lib/core/preferences/*.dart` | App preferences model + repository |
 | `lib/core/data/backup_service.dart` | JSON backup export/import |

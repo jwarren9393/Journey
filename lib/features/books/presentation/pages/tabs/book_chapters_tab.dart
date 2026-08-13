@@ -74,11 +74,24 @@ class BookChaptersTab extends ConsumerWidget {
                           icon: Icons.article_outlined,
                           title: 'No chapters yet',
                           message:
-                              'Add a chapter to start writing "${book.title}".',
-                          action: FilledButton.icon(
-                            onPressed: () => _createChapter(context, ref),
-                            icon: const Icon(Icons.add),
-                            label: const Text('New chapter'),
+                              'Start from scratch if you do not have a world yet, or add a chapter and write.',
+                          action: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              FilledButton.icon(
+                                onPressed: () => context.push(
+                                  AppRoutes.storyLab(bookId),
+                                ),
+                                icon: const Icon(Icons.auto_awesome),
+                                label: const Text('Start from scratch'),
+                              ),
+                              const SizedBox(height: 8),
+                              OutlinedButton.icon(
+                                onPressed: () => _createChapter(context, ref),
+                                icon: const Icon(Icons.add),
+                                label: const Text('New chapter'),
+                              ),
+                            ],
                           ),
                         )
                       : ListView.separated(

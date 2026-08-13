@@ -221,6 +221,9 @@ class _AiResultSheetState extends State<_AiResultSheet> {
       AiAction.storyLabSceneIdeas => 'Scene ideas',
       AiAction.storyLabGlossary => 'Glossary',
       AiAction.storyLabSummarize => 'Summarize brainstorm',
+      AiAction.foundationsSparks => 'World sparks',
+      AiAction.foundationsGrow => 'Grow the picture',
+      AiAction.foundationsOpeningScenes => 'Opening scenes',
     };
   }
 }

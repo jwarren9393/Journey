@@ -2,9 +2,9 @@
 
 > **Living document for AI agents.** Read this first every session. Update before you finish any work.
 
-**Last updated:** 2026-08-08  
-**Current phase:** 6 (Grounded long-form memory) — **COMPLETE**  
-**Previous:** Phase 5 (Contextual AI) — complete  
+**Last updated:** 2026-08-13  
+**Current phase:** 7 (Foundations — start from scratch) — **COMPLETE**  
+**Previous:** Phase 6 (Grounded long-form memory) — complete  
 **Deferred (non-AI):** Rich text, cloud sync
 
 ---
@@ -21,8 +21,8 @@ Journey is a **personal, casual writing app** — not a commercial author platfo
 
 | Area | Status |
 |------|--------|
-| Phases 0–5 | Done |
-| Phase 6 — Grounded long-form memory | **Complete** (6A–6F) |
+| Phases 0–6 | Done |
+| Phase 7 — Foundations (start from scratch) | **Complete** |
 | Onboarding, settings, backup, desktop polish | Done |
 | Cloud sync | Deferred |
 | Secure API key storage | Deferred |
@@ -30,6 +30,13 @@ Journey is a **personal, casual writing app** — not a commercial author platfo
 ---
 
 ## Phase checklist
+
+### Phase 7 — Foundations (complete)
+- [x] Sparks → pick a picture (description + canon + tone)
+- [x] Grow named pieces into real notes (character, place, group, item, history, plot, idea)
+- [x] Note types expanded; Spark / Draft / Canon status
+- [x] Notes search + type/status/tag/sort filters
+- [x] Lore lookup in editor (panel + `Ctrl+Shift+L`) and Story Lab
 
 ### Phase 6 — Grounded long-form memory (complete)
 - [x] 6A: Author's note + canon summary (manual / on-demand AI update)
@@ -57,7 +64,7 @@ Journey is a **personal, casual writing app** — not a commercial author platfo
 | `/books` | Library |
 | `/settings` | Settings |
 | `/books/:bookId` | Book hub |
-| `/books/:bookId/story-lab` | Story Lab brainstorm |
+| `/books/:bookId/story-lab` | Foundations + Story Lab (`?tab=brainstorm`) |
 | `/books/:bookId/notes/:noteId` | Note editor |
 | `/books/:bookId/search` | Search chapters |
 | `/books/:bookId/chapters/:chapterId` | Chapter editor |
@@ -65,6 +72,26 @@ Journey is a **personal, casual writing app** — not a commercial author platfo
 ---
 
 ## Changelog
+
+### 2026-08-13 — Chapters empty-state overflow (build 21)
+- Empty chapters tab no longer overflows when description/author/canon cards leave little vertical room; empty states scroll if needed
+
+### 2026-08-13 — Windows debug after drive-letter move
+- Cleared stale CMake cache from old `F:/AI/Journey` path; `flutter clean` + debug rebuild on `D:`
+
+### 2026-08-13 — Foundations: start from scratch (build 20)
+- **Foundations** tab in Story Lab: generate world sparks, commit a picture, grow notes incrementally, opening-scene ideas
+- Keep unused sparks as Idea notes; grow options save as Spark / Draft / Canon
+- Note types: Item, Group, History, Idea; note **status** (spark/draft/canon)
+- Notes tab: search, type/status/tag filters, sort
+- Lore lookup from editor (wide panel + sheet, `Ctrl+Shift+L`) and Story Lab
+- SQLite schema v4; backup format v3
+- Sparks are excluded from writing-AI lore unless always-include
+
+### 2026-08-13 — Post-reinstall cleanup (build 19)
+- Restored Flutter packages (`flutter pub get`) after Windows reinstall; `.dart_tool` is gitignored so the IDE showed 1000+ unresolved-import errors until deps were fetched
+- Cleared remaining analyzer infos: `mounted` guards on async `BuildContext` use, `DropdownButtonFormField.initialValue`, FilePicker `readAsBytes()` for backup restore
+- `flutter analyze` clean; all 27 tests passing
 
 ### 2026-08-08 — Phase 6 complete (build 18)
 - Per-book **Author's note** and **Canon summary** on Chapters tab

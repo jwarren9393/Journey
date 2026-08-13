@@ -174,6 +174,7 @@ class _ExtractEntitiesSheetState extends ConsumerState<_ExtractEntitiesSheet> {
         type: entity.suggestedType,
         title: entity.name,
         content: entity.description,
+        loreKeywords: entity.name,
       );
 
       if (!mounted) {

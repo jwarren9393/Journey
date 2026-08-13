@@ -22,17 +22,18 @@ A personal book-writing app for **Windows** and **Android**. Write in a calm, di
 
 - **Book hub** — Chapters, Outline, and Notes tabs per book
 - **Outline view** — drag-reorder chapters; per-chapter outline notes
-- **Notes** — General, Research, Character, Place, and Plot types
-- **Tags** — per-book tags on notes
+- **Notes** — General, Research, Character, Place, Plot, Item, Group, History, and Idea types
+- **Note status** — Spark (playing), Draft (developing), Canon (locked as true)
+- **Tags** — per-book tags on notes; filter by type, status, tag, and search
 - **Attachments** — optional local file on notes
-- **Book description** — editable summary on the Chapters tab
+- **Book description** — editable summary on the Chapters tab (also the Foundations “picture”)
 
 ### Appearance & desktop polish
 
 - **Onboarding** — first-run welcome (skippable)
 - **Theme** — system, light, or dark
 - **Editor preferences** — font size and line spacing
-- **Keyboard shortcuts** (Windows) — `Ctrl+,` settings, `Ctrl+/` help, `Ctrl+Shift+F` focus mode
+- **Keyboard shortcuts** (Windows) — `Ctrl+,` settings, `Ctrl+/` help, `Ctrl+Shift+F` focus mode, `Ctrl+Shift+L` lore lookup in the editor
 - **Local backup** — export/import all app data as JSON (Settings → Backup)
 
 ### AI assistant (optional)
@@ -63,15 +64,20 @@ AI is **off until you enable it** in Settings. You bring your own keys — data 
 | Author's note | Style guide injected into AI prompts (POV, tense, tone) |
 | Canon summary | Running bullet facts; **Update from book/chapter** when you choose |
 
-**Story Lab** (book menu — brainstorm sandbox, separate from manuscript)
+**Foundations / Story Lab** (book menu — start from nothing, then brainstorm)
 
 | Action | Description |
 |--------|-------------|
-| Brainstorm chat | Send a message → AI replies (only when you send) |
+| Sparks | Generate 4 whole-world pictures; pick one, keep others as idea notes, or ask for more like one |
+| The picture | Chosen spark becomes book description + canon + tone |
+| Grow | Incrementally create character / place / group / item / history / plot / idea notes |
+| Opening scenes | 6 first-page ideas grounded in your picture and notes |
+| Brainstorm chat | Freeform sandbox (only when you send) |
 | Canon pins | Long-press your message to pin a fact |
 | Scene ideas | Generate 6 scene starters |
 | Glossary extract | Pull terms → pre-filled notes |
 | Summarize brainstorm | Fold messages into editable Story Lab summary |
+| Lore lookup | Search/filter notes from Story Lab or the editor (`Ctrl+Shift+L`) |
 
 **Book & outline**
 
@@ -81,7 +87,7 @@ AI is **off until you enable it** in Settings. You bring your own keys — data 
 | Check continuity | Book menu / editor |
 | Fix continuity | Book menu / editor |
 | Update canon summary | Book menu / Chapters tab |
-| Story Lab | Book menu |
+| Foundations / Story Lab | Book menu; empty chapter list |
 | Ask the world bible | Book menu |
 | Analyze pacing | Outline tab — heatmap labels (High Action, Dialogue Heavy, …) |
 | Plot bridge | Outline tab — bridge ideas between chapters |

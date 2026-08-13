@@ -28,6 +28,10 @@ class KeyboardShortcutsDialog extends StatelessWidget {
               shortcut: 'Ctrl + Shift + F',
             ),
             _ShortcutRow(
+              label: 'Look up lore (editor)',
+              shortcut: 'Ctrl + Shift + L',
+            ),
+            _ShortcutRow(
               label: 'Exit focus mode',
               shortcut: 'Esc',
             ),

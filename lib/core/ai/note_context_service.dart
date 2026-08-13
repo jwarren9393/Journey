@@ -1,6 +1,6 @@
 import 'package:journey/features/books/domain/models/book_note.dart';
 import 'package:journey/features/books/domain/models/chapter.dart';
-import 'package:journey/features/books/domain/models/note_type.dart';
+import 'package:journey/features/books/domain/models/note_status.dart';
 
 class TriggeredNotesResult {
   const TriggeredNotesResult({
@@ -87,6 +87,10 @@ abstract final class NoteContextService {
     final scored = <({BookNote note, int score, bool keywordHit})>[];
 
     for (final note in allNotes) {
+      if (note.status == NoteStatus.spark && !note.loreAlwaysInclude) {
+        continue;
+      }
+
       if (note.loreAlwaysInclude) {
         scored.add((note: note, score: 1000 + note.lorePriority, keywordHit: false));
         continue;
@@ -181,12 +185,7 @@ abstract final class NoteContextService {
     int limit = 15,
   }) {
     final worldbuilding = allNotes
-        .where(
-          (note) =>
-              note.type == NoteType.character ||
-              note.type == NoteType.location ||
-              note.type == NoteType.plot,
-        )
+        .where((note) => note.type.isWorldbuilding)
         .toList();
 
     return findTriggeredNotes(
@@ -206,7 +205,7 @@ abstract final class NoteContextService {
       final details = note.content.trim().isEmpty
           ? '(no details yet)'
           : note.content.trim();
-      buffer.writeln('[${note.type.label}] ${note.title}');
+      buffer.writeln('[${note.type.label} · ${note.status.label}] ${note.title}');
       buffer.writeln(details);
       buffer.writeln();
     }

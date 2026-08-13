@@ -162,6 +162,25 @@ Hook into existing export flow (`share_plus` / book detail export menu).
 - Always-on lore injection while typing
 - Character roleplay chat in main editor
 
+## Phase 7: Foundations — start from scratch (complete)
+
+**Goal:** Help an author who has no book yet discover a world, lock an overall picture, then grow named pieces into organized notes — still 100% user-initiated AI.
+
+- [x] **Sparks** — 4 whole-world portraits from an optional vibe or Surprise me
+- [x] **Commit picture** — chosen spark → book description + canon summary + tone
+- [x] **Keep as idea** — unused sparks become Idea notes (status: spark)
+- [x] **Grow** — incrementally create character / place / group / item / history / plot / idea notes
+- [x] **Opening scenes** — 6 first-page ideas from the picture + notes
+- [x] **Organization** — extra note types; Spark / Draft / Canon status; search + filters + sort
+- [x] **Lore lookup** — editor panel/sheet + Story Lab; `Ctrl+Shift+L`
+- [x] Schema v4 (`status` on notes); backup v3
+
+### Phase 7 excluded
+
+- Relationship graphs / family trees
+- Auto-generating a full cast or encyclopedia dump
+- Always-on lore while typing
+
 ## Open Questions
 
 Use this section to capture decisions as we discuss them:

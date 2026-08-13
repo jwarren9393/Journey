@@ -1,9 +1,12 @@
 import 'package:journey/core/ai/models/continuity_fix.dart';
 import 'package:journey/core/ai/models/extracted_entity.dart';
+import 'package:journey/core/ai/models/grow_option.dart';
+import 'package:journey/core/ai/models/world_spark.dart';
 import 'package:journey/features/books/domain/models/book.dart';
 import 'package:journey/features/books/domain/models/book_note.dart';
 import 'package:journey/features/books/domain/models/chapter.dart';
 import 'package:journey/features/books/domain/models/canon_pin.dart';
+import 'package:journey/features/books/domain/models/note_type.dart';
 import 'package:journey/features/books/domain/models/story_lab_message.dart';
 
 /// Which sense to emphasize for [AiAction.sensoryEnhance].
@@ -32,6 +35,7 @@ class AiContext {
     this.plotBridgeAfter,
     this.canonPins = const [],
     this.storyLabMessages = const [],
+    this.growType,
     this.requestVariants = false,
     this.variantCount = 3,
     this.triggeredNoteTitles = const [],
@@ -71,6 +75,9 @@ class AiContext {
   /// Recent Story Lab messages for brainstorm actions.
   final List<StoryLabMessage> storyLabMessages;
 
+  /// Optional note type to grow in Foundations.
+  final NoteType? growType;
+
   /// When true, selection transforms return multiple variants.
   final bool requestVariants;
 
@@ -93,6 +100,7 @@ class AiContext {
     Chapter? plotBridgeAfter,
     List<CanonPin>? canonPins,
     List<StoryLabMessage>? storyLabMessages,
+    NoteType? growType,
     bool? requestVariants,
     int? variantCount,
     List<String>? triggeredNoteTitles,
@@ -111,6 +119,7 @@ class AiContext {
       plotBridgeAfter: plotBridgeAfter ?? this.plotBridgeAfter,
       canonPins: canonPins ?? this.canonPins,
       storyLabMessages: storyLabMessages ?? this.storyLabMessages,
+      growType: growType ?? this.growType,
       requestVariants: requestVariants ?? this.requestVariants,
       variantCount: variantCount ?? this.variantCount,
       triggeredNoteTitles: triggeredNoteTitles ?? this.triggeredNoteTitles,
@@ -141,6 +150,9 @@ enum AiAction {
   storyLabSceneIdeas,
   storyLabGlossary,
   storyLabSummarize,
+  foundationsSparks,
+  foundationsGrow,
+  foundationsOpeningScenes,
 }
 
 class AiResult {
@@ -152,6 +164,8 @@ class AiResult {
     this.pacingLabels = const {},
     this.variants = const [],
     this.continuityFixes = const [],
+    this.worldSparks = const [],
+    this.growOptions = const [],
   });
 
   final String text;
@@ -161,4 +175,6 @@ class AiResult {
   final Map<String, String> pacingLabels;
   final List<String> variants;
   final List<ContinuityFix> continuityFixes;
+  final List<WorldSpark> worldSparks;
+  final List<GrowOption> growOptions;
 }

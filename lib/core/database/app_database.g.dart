@@ -1192,6 +1192,16 @@ class $BookNotesTableTable extends BookNotesTable
     requiredDuringInsert: false,
     defaultValue: const Constant(5),
   );
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+    'status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('canon'),
+  );
   static const VerificationMeta _sortOrderMeta = const VerificationMeta(
     'sortOrder',
   );
@@ -1236,6 +1246,7 @@ class $BookNotesTableTable extends BookNotesTable
     loreKeywords,
     loreAlwaysInclude,
     lorePriority,
+    status,
     sortOrder,
     createdAt,
     updatedAt,
@@ -1323,6 +1334,12 @@ class $BookNotesTableTable extends BookNotesTable
         ),
       );
     }
+    if (data.containsKey('status')) {
+      context.handle(
+        _statusMeta,
+        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+      );
+    }
     if (data.containsKey('sort_order')) {
       context.handle(
         _sortOrderMeta,
@@ -1392,6 +1409,10 @@ class $BookNotesTableTable extends BookNotesTable
         DriftSqlType.int,
         data['${effectivePrefix}lore_priority'],
       )!,
+      status: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status'],
+      )!,
       sortOrder: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}sort_order'],
@@ -1424,6 +1445,7 @@ class BookNotesTableData extends DataClass
   final String loreKeywords;
   final bool loreAlwaysInclude;
   final int lorePriority;
+  final String status;
   final int sortOrder;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -1437,6 +1459,7 @@ class BookNotesTableData extends DataClass
     required this.loreKeywords,
     required this.loreAlwaysInclude,
     required this.lorePriority,
+    required this.status,
     required this.sortOrder,
     required this.createdAt,
     required this.updatedAt,
@@ -1453,6 +1476,7 @@ class BookNotesTableData extends DataClass
     map['lore_keywords'] = Variable<String>(loreKeywords);
     map['lore_always_include'] = Variable<bool>(loreAlwaysInclude);
     map['lore_priority'] = Variable<int>(lorePriority);
+    map['status'] = Variable<String>(status);
     map['sort_order'] = Variable<int>(sortOrder);
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
@@ -1470,6 +1494,7 @@ class BookNotesTableData extends DataClass
       loreKeywords: Value(loreKeywords),
       loreAlwaysInclude: Value(loreAlwaysInclude),
       lorePriority: Value(lorePriority),
+      status: Value(status),
       sortOrder: Value(sortOrder),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
@@ -1491,6 +1516,7 @@ class BookNotesTableData extends DataClass
       loreKeywords: serializer.fromJson<String>(json['loreKeywords']),
       loreAlwaysInclude: serializer.fromJson<bool>(json['loreAlwaysInclude']),
       lorePriority: serializer.fromJson<int>(json['lorePriority']),
+      status: serializer.fromJson<String>(json['status']),
       sortOrder: serializer.fromJson<int>(json['sortOrder']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
@@ -1509,6 +1535,7 @@ class BookNotesTableData extends DataClass
       'loreKeywords': serializer.toJson<String>(loreKeywords),
       'loreAlwaysInclude': serializer.toJson<bool>(loreAlwaysInclude),
       'lorePriority': serializer.toJson<int>(lorePriority),
+      'status': serializer.toJson<String>(status),
       'sortOrder': serializer.toJson<int>(sortOrder),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
@@ -1525,6 +1552,7 @@ class BookNotesTableData extends DataClass
     String? loreKeywords,
     bool? loreAlwaysInclude,
     int? lorePriority,
+    String? status,
     int? sortOrder,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -1538,6 +1566,7 @@ class BookNotesTableData extends DataClass
     loreKeywords: loreKeywords ?? this.loreKeywords,
     loreAlwaysInclude: loreAlwaysInclude ?? this.loreAlwaysInclude,
     lorePriority: lorePriority ?? this.lorePriority,
+    status: status ?? this.status,
     sortOrder: sortOrder ?? this.sortOrder,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
@@ -1561,6 +1590,7 @@ class BookNotesTableData extends DataClass
       lorePriority: data.lorePriority.present
           ? data.lorePriority.value
           : this.lorePriority,
+      status: data.status.present ? data.status.value : this.status,
       sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
@@ -1579,6 +1609,7 @@ class BookNotesTableData extends DataClass
           ..write('loreKeywords: $loreKeywords, ')
           ..write('loreAlwaysInclude: $loreAlwaysInclude, ')
           ..write('lorePriority: $lorePriority, ')
+          ..write('status: $status, ')
           ..write('sortOrder: $sortOrder, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
@@ -1597,6 +1628,7 @@ class BookNotesTableData extends DataClass
     loreKeywords,
     loreAlwaysInclude,
     lorePriority,
+    status,
     sortOrder,
     createdAt,
     updatedAt,
@@ -1614,6 +1646,7 @@ class BookNotesTableData extends DataClass
           other.loreKeywords == this.loreKeywords &&
           other.loreAlwaysInclude == this.loreAlwaysInclude &&
           other.lorePriority == this.lorePriority &&
+          other.status == this.status &&
           other.sortOrder == this.sortOrder &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
@@ -1629,6 +1662,7 @@ class BookNotesTableCompanion extends UpdateCompanion<BookNotesTableData> {
   final Value<String> loreKeywords;
   final Value<bool> loreAlwaysInclude;
   final Value<int> lorePriority;
+  final Value<String> status;
   final Value<int> sortOrder;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
@@ -1643,6 +1677,7 @@ class BookNotesTableCompanion extends UpdateCompanion<BookNotesTableData> {
     this.loreKeywords = const Value.absent(),
     this.loreAlwaysInclude = const Value.absent(),
     this.lorePriority = const Value.absent(),
+    this.status = const Value.absent(),
     this.sortOrder = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
@@ -1658,6 +1693,7 @@ class BookNotesTableCompanion extends UpdateCompanion<BookNotesTableData> {
     this.loreKeywords = const Value.absent(),
     this.loreAlwaysInclude = const Value.absent(),
     this.lorePriority = const Value.absent(),
+    this.status = const Value.absent(),
     required int sortOrder,
     required DateTime createdAt,
     required DateTime updatedAt,
@@ -1679,6 +1715,7 @@ class BookNotesTableCompanion extends UpdateCompanion<BookNotesTableData> {
     Expression<String>? loreKeywords,
     Expression<bool>? loreAlwaysInclude,
     Expression<int>? lorePriority,
+    Expression<String>? status,
     Expression<int>? sortOrder,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
@@ -1694,6 +1731,7 @@ class BookNotesTableCompanion extends UpdateCompanion<BookNotesTableData> {
       if (loreKeywords != null) 'lore_keywords': loreKeywords,
       if (loreAlwaysInclude != null) 'lore_always_include': loreAlwaysInclude,
       if (lorePriority != null) 'lore_priority': lorePriority,
+      if (status != null) 'status': status,
       if (sortOrder != null) 'sort_order': sortOrder,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
@@ -1711,6 +1749,7 @@ class BookNotesTableCompanion extends UpdateCompanion<BookNotesTableData> {
     Value<String>? loreKeywords,
     Value<bool>? loreAlwaysInclude,
     Value<int>? lorePriority,
+    Value<String>? status,
     Value<int>? sortOrder,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
@@ -1726,6 +1765,7 @@ class BookNotesTableCompanion extends UpdateCompanion<BookNotesTableData> {
       loreKeywords: loreKeywords ?? this.loreKeywords,
       loreAlwaysInclude: loreAlwaysInclude ?? this.loreAlwaysInclude,
       lorePriority: lorePriority ?? this.lorePriority,
+      status: status ?? this.status,
       sortOrder: sortOrder ?? this.sortOrder,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -1763,6 +1803,9 @@ class BookNotesTableCompanion extends UpdateCompanion<BookNotesTableData> {
     if (lorePriority.present) {
       map['lore_priority'] = Variable<int>(lorePriority.value);
     }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
     if (sortOrder.present) {
       map['sort_order'] = Variable<int>(sortOrder.value);
     }
@@ -1790,6 +1833,7 @@ class BookNotesTableCompanion extends UpdateCompanion<BookNotesTableData> {
           ..write('loreKeywords: $loreKeywords, ')
           ..write('loreAlwaysInclude: $loreAlwaysInclude, ')
           ..write('lorePriority: $lorePriority, ')
+          ..write('status: $status, ')
           ..write('sortOrder: $sortOrder, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
@@ -4152,6 +4196,7 @@ typedef $$BookNotesTableTableCreateCompanionBuilder =
       Value<String> loreKeywords,
       Value<bool> loreAlwaysInclude,
       Value<int> lorePriority,
+      Value<String> status,
       required int sortOrder,
       required DateTime createdAt,
       required DateTime updatedAt,
@@ -4168,6 +4213,7 @@ typedef $$BookNotesTableTableUpdateCompanionBuilder =
       Value<String> loreKeywords,
       Value<bool> loreAlwaysInclude,
       Value<int> lorePriority,
+      Value<String> status,
       Value<int> sortOrder,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
@@ -4275,6 +4321,11 @@ class $$BookNotesTableTableFilterComposer
 
   ColumnFilters<int> get lorePriority => $composableBuilder(
     column: $table.lorePriority,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get status => $composableBuilder(
+    column: $table.status,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -4391,6 +4442,11 @@ class $$BookNotesTableTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get sortOrder => $composableBuilder(
     column: $table.sortOrder,
     builder: (column) => ColumnOrderings(column),
@@ -4470,6 +4526,9 @@ class $$BookNotesTableTableAnnotationComposer
     column: $table.lorePriority,
     builder: (column) => column,
   );
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
 
   GeneratedColumn<int> get sortOrder =>
       $composableBuilder(column: $table.sortOrder, builder: (column) => column);
@@ -4569,6 +4628,7 @@ class $$BookNotesTableTableTableManager
                 Value<String> loreKeywords = const Value.absent(),
                 Value<bool> loreAlwaysInclude = const Value.absent(),
                 Value<int> lorePriority = const Value.absent(),
+                Value<String> status = const Value.absent(),
                 Value<int> sortOrder = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
@@ -4583,6 +4643,7 @@ class $$BookNotesTableTableTableManager
                 loreKeywords: loreKeywords,
                 loreAlwaysInclude: loreAlwaysInclude,
                 lorePriority: lorePriority,
+                status: status,
                 sortOrder: sortOrder,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
@@ -4599,6 +4660,7 @@ class $$BookNotesTableTableTableManager
                 Value<String> loreKeywords = const Value.absent(),
                 Value<bool> loreAlwaysInclude = const Value.absent(),
                 Value<int> lorePriority = const Value.absent(),
+                Value<String> status = const Value.absent(),
                 required int sortOrder,
                 required DateTime createdAt,
                 required DateTime updatedAt,
@@ -4613,6 +4675,7 @@ class $$BookNotesTableTableTableManager
                 loreKeywords: loreKeywords,
                 loreAlwaysInclude: loreAlwaysInclude,
                 lorePriority: lorePriority,
+                status: status,
                 sortOrder: sortOrder,
                 createdAt: createdAt,
                 updatedAt: updatedAt,

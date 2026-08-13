@@ -40,6 +40,7 @@ class BookNotesTable extends Table {
   BoolColumn get loreAlwaysInclude =>
       boolean().withDefault(const Constant(false))();
   IntColumn get lorePriority => integer().withDefault(const Constant(5))();
+  TextColumn get status => text().withDefault(const Constant('canon'))();
   IntColumn get sortOrder => integer()();
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();

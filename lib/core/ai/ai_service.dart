@@ -4,8 +4,12 @@ import 'package:journey/core/ai/clients/google_gemini_client.dart';
 import 'package:journey/core/ai/clients/nanogpt_client.dart';
 import 'package:journey/core/ai/continuity_fix_parser.dart';
 import 'package:journey/core/ai/extracted_entity_parser.dart';
+import 'package:journey/core/ai/grow_option_parser.dart';
 import 'package:journey/core/ai/models/continuity_fix.dart';
 import 'package:journey/core/ai/models/extracted_entity.dart';
+import 'package:journey/core/ai/models/grow_option.dart';
+import 'package:journey/core/ai/models/world_spark.dart';
+import 'package:journey/core/ai/world_spark_parser.dart';
 import 'package:journey/core/ai/note_context_service.dart';
 import 'package:journey/core/ai/pacing_label_parser.dart';
 import 'package:journey/core/ai/prompt_templates.dart';
@@ -98,6 +102,14 @@ class JourneyAiService implements AiService {
           ? ContinuityFixParser.parse(text, notes: context.notes)
           : <ContinuityFix>[];
 
+      final worldSparks = action == AiAction.foundationsSparks
+          ? WorldSparkParser.parse(text)
+          : <WorldSpark>[];
+
+      final growOptions = action == AiAction.foundationsGrow
+          ? GrowOptionParser.parse(text)
+          : <GrowOption>[];
+
       final variants = _variantActions.contains(action) ||
               (action == AiAction.showDontTell && context.requestVariants)
           ? VariantsParser.parse(text)
@@ -112,6 +124,8 @@ class JourneyAiService implements AiService {
         pacingLabels: pacingLabels,
         variants: variants,
         continuityFixes: continuityFixes,
+        worldSparks: worldSparks,
+        growOptions: growOptions,
       );
     } on GoogleGeminiException catch (error) {
       throw AiServiceException('Google Gemini: ${error.message}');

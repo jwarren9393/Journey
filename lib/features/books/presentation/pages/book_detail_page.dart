@@ -69,7 +69,7 @@ class _BookDetailPageState extends ConsumerState<BookDetailPage>
               ),
               PopupMenuItem(
                 value: BookDetailMenuAction.storyLab,
-                child: Text('Story Lab'),
+                child: Text('Foundations / Story Lab'),
               ),
               PopupMenuItem(
                 value: BookDetailMenuAction.updateCanon,

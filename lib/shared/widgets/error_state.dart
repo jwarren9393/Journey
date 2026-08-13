@@ -69,10 +69,14 @@ class ErrorState extends StatelessWidget {
   }
 }
 
-void showAppSnackBar(BuildContext context, String message) {
+void showAppSnackBar(
+  BuildContext context,
+  String message, {
+  SnackBarAction? action,
+}) {
   ScaffoldMessenger.of(context)
     ..hideCurrentSnackBar()
-    ..showSnackBar(SnackBar(content: Text(message)));
+    ..showSnackBar(SnackBar(content: Text(message), action: action));
 }
 
 void showErrorSnackBar(BuildContext context, Object error) {

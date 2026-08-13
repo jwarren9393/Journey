@@ -112,7 +112,7 @@ class _ToneVoiceMeterDialogState extends State<_ToneVoiceMeterDialog> {
                 )
               else
                 DropdownButtonFormField<String>(
-                  value: _selectedChapterId,
+                  initialValue: _selectedChapterId,
                   decoration: const InputDecoration(
                     labelText: 'Reference chapter',
                     border: OutlineInputBorder(),

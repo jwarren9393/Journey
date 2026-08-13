@@ -4,6 +4,7 @@ import 'package:journey/features/books/domain/models/book.dart';
 import 'package:journey/features/books/domain/models/book_note.dart';
 import 'package:journey/features/books/domain/models/chapter.dart';
 import 'package:journey/features/books/domain/models/canon_pin.dart';
+import 'package:journey/features/books/domain/models/note_status.dart';
 import 'package:journey/features/books/domain/models/note_type.dart';
 import 'package:journey/features/books/domain/models/story_lab_message.dart';
 
@@ -48,9 +49,8 @@ abstract final class AiContextBuilder {
     final worldbuilding = allNotes
         .where(
           (note) =>
-              note.type == NoteType.character ||
-              note.type == NoteType.location ||
-              note.type == NoteType.plot,
+              note.type.isWorldbuilding &&
+              (note.status != NoteStatus.spark || note.loreAlwaysInclude),
         )
         .toList();
 
@@ -142,5 +142,26 @@ abstract final class AiContextBuilder {
       buffer.write(chapter.content);
     }
     return buffer.toString();
+  }
+
+  static AiContext forFoundations({
+    required Book book,
+    required List<BookNote> allNotes,
+    String? userPrompt,
+    NoteType? growType,
+  }) {
+    final usable = allNotes
+        .where(
+          (note) =>
+              note.status != NoteStatus.spark || note.loreAlwaysInclude,
+        )
+        .toList();
+
+    return AiContext(
+      book: book,
+      userPrompt: userPrompt,
+      notes: usable,
+      growType: growType,
+    );
   }
 }

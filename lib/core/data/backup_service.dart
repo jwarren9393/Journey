@@ -12,7 +12,7 @@ class BackupService {
 
   final AppDatabase _database;
 
-  static const backupVersion = 2;
+  static const backupVersion = 3;
 
   Future<String> exportBackup() async {
     final payload = await _buildPayload();
@@ -45,7 +45,7 @@ class BackupService {
   Future<void> importBackup(String jsonContent) async {
     final payload = jsonDecode(jsonContent) as Map<String, dynamic>;
     final version = payload['version'] as int? ?? 1;
-    if (version != 1 && version != backupVersion) {
+    if (version < 1 || version > backupVersion) {
       throw const BackupException('Unsupported backup version.');
     }
 
@@ -112,7 +112,7 @@ class BackupService {
           );
     }
 
-    if (version >= backupVersion) {
+    if (version >= 2) {
       for (final row in payload['canonPins'] as List<dynamic>? ?? []) {
         await _database.into(_database.canonPinsTable).insert(
               CanonPinsTableCompanion.insert(
@@ -147,13 +147,13 @@ class BackupService {
       description: Value(json['description'] as String? ?? ''),
       category: Value(json['category'] as String? ?? ''),
       authorsNote: Value(
-        version >= backupVersion ? json['authorsNote'] as String? ?? '' : '',
+        version >= 2 ? json['authorsNote'] as String? ?? '' : '',
       ),
       canonSummary: Value(
-        version >= backupVersion ? json['canonSummary'] as String? ?? '' : '',
+        version >= 2 ? json['canonSummary'] as String? ?? '' : '',
       ),
       storyLabSummary: Value(
-        version >= backupVersion ? json['storyLabSummary'] as String? ?? '' : '',
+        version >= 2 ? json['storyLabSummary'] as String? ?? '' : '',
       ),
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),
@@ -185,14 +185,15 @@ class BackupService {
       content: Value(json['content'] as String? ?? ''),
       attachmentPath: Value(json['attachmentPath'] as String? ?? ''),
       loreKeywords: Value(
-        version >= backupVersion ? json['loreKeywords'] as String? ?? '' : '',
+        version >= 2 ? json['loreKeywords'] as String? ?? '' : '',
       ),
       loreAlwaysInclude: Value(
-        version >= backupVersion ? json['loreAlwaysInclude'] as bool? ?? false : false,
+        version >= 2 ? json['loreAlwaysInclude'] as bool? ?? false : false,
       ),
       lorePriority: Value(
-        version >= backupVersion ? json['lorePriority'] as int? ?? 5 : 5,
+        version >= 2 ? json['lorePriority'] as int? ?? 5 : 5,
       ),
+      status: Value(version >= 3 ? json['status'] as String? ?? 'canon' : 'canon'),
       sortOrder: json['sortOrder'] as int,
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),

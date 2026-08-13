@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:journey/core/utils/debouncer.dart';
 import 'package:journey/features/books/domain/models/book_note.dart';
 import 'package:journey/features/books/domain/models/book_tag.dart';
+import 'package:journey/features/books/domain/models/note_status.dart';
 import 'package:journey/features/books/domain/models/note_type.dart';
 import 'package:journey/features/books/presentation/providers/note_providers.dart';
 import 'package:journey/features/books/presentation/providers/tag_providers.dart';
@@ -34,6 +35,7 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
 
   String? _loadedNoteId;
   NoteType _type = NoteType.general;
+  NoteStatus _status = NoteStatus.draft;
   String _attachmentPath = '';
   bool _loreAlwaysInclude = false;
   int _lorePriority = 5;
@@ -83,6 +85,7 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
           _contentController.text = note.content;
           _loreKeywordsController.text = note.loreKeywords;
           _type = note.type;
+          _status = note.status;
           _attachmentPath = note.attachmentPath;
           _loreAlwaysInclude = note.loreAlwaysInclude;
           _lorePriority = note.lorePriority;
@@ -133,6 +136,30 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
                     return;
                   }
                   setState(() => _type = value);
+                  _markDirty(note);
+                },
+              ),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<NoteStatus>(
+                initialValue: _status,
+                decoration: InputDecoration(
+                  labelText: 'Status',
+                  border: const OutlineInputBorder(),
+                  helperText: _status.hint,
+                ),
+                items: NoteStatus.values
+                    .map(
+                      (status) => DropdownMenuItem(
+                        value: status,
+                        child: Text(status.label),
+                      ),
+                    )
+                    .toList(),
+                onChanged: (value) {
+                  if (value == null) {
+                    return;
+                  }
+                  setState(() => _status = value);
                   _markDirty(note);
                 },
               ),
@@ -297,6 +324,7 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
           title: _titleController.text,
           content: _contentController.text,
           type: _type,
+          status: _status,
           attachmentPath: _attachmentPath,
           loreKeywords: _loreKeywordsController.text,
           loreAlwaysInclude: _loreAlwaysInclude,

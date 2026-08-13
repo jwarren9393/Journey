@@ -71,6 +71,23 @@ You are a Story Lab archivist for Journey.
 Fold brainstorm messages into a concise world-summary in clinical bullet points.
 No RP voice or metaphors.
 ''',
+      AiAction.foundationsSparks => '''
+You are a world-discovery partner in Journey's Foundations.
+Offer complete, distinct story-world portraits — not loglines, not questionnaires.
+Do not write manuscript prose. Do not claim to save anything.
+Return only a valid JSON array. No markdown or commentary outside the JSON.
+''',
+      AiAction.foundationsGrow => '''
+You are a world-building partner in Journey's Foundations.
+Grow one named piece of the existing picture at a time.
+Do not dump a full encyclopedia. Do not write manuscript prose.
+Return only a valid JSON array. No markdown or commentary outside the JSON.
+''',
+      AiAction.foundationsOpeningScenes => '''
+You are a first-page assistant in Journey's Foundations.
+Suggest opening scene ideas grounded only in the author's picture and notes.
+Ideas only — not drafted prose.
+''',
       _ => systemInstruction,
     };
   }
@@ -123,6 +140,12 @@ No RP voice or metaphors.
         '$bookPrefix${_storyLabGlossary(context)}',
       AiAction.storyLabSummarize =>
         '$bookPrefix${_storyLabSummarize(context)}',
+      AiAction.foundationsSparks =>
+        '$bookPrefix${_foundationsSparks(context)}',
+      AiAction.foundationsGrow =>
+        '$bookPrefix${_foundationsGrow(context)}',
+      AiAction.foundationsOpeningScenes =>
+        '$bookPrefix${_foundationsOpeningScenes(context)}',
     };
   }
 
@@ -434,6 +457,70 @@ No RP voice or metaphors.
         '${pins.isNotEmpty ? 'CANON PINS:\n$pins\n\n' : ''}'
         'MESSAGES TO FOLD:\n$history\n\n'
         'Return only the updated summary as bullet points (use "- " prefix).';
+  }
+
+  static String _foundationsSparks(AiContext context) {
+    final seed = context.userPrompt?.trim() ?? '';
+    final existing = [
+      if (context.book?.description.trim().isNotEmpty == true)
+        'CURRENT PICTURE:\n${context.book!.description.trim()}',
+      if (context.book?.canonSummary.trim().isNotEmpty == true)
+        'CURRENT CANON:\n${context.book!.canonSummary.trim()}',
+    ].join('\n\n');
+
+    return 'The author is starting from scratch (or exploring a new direction). '
+        'Offer 4 distinct world portraits they could fall in love with.\n\n'
+        '${seed.isEmpty ? 'No seed was given — surprise them with varied moods, scales, and kinds of story.\n\n' : 'AUTHOR SEED / VIBE:\n$seed\n\n'}'
+        '${existing.isEmpty ? '' : '$existing\n\n'}'
+        'Each portrait must feel complete enough to choose, but leave room to grow.\n\n'
+        'Return a JSON array of 4 objects. Each object:\n'
+        '- "title": short evocative name\n'
+        '- "vibe": one-line mood\n'
+        '- "picture": 2-4 paragraphs: the world, who it hurts, what kind of story it wants to be\n'
+        '- "wound": the ache at the center, one or two sentences\n'
+        '- "tone": how the book wants to be written (POV/feel), one sentence\n'
+        '- "canon": array of 4-8 short clinical fact bullets\n\n'
+        'Return only the JSON array.';
+  }
+
+  static String _foundationsGrow(AiContext context) {
+    final picture = context.book?.description.trim().isEmpty ?? true
+        ? '(no picture yet)'
+        : context.book!.description.trim();
+    final notes = NoteContextService.formatNotesForPrompt(context.notes);
+    final existingTitles = NoteContextService.existingNoteTitles(context.notes);
+    final existingList =
+        existingTitles.isEmpty ? '(none)' : existingTitles.join(', ');
+    final focus = context.userPrompt?.trim() ?? '';
+    final type = context.growType;
+    final typeLine = type == null
+        ? 'Grow whatever the picture most needs next. Mix types if useful.'
+        : 'Grow a ${type.label.toLowerCase()} from the picture.';
+
+    return '$typeLine Offer 3 options the author can keep, tweak, or discard.\n\n'
+        'THE PICTURE:\n$picture\n\n'
+        'EXISTING NOTES (do not duplicate these titles):\n$existingList\n\n'
+        '${notes == '(No worldbuilding notes provided.)' ? '' : 'NOTE DETAILS:\n$notes\n\n'}'
+        '${focus.isEmpty ? '' : 'AUTHOR FOCUS:\n$focus\n\n'}'
+        'Return a JSON array of 3 objects. Each object:\n'
+        '- "name": string\n'
+        '- "type": "character" | "location" | "group" | "item" | "history" | "plot" | "idea"\n'
+        '- "description": 1-3 paragraphs the author can keep as a note and expand later\n'
+        '- "keywords": comma-separated names/aliases for later lookup\n\n'
+        'Return only the JSON array.';
+  }
+
+  static String _foundationsOpeningScenes(AiContext context) {
+    final picture = context.book?.description.trim().isEmpty ?? true
+        ? '(no picture yet)'
+        : context.book!.description.trim();
+    final notes = NoteContextService.formatNotesForPrompt(context.notes);
+
+    return 'Suggest exactly 6 opening-scene ideas for this book, grounded in the '
+        'picture and notes. One or two sentences each. Ideas only — not prose.\n\n'
+        'THE PICTURE:\n$picture\n\n'
+        'NOTES:\n$notes\n\n'
+        'Label as "1." through "6."';
   }
 
   static String _formatCanonPins(AiContext context) {

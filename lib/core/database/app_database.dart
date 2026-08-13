@@ -6,6 +6,7 @@ import 'package:journey/features/books/domain/models/book_note.dart' as domain;
 import 'package:journey/features/books/domain/models/book_tag.dart' as domain;
 import 'package:journey/features/books/domain/models/canon_pin.dart' as domain;
 import 'package:journey/features/books/domain/models/chapter.dart' as domain;
+import 'package:journey/features/books/domain/models/note_status.dart';
 import 'package:journey/features/books/domain/models/note_type.dart';
 import 'package:journey/features/books/domain/models/story_lab_message.dart' as domain;
 
@@ -26,7 +27,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -53,6 +54,9 @@ class AppDatabase extends _$AppDatabase {
             await migrator.addColumn(bookNotesTable, bookNotesTable.lorePriority);
             await migrator.createTable(canonPinsTable);
             await migrator.createTable(storyLabMessagesTable);
+          }
+          if (from < 4) {
+            await migrator.addColumn(bookNotesTable, bookNotesTable.status);
           }
         },
       );
@@ -339,6 +343,7 @@ class AppDatabase extends _$AppDatabase {
       id: row.id,
       bookId: row.bookId,
       type: NoteType.fromStorage(row.type),
+      status: NoteStatus.fromStorage(row.status),
       title: row.title,
       content: row.content,
       attachmentPath: row.attachmentPath,

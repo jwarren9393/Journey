@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:journey/core/database/app_database.dart';
 import 'package:journey/features/books/domain/models/book_note.dart';
+import 'package:journey/features/books/domain/models/note_status.dart';
 import 'package:journey/features/books/domain/models/note_type.dart';
 import 'package:journey/features/books/domain/repositories/note_repository.dart';
 import 'package:uuid/uuid.dart';
@@ -29,6 +30,7 @@ class NoteRepositoryImpl implements NoteRepository {
     String loreKeywords = '',
     bool loreAlwaysInclude = false,
     int lorePriority = 5,
+    NoteStatus status = NoteStatus.draft,
   }) async {
     final now = DateTime.now();
     final sortOrder = await _database.nextNoteSortOrder(bookId);
@@ -44,6 +46,7 @@ class NoteRepositoryImpl implements NoteRepository {
         loreKeywords: Value(loreKeywords),
         loreAlwaysInclude: Value(loreAlwaysInclude),
         lorePriority: Value(lorePriority.clamp(0, 10)),
+        status: Value(status.storageValue),
         sortOrder: sortOrder,
         createdAt: now,
         updatedAt: now,
@@ -64,6 +67,7 @@ class NoteRepositoryImpl implements NoteRepository {
         loreKeywords: Value(note.loreKeywords),
         loreAlwaysInclude: Value(note.loreAlwaysInclude),
         lorePriority: Value(note.lorePriority.clamp(0, 10)),
+        status: Value(note.status.storageValue),
         sortOrder: Value(note.sortOrder),
         createdAt: Value(note.createdAt),
         updatedAt: Value(DateTime.now()),

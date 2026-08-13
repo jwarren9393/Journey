@@ -41,7 +41,7 @@ abstract final class ExtractedEntityParser {
         entities.add(
           ExtractedEntity(
             name: name,
-            suggestedType: _parseType(_readString(item['type'])),
+            suggestedType: parseType(_readString(item['type'])),
             description: _readString(item['description']) ?? '',
           ),
         );
@@ -84,12 +84,16 @@ abstract final class ExtractedEntityParser {
     return trimmed.isEmpty ? null : trimmed;
   }
 
-  static NoteType _parseType(String? value) {
+  static NoteType parseType(String? value) {
     return switch (value?.toLowerCase()) {
       'character' => NoteType.character,
       'location' || 'place' => NoteType.location,
       'plot' => NoteType.plot,
       'research' => NoteType.research,
+      'item' || 'object' || 'artifact' => NoteType.item,
+      'group' || 'family' || 'faction' || 'organization' => NoteType.group,
+      'history' || 'timeline' || 'event' => NoteType.history,
+      'idea' || 'spark' => NoteType.idea,
       _ => NoteType.general,
     };
   }
