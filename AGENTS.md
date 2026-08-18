@@ -35,11 +35,11 @@ If you completed a roadmap item, check it off in `docs/ROADMAP.md`.
 
 ## Project summary
 
-- **Journey** — book-writing app for Android and Windows
+- **Journey** — book-writing app for Android, Linux, and Windows
 - **Stack** — Flutter, Riverpod, go_router, Drift (SQLite), plain-text editor
 - **AI** — contextual actions via Google Gemini and/or NanoGPT (user-provided keys)
 - **Architecture** — feature-based clean architecture (`domain` / `data` / `presentation`)
-- **Releases** — tag `v*` pushes GitHub Actions build (Windows zip + Android APK); see `README.md` and `.github/workflows/release.yml`
+- **Releases** — tag `build-*` pushes GitHub Actions build (Windows zip + Linux tarball + Android APK); see `README.md` and `.github/workflows/release.yml`
 
 ## Key commands
 
@@ -49,7 +49,7 @@ dart run build_runner build    # after Drift schema changes
 dart run flutter_launcher_icons # after changing assets/icons/app_icon.png
 flutter analyze
 flutter test
-flutter run                    # pick Android or Windows device
+flutter run                    # pick Android, Linux, or Windows device
 flutter build windows --release
 flutter build apk --release
 ```

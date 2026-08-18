@@ -3,14 +3,14 @@
 > **Living document for Gemini / NotebookLM / external collaborators.**  
 > Upload this file to give full project context. Agents must update it whenever code, structure, or behavior changes.
 
-**Last updated:** 2026-08-14  
-**Version:** 1.0.0 (build 23 in `pubspec.yaml`)
+**Last updated:** 2026-08-18  
+**Version:** 1.0.0 (build 24 in `pubspec.yaml`)
 
 ---
 
 ## 1. Product overview
 
-**Journey** is a **personal, casual** book-writing app for **Android** and **Windows** — not a commercial author platform. An **AI assistant is woven into features** through contextual actions (continue writing, rephrase, recap, etc.), not an always-on chat panel.
+**Journey** is a **personal, casual** book-writing app for **Android**, **Linux**, and **Windows** — not a commercial author platform. An **AI assistant is woven into features** through contextual actions (continue writing, rephrase, recap, etc.), not an always-on chat panel.
 
 **Current maturity:** Personal writing app with optional user-initiated AI, Foundations (start from scratch → picture → grow notes), notes/worldbuilding, outline planning, Story Lab, triggered lore, and desktop polish.
 
@@ -42,7 +42,7 @@
 | IDs | uuid |
 | Code generation | drift_dev, build_runner |
 
-**Target platforms:** Android, Windows (iOS/macOS/Linux/web folders exist but are not prioritized).
+**Target platforms:** Android, Linux, Windows (iOS/macOS/web folders exist but are not prioritized for releases).
 
 ---
 
@@ -412,9 +412,10 @@ Material 3 with `useMaterial3: true`. Theme mode from app preferences (system / 
 flutter pub get
 dart run build_runner build    # Regenerate app_database.g.dart after schema changes
 dart run flutter_launcher_icons # Regenerate Android/Windows icons after changing app_icon.png
-flutter run                    # Android emulator or Windows desktop
+flutter run                    # Android emulator or Windows/Linux desktop
 flutter build apk              # Android release
 flutter build windows          # Windows release
+flutter build linux            # Linux release
 flutter test
 flutter analyze
 ```
@@ -422,7 +423,10 @@ flutter analyze
 `.dart_tool/` and `/build/` are gitignored. After a fresh clone, OS reinstall, or moving the repo to a new drive letter, run `flutter pub get`. If Windows debug fails with a CMake path mismatch (`F:` vs `D:`), run `flutter clean` then debug again.
 
 **Android:** `com.journey.journey`, Kotlin MainActivity, Gradle 9.x  
-**Windows:** `journey.exe`, CMake, default 1280×720 window
+**Linux:** `journey` binary, GTK 3, CMake; release bundle at `build/linux/x64/release/bundle/`  
+**Windows:** `journey.exe`, CMake, default 1280×720 window  
+
+**GitHub Releases** (tag `build-*`): `journey-windows-x64-build-<N>.zip`, `journey-linux-x64-build-<N>.tar.gz`, `journey-android-build-<N>.apk` — see `.github/workflows/release.yml`.
 
 ---
 

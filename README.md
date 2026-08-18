@@ -1,8 +1,8 @@
 # Journey
 
-A personal book-writing app for **Windows** and **Android**. Write in a calm, distraction-friendly editor, organize your story with notes and outlines, and use built-in AI helpers when you want them — not as a chatbot bolted on the side.
+A personal book-writing app for **Windows**, **Linux**, and **Android**. Write in a calm, distraction-friendly editor, organize your story with notes and outlines, and use built-in AI helpers when you want them — not as a chatbot bolted on the side.
 
-**[Download the latest release](https://github.com/jwarren9393/Journey/releases/latest)** — Windows portable zip and Android APK. No account required for the app itself; AI features use your own API keys.
+**[Download the latest release](https://github.com/jwarren9393/Journey/releases/latest)** — Windows portable zip, Linux tarball, and Android APK. No account required for the app itself; AI features use your own API keys.
 
 ---
 
@@ -115,6 +115,16 @@ Your books are stored locally on that PC in the app’s data directory — copy 
 
 **Note:** Release builds are currently signed with a debug key for convenience. For production distribution, use a proper signing key.
 
+### Linux (portable)
+
+1. Download `journey-linux-x64-build-*.tar.gz` from [Releases](https://github.com/jwarren9393/Journey/releases).
+2. Extract anywhere (e.g. `~/Apps/Journey`).
+3. Run `./journey` from the extracted folder.
+
+**Requirements:** 64-bit Linux with GTK 3 (most desktop distros). If the app fails to start, install your distro’s GTK 3 runtime packages.
+
+Your books stay in the app’s local data directory on that machine — use Settings → Backup for JSON export when moving systems.
+
 ### AI setup (optional)
 
 1. Open **Settings → AI** and enable the assistant.
@@ -130,13 +140,14 @@ Your books are stored locally on that PC in the app’s data directory — copy 
 
 - [Flutter](https://docs.flutter.dev/get-started/install) (stable channel)
 - **Windows:** Visual Studio Build Tools with “Desktop development with C++”
+- **Linux:** GTK 3 dev packages (`libgtk-3-dev`, `cmake`, `ninja-build`, etc.)
 - **Android:** Android SDK + JDK 17
 
 ### Commands
 
 ```bash
 flutter pub get
-flutter run                    # pick Windows or Android device
+flutter run                    # pick Windows, Linux, or Android device
 flutter test
 flutter analyze
 ```
@@ -149,6 +160,9 @@ flutter build windows --release
 
 flutter build apk --release
 # Output: build/app/outputs/flutter-apk/app-release.apk
+
+flutter build linux --release
+# Output: build/linux/x64/release/bundle/  (tar.gz this folder for portable distribution)
 ```
 
 **After Drift schema changes**
@@ -159,7 +173,7 @@ dart run build_runner build
 
 ### GitHub Releases (maintainers)
 
-Pushing a **build tag** builds and publishes both artifacts automatically:
+Pushing a **build tag** builds and publishes all release artifacts automatically:
 
 ```bash
 # Bump only the build number in pubspec.yaml (e.g. 1.0.0+18), then:
@@ -167,7 +181,7 @@ git tag build-18
 git push origin build-18
 ```
 
-Release artifacts are named `journey-windows-x64-build-<N>.zip` and `journey-android-build-<N>.apk`. The app version shown to users stays **1.0.0**; the build number distinguishes releases.
+Release artifacts are named `journey-windows-x64-build-<N>.zip`, `journey-linux-x64-build-<N>.tar.gz`, and `journey-android-build-<N>.apk`. The app version shown to users stays **1.0.0**; the build number distinguishes releases.
 
 See [.github/workflows/release.yml](.github/workflows/release.yml).
 

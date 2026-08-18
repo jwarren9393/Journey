@@ -73,6 +73,10 @@ Journey is a **personal, casual writing app** — not a commercial author platfo
 
 ## Changelog
 
+### 2026-08-18 — Linux release builds (build 24)
+- GitHub Releases now include a portable Linux tarball alongside Windows zip and Android APK
+- CI job installs GTK 3 build deps on `ubuntu-latest` and packages `build/linux/x64/release/bundle/`
+
 ### 2026-08-14 — Story Lab drafts persist (build 23)
 - Foundations sparks, grow options, vibe, and focus survive leaving the screen or switching tabs
 - Brainstorm messages already saved; unsent composer text now saves too
