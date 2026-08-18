@@ -8,6 +8,7 @@ class BooksTable extends Table {
   TextColumn get authorsNote => text().withDefault(const Constant(''))();
   TextColumn get canonSummary => text().withDefault(const Constant(''))();
   TextColumn get storyLabSummary => text().withDefault(const Constant(''))();
+  TextColumn get storyLabDraft => text().withDefault(const Constant(''))();
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
 

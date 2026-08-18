@@ -28,7 +28,7 @@ A phased plan for building the book-writing app. Phases are flexible — we'll r
 - Local persistence — **done**
 - Library view — **done**
 - Google Gemini (AI Studio) — **done**
-- NanoGPT with subscription model picker — **done**
+- NanoGPT with Auto, remaining credits, subscription-only catalog, and filters — **done**
 - Editor AI actions — **done**
 - Book AI recap — **done**
 - Book description editing — **done**
@@ -174,6 +174,7 @@ Hook into existing export flow (`share_plus` / book detail export menu).
 - [x] **Organization** — extra note types; Spark / Draft / Canon status; search + filters + sort
 - [x] **Lore lookup** — editor panel/sheet + Story Lab; `Ctrl+Shift+L`
 - [x] Schema v4 (`status` on notes); backup v3
+- [x] Schema v5 (`story_lab_draft` on books); backup v4 — Foundations/brainstorm drafts persist
 
 ### Phase 7 excluded
 

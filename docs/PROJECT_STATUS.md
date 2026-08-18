@@ -2,7 +2,7 @@
 
 > **Living document for AI agents.** Read this first every session. Update before you finish any work.
 
-**Last updated:** 2026-08-13  
+**Last updated:** 2026-08-18  
 **Current phase:** 7 (Foundations — start from scratch) — **COMPLETE**  
 **Previous:** Phase 6 (Grounded long-form memory) — complete  
 **Deferred (non-AI):** Rich text, cloud sync
@@ -72,6 +72,17 @@ Journey is a **personal, casual writing app** — not a commercial author platfo
 ---
 
 ## Changelog
+
+### 2026-08-14 — Story Lab drafts persist (build 23)
+- Foundations sparks, grow options, vibe, and focus survive leaving the screen or switching tabs
+- Brainstorm messages already saved; unsent composer text now saves too
+- SQLite schema v5 (`story_lab_draft` on books); backup format v4
+
+### 2026-08-14 — NanoGPT Auto, usage, and sticky AI settings (build 22)
+- NanoGPT **Auto** (`auto-model`) is always available
+- AI settings persist when you leave the screen (auto-save; no Save button)
+- Remaining **today** and billing-period subscription allowance (NanoGPT’s API does not always send a weekly bucket) plus pay-as-you-go balance
+- Model picker: search, subscription-only toggle, category/capability filters, sort, and stats (context, pricing, capabilities; TPS/uptime when NanoGPT includes them)
 
 ### 2026-08-13 — Chapters empty-state overflow (build 21)
 - Empty chapters tab no longer overflows when description/author/canon cards leave little vertical room; empty states scroll if needed

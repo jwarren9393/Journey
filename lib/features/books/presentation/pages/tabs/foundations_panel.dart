@@ -7,12 +7,15 @@ import 'package:journey/core/ai/ai_context_builder.dart';
 import 'package:journey/core/ai/models/grow_option.dart';
 import 'package:journey/core/ai/models/world_spark.dart';
 import 'package:journey/core/providers/app_providers.dart';
+import 'package:journey/core/utils/debouncer.dart';
 import 'package:journey/features/books/domain/models/book.dart';
 import 'package:journey/features/books/domain/models/note_status.dart';
 import 'package:journey/features/books/domain/models/note_type.dart';
+import 'package:journey/features/books/domain/models/story_lab_draft.dart';
 import 'package:journey/features/books/presentation/note_presentation.dart';
 import 'package:journey/features/books/presentation/providers/book_providers.dart';
 import 'package:journey/features/books/presentation/providers/note_providers.dart';
+import 'package:journey/features/books/presentation/providers/story_lab_providers.dart';
 import 'package:journey/shared/widgets/ai_result_sheet.dart';
 import 'package:journey/shared/widgets/error_state.dart';
 
@@ -25,19 +28,35 @@ class FoundationsPanel extends ConsumerStatefulWidget {
   ConsumerState<FoundationsPanel> createState() => _FoundationsPanelState();
 }
 
-class _FoundationsPanelState extends ConsumerState<FoundationsPanel> {
+class _FoundationsPanelState extends ConsumerState<FoundationsPanel>
+    with AutomaticKeepAliveClientMixin {
   final _seedController = TextEditingController();
   final _focusController = TextEditingController();
+  final _saveDebouncer = Debouncer(duration: const Duration(milliseconds: 400));
 
   bool _loadingSparks = false;
   bool _loadingGrow = false;
+  bool _hydrated = false;
+  bool _dirty = false;
   List<WorldSpark> _sparks = const [];
   List<GrowOption> _growOptions = const [];
   NoteType? _growType;
   String? _error;
 
   @override
+  bool get wantKeepAlive => true;
+
+  @override
+  void deactivate() {
+    if (_hydrated && _dirty) {
+      _persist();
+    }
+    super.deactivate();
+  }
+
+  @override
   void dispose() {
+    _saveDebouncer.dispose();
     _seedController.dispose();
     _focusController.dispose();
     super.dispose();
@@ -45,7 +64,13 @@ class _FoundationsPanelState extends ConsumerState<FoundationsPanel> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final bookAsync = ref.watch(bookProvider(widget.bookId));
+    final draftAsync = ref.watch(storyLabDraftProvider(widget.bookId));
+
+    if (bookAsync.isLoading || draftAsync.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
 
     return bookAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
@@ -60,6 +85,8 @@ class _FoundationsPanelState extends ConsumerState<FoundationsPanel> {
             icon: Icons.auto_stories_outlined,
           );
         }
+
+        draftAsync.whenData(_hydrate);
 
         final hasPicture = book.description.trim().isNotEmpty ||
             book.canonSummary.trim().isNotEmpty;
@@ -87,6 +114,7 @@ class _FoundationsPanelState extends ConsumerState<FoundationsPanel> {
               seedController: _seedController,
               loading: _loadingSparks,
               sparks: _sparks,
+              onSeedChanged: (_) => _scheduleSave(),
               hasPicture: hasPicture,
               onGenerate: () => _generateSparks(book, moreLike: null),
               onKeepIdea: (spark) => _keepSparkAsIdea(book, spark),
@@ -100,7 +128,11 @@ class _FoundationsPanelState extends ConsumerState<FoundationsPanel> {
                 growType: _growType,
                 loading: _loadingGrow,
                 options: _growOptions,
-                onTypeChanged: (type) => setState(() => _growType = type),
+                onTypeChanged: (type) {
+                  setState(() => _growType = type);
+                  _scheduleSave();
+                },
+                onFocusChanged: (_) => _scheduleSave(),
                 onGrow: () => _grow(book),
                 onKeep: (option, status) => _keepGrowOption(book, option, status),
               ),
@@ -116,6 +148,39 @@ class _FoundationsPanelState extends ConsumerState<FoundationsPanel> {
         );
       },
     );
+  }
+
+  void _hydrate(StoryLabDraft draft) {
+    if (_hydrated) {
+      return;
+    }
+    _seedController.text = draft.seed;
+    _focusController.text = draft.growFocus;
+    _sparks = draft.sparks;
+    _growOptions = draft.growOptions;
+    _growType = draft.growType;
+    _hydrated = true;
+  }
+
+  void _scheduleSave() {
+    _dirty = true;
+    _saveDebouncer.run(_persist);
+  }
+
+  Future<void> _persist() async {
+    if (!_hydrated) {
+      return;
+    }
+    _dirty = false;
+    await ref.read(storyLabDraftProvider(widget.bookId).notifier).patch(
+          (current) => current.copyWith(
+            seed: _seedController.text,
+            sparks: _sparks,
+            growType: _growType,
+            growFocus: _focusController.text,
+            growOptions: _growOptions,
+          ),
+        );
   }
 
   Future<void> _generateSparks(Book book, {WorldSpark? moreLike}) async {
@@ -155,6 +220,7 @@ class _FoundationsPanelState extends ConsumerState<FoundationsPanel> {
               : 'Could not parse sparks. ${result.text.split('\n').first}';
         }
       });
+      await _persist();
     } catch (error) {
       if (!mounted) {
         return;
@@ -257,6 +323,7 @@ class _FoundationsPanelState extends ConsumerState<FoundationsPanel> {
           _error = 'No grow options came back. Try a different type or focus.';
         }
       });
+      await _persist();
     } catch (error) {
       if (!mounted) {
         return;
@@ -385,6 +452,7 @@ class _SparksSection extends StatelessWidget {
     required this.loading,
     required this.sparks,
     required this.hasPicture,
+    required this.onSeedChanged,
     required this.onGenerate,
     required this.onKeepIdea,
     required this.onCommit,
@@ -395,6 +463,7 @@ class _SparksSection extends StatelessWidget {
   final bool loading;
   final List<WorldSpark> sparks;
   final bool hasPicture;
+  final ValueChanged<String> onSeedChanged;
   final VoidCallback onGenerate;
   final ValueChanged<WorldSpark> onKeepIdea;
   final ValueChanged<WorldSpark> onCommit;
@@ -419,6 +488,7 @@ class _SparksSection extends StatelessWidget {
             hintText: 'lonely grandeur, a city that forgets names, found family…',
             border: OutlineInputBorder(),
           ),
+          onChanged: onSeedChanged,
         ),
         const SizedBox(height: 12),
         FilledButton.icon(
@@ -530,6 +600,7 @@ class _GrowSection extends StatelessWidget {
     required this.loading,
     required this.options,
     required this.onTypeChanged,
+    required this.onFocusChanged,
     required this.onGrow,
     required this.onKeep,
   });
@@ -539,6 +610,7 @@ class _GrowSection extends StatelessWidget {
   final bool loading;
   final List<GrowOption> options;
   final ValueChanged<NoteType?> onTypeChanged;
+  final ValueChanged<String> onFocusChanged;
   final VoidCallback onGrow;
   final void Function(GrowOption option, NoteStatus status) onKeep;
 
@@ -588,6 +660,7 @@ class _GrowSection extends StatelessWidget {
             hintText: 'the ruling family, a forbidden relic, the war 20 years ago…',
             border: OutlineInputBorder(),
           ),
+          onChanged: onFocusChanged,
         ),
         const SizedBox(height: 12),
         FilledButton.icon(

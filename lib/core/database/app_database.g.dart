@@ -87,6 +87,18 @@ class $BooksTableTable extends BooksTable
     requiredDuringInsert: false,
     defaultValue: const Constant(''),
   );
+  static const VerificationMeta _storyLabDraftMeta = const VerificationMeta(
+    'storyLabDraft',
+  );
+  @override
+  late final GeneratedColumn<String> storyLabDraft = GeneratedColumn<String>(
+    'story_lab_draft',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -118,6 +130,7 @@ class $BooksTableTable extends BooksTable
     authorsNote,
     canonSummary,
     storyLabSummary,
+    storyLabDraft,
     createdAt,
     updatedAt,
   ];
@@ -188,6 +201,15 @@ class $BooksTableTable extends BooksTable
         ),
       );
     }
+    if (data.containsKey('story_lab_draft')) {
+      context.handle(
+        _storyLabDraftMeta,
+        storyLabDraft.isAcceptableOrUnknown(
+          data['story_lab_draft']!,
+          _storyLabDraftMeta,
+        ),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -241,6 +263,10 @@ class $BooksTableTable extends BooksTable
         DriftSqlType.string,
         data['${effectivePrefix}story_lab_summary'],
       )!,
+      storyLabDraft: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}story_lab_draft'],
+      )!,
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -266,6 +292,7 @@ class BooksTableData extends DataClass implements Insertable<BooksTableData> {
   final String authorsNote;
   final String canonSummary;
   final String storyLabSummary;
+  final String storyLabDraft;
   final DateTime createdAt;
   final DateTime updatedAt;
   const BooksTableData({
@@ -276,6 +303,7 @@ class BooksTableData extends DataClass implements Insertable<BooksTableData> {
     required this.authorsNote,
     required this.canonSummary,
     required this.storyLabSummary,
+    required this.storyLabDraft,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -289,6 +317,7 @@ class BooksTableData extends DataClass implements Insertable<BooksTableData> {
     map['authors_note'] = Variable<String>(authorsNote);
     map['canon_summary'] = Variable<String>(canonSummary);
     map['story_lab_summary'] = Variable<String>(storyLabSummary);
+    map['story_lab_draft'] = Variable<String>(storyLabDraft);
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     return map;
@@ -303,6 +332,7 @@ class BooksTableData extends DataClass implements Insertable<BooksTableData> {
       authorsNote: Value(authorsNote),
       canonSummary: Value(canonSummary),
       storyLabSummary: Value(storyLabSummary),
+      storyLabDraft: Value(storyLabDraft),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
     );
@@ -321,6 +351,7 @@ class BooksTableData extends DataClass implements Insertable<BooksTableData> {
       authorsNote: serializer.fromJson<String>(json['authorsNote']),
       canonSummary: serializer.fromJson<String>(json['canonSummary']),
       storyLabSummary: serializer.fromJson<String>(json['storyLabSummary']),
+      storyLabDraft: serializer.fromJson<String>(json['storyLabDraft']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
@@ -336,6 +367,7 @@ class BooksTableData extends DataClass implements Insertable<BooksTableData> {
       'authorsNote': serializer.toJson<String>(authorsNote),
       'canonSummary': serializer.toJson<String>(canonSummary),
       'storyLabSummary': serializer.toJson<String>(storyLabSummary),
+      'storyLabDraft': serializer.toJson<String>(storyLabDraft),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
@@ -349,6 +381,7 @@ class BooksTableData extends DataClass implements Insertable<BooksTableData> {
     String? authorsNote,
     String? canonSummary,
     String? storyLabSummary,
+    String? storyLabDraft,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) => BooksTableData(
@@ -359,6 +392,7 @@ class BooksTableData extends DataClass implements Insertable<BooksTableData> {
     authorsNote: authorsNote ?? this.authorsNote,
     canonSummary: canonSummary ?? this.canonSummary,
     storyLabSummary: storyLabSummary ?? this.storyLabSummary,
+    storyLabDraft: storyLabDraft ?? this.storyLabDraft,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
   );
@@ -379,6 +413,9 @@ class BooksTableData extends DataClass implements Insertable<BooksTableData> {
       storyLabSummary: data.storyLabSummary.present
           ? data.storyLabSummary.value
           : this.storyLabSummary,
+      storyLabDraft: data.storyLabDraft.present
+          ? data.storyLabDraft.value
+          : this.storyLabDraft,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
@@ -394,6 +431,7 @@ class BooksTableData extends DataClass implements Insertable<BooksTableData> {
           ..write('authorsNote: $authorsNote, ')
           ..write('canonSummary: $canonSummary, ')
           ..write('storyLabSummary: $storyLabSummary, ')
+          ..write('storyLabDraft: $storyLabDraft, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -409,6 +447,7 @@ class BooksTableData extends DataClass implements Insertable<BooksTableData> {
     authorsNote,
     canonSummary,
     storyLabSummary,
+    storyLabDraft,
     createdAt,
     updatedAt,
   );
@@ -423,6 +462,7 @@ class BooksTableData extends DataClass implements Insertable<BooksTableData> {
           other.authorsNote == this.authorsNote &&
           other.canonSummary == this.canonSummary &&
           other.storyLabSummary == this.storyLabSummary &&
+          other.storyLabDraft == this.storyLabDraft &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
 }
@@ -435,6 +475,7 @@ class BooksTableCompanion extends UpdateCompanion<BooksTableData> {
   final Value<String> authorsNote;
   final Value<String> canonSummary;
   final Value<String> storyLabSummary;
+  final Value<String> storyLabDraft;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   final Value<int> rowid;
@@ -446,6 +487,7 @@ class BooksTableCompanion extends UpdateCompanion<BooksTableData> {
     this.authorsNote = const Value.absent(),
     this.canonSummary = const Value.absent(),
     this.storyLabSummary = const Value.absent(),
+    this.storyLabDraft = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -458,6 +500,7 @@ class BooksTableCompanion extends UpdateCompanion<BooksTableData> {
     this.authorsNote = const Value.absent(),
     this.canonSummary = const Value.absent(),
     this.storyLabSummary = const Value.absent(),
+    this.storyLabDraft = const Value.absent(),
     required DateTime createdAt,
     required DateTime updatedAt,
     this.rowid = const Value.absent(),
@@ -473,6 +516,7 @@ class BooksTableCompanion extends UpdateCompanion<BooksTableData> {
     Expression<String>? authorsNote,
     Expression<String>? canonSummary,
     Expression<String>? storyLabSummary,
+    Expression<String>? storyLabDraft,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<int>? rowid,
@@ -485,6 +529,7 @@ class BooksTableCompanion extends UpdateCompanion<BooksTableData> {
       if (authorsNote != null) 'authors_note': authorsNote,
       if (canonSummary != null) 'canon_summary': canonSummary,
       if (storyLabSummary != null) 'story_lab_summary': storyLabSummary,
+      if (storyLabDraft != null) 'story_lab_draft': storyLabDraft,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (rowid != null) 'rowid': rowid,
@@ -499,6 +544,7 @@ class BooksTableCompanion extends UpdateCompanion<BooksTableData> {
     Value<String>? authorsNote,
     Value<String>? canonSummary,
     Value<String>? storyLabSummary,
+    Value<String>? storyLabDraft,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
     Value<int>? rowid,
@@ -511,6 +557,7 @@ class BooksTableCompanion extends UpdateCompanion<BooksTableData> {
       authorsNote: authorsNote ?? this.authorsNote,
       canonSummary: canonSummary ?? this.canonSummary,
       storyLabSummary: storyLabSummary ?? this.storyLabSummary,
+      storyLabDraft: storyLabDraft ?? this.storyLabDraft,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       rowid: rowid ?? this.rowid,
@@ -541,6 +588,9 @@ class BooksTableCompanion extends UpdateCompanion<BooksTableData> {
     if (storyLabSummary.present) {
       map['story_lab_summary'] = Variable<String>(storyLabSummary.value);
     }
+    if (storyLabDraft.present) {
+      map['story_lab_draft'] = Variable<String>(storyLabDraft.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -563,6 +613,7 @@ class BooksTableCompanion extends UpdateCompanion<BooksTableData> {
           ..write('authorsNote: $authorsNote, ')
           ..write('canonSummary: $canonSummary, ')
           ..write('storyLabSummary: $storyLabSummary, ')
+          ..write('storyLabDraft: $storyLabDraft, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('rowid: $rowid')
@@ -3036,6 +3087,7 @@ typedef $$BooksTableTableCreateCompanionBuilder =
       Value<String> authorsNote,
       Value<String> canonSummary,
       Value<String> storyLabSummary,
+      Value<String> storyLabDraft,
       required DateTime createdAt,
       required DateTime updatedAt,
       Value<int> rowid,
@@ -3049,6 +3101,7 @@ typedef $$BooksTableTableUpdateCompanionBuilder =
       Value<String> authorsNote,
       Value<String> canonSummary,
       Value<String> storyLabSummary,
+      Value<String> storyLabDraft,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
       Value<int> rowid,
@@ -3197,6 +3250,11 @@ class $$BooksTableTableFilterComposer
 
   ColumnFilters<String> get storyLabSummary => $composableBuilder(
     column: $table.storyLabSummary,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get storyLabDraft => $composableBuilder(
+    column: $table.storyLabDraft,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -3381,6 +3439,11 @@ class $$BooksTableTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get storyLabDraft => $composableBuilder(
+    column: $table.storyLabDraft,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -3427,6 +3490,11 @@ class $$BooksTableTableAnnotationComposer
 
   GeneratedColumn<String> get storyLabSummary => $composableBuilder(
     column: $table.storyLabSummary,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get storyLabDraft => $composableBuilder(
+    column: $table.storyLabDraft,
     builder: (column) => column,
   );
 
@@ -3604,6 +3672,7 @@ class $$BooksTableTableTableManager
                 Value<String> authorsNote = const Value.absent(),
                 Value<String> canonSummary = const Value.absent(),
                 Value<String> storyLabSummary = const Value.absent(),
+                Value<String> storyLabDraft = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -3615,6 +3684,7 @@ class $$BooksTableTableTableManager
                 authorsNote: authorsNote,
                 canonSummary: canonSummary,
                 storyLabSummary: storyLabSummary,
+                storyLabDraft: storyLabDraft,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 rowid: rowid,
@@ -3628,6 +3698,7 @@ class $$BooksTableTableTableManager
                 Value<String> authorsNote = const Value.absent(),
                 Value<String> canonSummary = const Value.absent(),
                 Value<String> storyLabSummary = const Value.absent(),
+                Value<String> storyLabDraft = const Value.absent(),
                 required DateTime createdAt,
                 required DateTime updatedAt,
                 Value<int> rowid = const Value.absent(),
@@ -3639,6 +3710,7 @@ class $$BooksTableTableTableManager
                 authorsNote: authorsNote,
                 canonSummary: canonSummary,
                 storyLabSummary: storyLabSummary,
+                storyLabDraft: storyLabDraft,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 rowid: rowid,

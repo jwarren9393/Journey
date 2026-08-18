@@ -20,6 +20,30 @@ class WorldSpark {
       .where((line) => line.length > 2)
       .join('\n');
 
+  Map<String, dynamic> toJson() {
+    return {
+      'title': title,
+      'vibe': vibe,
+      'picture': picture,
+      'wound': wound,
+      'tone': tone,
+      'canon': canon,
+    };
+  }
+
+  factory WorldSpark.fromJson(Map<String, dynamic> json) {
+    return WorldSpark(
+      title: json['title'] as String? ?? '',
+      vibe: json['vibe'] as String? ?? '',
+      picture: json['picture'] as String? ?? '',
+      wound: json['wound'] as String? ?? '',
+      tone: json['tone'] as String? ?? '',
+      canon: (json['canon'] as List<dynamic>? ?? [])
+          .map((item) => item.toString())
+          .toList(),
+    );
+  }
+
   String toNoteBody() {
     final buffer = StringBuffer()
       ..writeln(vibe.trim())

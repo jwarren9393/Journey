@@ -12,7 +12,7 @@ class BackupService {
 
   final AppDatabase _database;
 
-  static const backupVersion = 3;
+  static const backupVersion = 4;
 
   Future<String> exportBackup() async {
     final payload = await _buildPayload();
@@ -154,6 +154,9 @@ class BackupService {
       ),
       storyLabSummary: Value(
         version >= 2 ? json['storyLabSummary'] as String? ?? '' : '',
+      ),
+      storyLabDraft: Value(
+        version >= 4 ? json['storyLabDraft'] as String? ?? '' : '',
       ),
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),

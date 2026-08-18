@@ -27,7 +27,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -58,6 +58,9 @@ class AppDatabase extends _$AppDatabase {
           if (from < 4) {
             await migrator.addColumn(bookNotesTable, bookNotesTable.status);
           }
+          if (from < 5) {
+            await migrator.addColumn(booksTable, booksTable.storyLabDraft);
+          }
         },
       );
 
@@ -81,9 +84,24 @@ class AppDatabase extends _$AppDatabase {
   }
 
   Future<domain.Book> updateBook(BooksTableCompanion companion) async {
-    await update(booksTable).replace(companion);
-    final book = await getBookById(companion.id.value);
+    final id = companion.id.value;
+    await (update(booksTable)..where((t) => t.id.equals(id))).write(
+      companion.copyWith(id: const Value.absent()),
+    );
+    final book = await getBookById(id);
     return book!;
+  }
+
+  Future<String> getStoryLabDraft(String bookId) async {
+    final row = await (select(booksTable)..where((t) => t.id.equals(bookId)))
+        .getSingleOrNull();
+    return row?.storyLabDraft ?? '';
+  }
+
+  Future<void> saveStoryLabDraft(String bookId, String json) async {
+    await (update(booksTable)..where((t) => t.id.equals(bookId))).write(
+      BooksTableCompanion(storyLabDraft: Value(json)),
+    );
   }
 
   Future<void> deleteBook(String id) async {

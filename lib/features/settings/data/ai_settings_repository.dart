@@ -12,6 +12,7 @@ class AiSettingsRepository {
   static const _googleModelKey = 'google_model';
   static const _nanoGptApiKeyKey = 'nanogpt_api_key';
   static const _nanoGptModelKey = 'nanogpt_model';
+  static const _nanoGptSubscriptionOnlyKey = 'nanogpt_subscription_only';
 
   // Legacy keys from Phase 0.5
   static const _legacyProviderKey = 'ai_provider';
@@ -24,6 +25,11 @@ class AiSettingsRepository {
     var googleModel = _prefs.getString(_googleModelKey) ?? 'gemini-2.5-flash';
     var nanoGptApiKey = _prefs.getString(_nanoGptApiKeyKey) ?? '';
     var nanoGptModel = _prefs.getString(_nanoGptModelKey) ?? '';
+    if (nanoGptModel.trim().isEmpty) {
+      nanoGptModel = 'auto-model';
+    }
+    final nanoGptSubscriptionOnly =
+        _prefs.getBool(_nanoGptSubscriptionOnlyKey) ?? false;
 
     final providerName = _prefs.getString(_providerNameKey);
     if (providerName != null) {
@@ -34,6 +40,7 @@ class AiSettingsRepository {
         googleModel: googleModel,
         nanoGptApiKey: nanoGptApiKey,
         nanoGptModel: nanoGptModel,
+        nanoGptSubscriptionOnly: nanoGptSubscriptionOnly,
       );
     }
 
@@ -57,6 +64,7 @@ class AiSettingsRepository {
       googleModel: googleModel,
       nanoGptApiKey: nanoGptApiKey,
       nanoGptModel: nanoGptModel,
+      nanoGptSubscriptionOnly: nanoGptSubscriptionOnly,
     );
   }
 
@@ -67,6 +75,10 @@ class AiSettingsRepository {
     await _prefs.setString(_googleModelKey, config.googleModel);
     await _prefs.setString(_nanoGptApiKeyKey, config.nanoGptApiKey);
     await _prefs.setString(_nanoGptModelKey, config.nanoGptModel);
+    await _prefs.setBool(
+      _nanoGptSubscriptionOnlyKey,
+      config.nanoGptSubscriptionOnly,
+    );
   }
 
   AiProvider _parseProvider(String value) {

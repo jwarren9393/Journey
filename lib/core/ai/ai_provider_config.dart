@@ -1,3 +1,5 @@
+import 'package:journey/core/ai/nanogpt_model_filters.dart';
+
 enum AiProvider {
   none,
   google,
@@ -11,7 +13,8 @@ class AiProviderConfig {
     this.googleApiKey = '',
     this.googleModel = 'gemini-2.5-flash',
     this.nanoGptApiKey = '',
-    this.nanoGptModel = '',
+    this.nanoGptModel = NanoGptModelFilters.autoModelId,
+    this.nanoGptSubscriptionOnly = false,
   });
 
   final AiProvider provider;
@@ -20,6 +23,7 @@ class AiProviderConfig {
   final String googleModel;
   final String nanoGptApiKey;
   final String nanoGptModel;
+  final bool nanoGptSubscriptionOnly;
 
   String get activeApiKey => switch (provider) {
         AiProvider.google => googleApiKey,
@@ -46,6 +50,7 @@ class AiProviderConfig {
     String? googleModel,
     String? nanoGptApiKey,
     String? nanoGptModel,
+    bool? nanoGptSubscriptionOnly,
   }) {
     return AiProviderConfig(
       provider: provider ?? this.provider,
@@ -54,6 +59,8 @@ class AiProviderConfig {
       googleModel: googleModel ?? this.googleModel,
       nanoGptApiKey: nanoGptApiKey ?? this.nanoGptApiKey,
       nanoGptModel: nanoGptModel ?? this.nanoGptModel,
+      nanoGptSubscriptionOnly:
+          nanoGptSubscriptionOnly ?? this.nanoGptSubscriptionOnly,
     );
   }
 }

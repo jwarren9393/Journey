@@ -5,6 +5,8 @@ import 'package:journey/core/ai/ai_service.dart';
 import 'package:journey/core/ai/clients/google_gemini_client.dart';
 import 'package:journey/core/ai/clients/nanogpt_client.dart';
 import 'package:journey/core/ai/models/ai_model_option.dart';
+import 'package:journey/core/ai/models/nanogpt_account.dart';
+import 'package:journey/core/ai/nanogpt_model_filters.dart';
 import 'package:journey/core/database/app_database.dart';
 import 'package:journey/features/books/data/repositories/book_repository_impl.dart';
 import 'package:journey/features/books/data/repositories/chapter_repository_impl.dart';
@@ -71,11 +73,8 @@ class AiSettingsNotifier extends AsyncNotifier<AiProviderConfig> {
   }
 
   Future<void> save(AiProviderConfig config) async {
-    state = const AsyncLoading();
-    state = await AsyncValue.guard(() async {
-      await ref.read(aiSettingsRepositoryProvider).save(config);
-      return config;
-    });
+    await ref.read(aiSettingsRepositoryProvider).save(config);
+    state = AsyncData(config);
   }
 }
 
@@ -104,13 +103,22 @@ final googleModelsProvider = FutureProvider.family<List<AiModelOption>, String>(
   },
 );
 
-final nanoGptModelGroupsProvider =
-    FutureProvider.family<List<AiModelGroup>, String>((ref, apiKey) async {
+final nanoGptModelsProvider =
+    FutureProvider.family<List<AiModelOption>, String>((ref, apiKey) async {
   if (apiKey.trim().isEmpty) {
-    return [];
+    return [NanoGptModelFilters.autoModel];
   }
 
-  return ref.watch(nanoGptClientProvider).listSubscriptionModels(apiKey.trim());
+  return ref.watch(nanoGptClientProvider).listModels(apiKey.trim());
+});
+
+final nanoGptAccountProvider =
+    FutureProvider.family<NanoGptAccount?, String>((ref, apiKey) async {
+  if (apiKey.trim().isEmpty) {
+    return null;
+  }
+
+  return ref.watch(nanoGptClientProvider).fetchAccount(apiKey.trim());
 });
 
 final aiActionRunnerProvider = Provider<AiActionRunner>((ref) {

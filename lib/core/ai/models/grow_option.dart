@@ -13,6 +13,24 @@ class GrowOption {
   final String description;
   final String keywords;
 
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'type': type.storageValue,
+      'description': description,
+      'keywords': keywords,
+    };
+  }
+
+  factory GrowOption.fromJson(Map<String, dynamic> json) {
+    return GrowOption(
+      name: json['name'] as String? ?? '',
+      type: NoteType.fromStorage(json['type'] as String? ?? 'idea'),
+      description: json['description'] as String? ?? '',
+      keywords: json['keywords'] as String? ?? '',
+    );
+  }
+
   String get loreKeywords {
     final fromAi = keywords
         .split(',')

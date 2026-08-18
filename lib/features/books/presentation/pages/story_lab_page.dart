@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:journey/core/ai/ai_context.dart';
 import 'package:journey/core/ai/ai_context_builder.dart';
 import 'package:journey/core/providers/app_providers.dart';
+import 'package:journey/core/utils/debouncer.dart';
+import 'package:journey/features/books/domain/models/story_lab_draft.dart';
 import 'package:journey/features/books/domain/models/story_lab_message.dart';
 import 'package:journey/features/books/presentation/pages/tabs/foundations_panel.dart';
 import 'package:journey/features/books/presentation/providers/book_providers.dart';
@@ -33,8 +35,11 @@ class _StoryLabPageState extends ConsumerState<StoryLabPage>
     with SingleTickerProviderStateMixin {
   final _composerController = TextEditingController();
   final _scrollController = ScrollController();
+  final _saveDebouncer = Debouncer(duration: const Duration(milliseconds: 400));
   late final TabController _tabController;
   bool _isSending = false;
+  bool _composerHydrated = false;
+  bool _composerDirty = false;
 
   @override
   void initState() {
@@ -48,8 +53,17 @@ class _StoryLabPageState extends ConsumerState<StoryLabPage>
   }
 
   @override
+  void deactivate() {
+    if (_composerHydrated && _composerDirty) {
+      _persistComposer();
+    }
+    super.deactivate();
+  }
+
+  @override
   void dispose() {
     _tabController.dispose();
+    _saveDebouncer.dispose();
     _composerController.dispose();
     _scrollController.dispose();
     super.dispose();
@@ -60,6 +74,7 @@ class _StoryLabPageState extends ConsumerState<StoryLabPage>
     final bookAsync = ref.watch(bookProvider(widget.bookId));
     final messagesAsync = ref.watch(storyLabMessagesStreamProvider(widget.bookId));
     final pinsAsync = ref.watch(canonPinsStreamProvider(widget.bookId));
+    ref.watch(storyLabDraftProvider(widget.bookId)).whenData(_hydrateComposer);
 
     return Scaffold(
       appBar: AppBar(
@@ -245,6 +260,10 @@ class _StoryLabPageState extends ConsumerState<StoryLabPage>
                         hintText: 'Brainstorm an idea…',
                         border: OutlineInputBorder(),
                       ),
+                      onChanged: (_) {
+                        _composerDirty = true;
+                        _saveDebouncer.run(_persistComposer);
+                      },
                       onSubmitted: (_) => _sendMessage(),
                     ),
                   ),
@@ -271,6 +290,24 @@ class _StoryLabPageState extends ConsumerState<StoryLabPage>
     );
   }
 
+  void _hydrateComposer(StoryLabDraft draft) {
+    if (_composerHydrated) {
+      return;
+    }
+    _composerController.text = draft.composer;
+    _composerHydrated = true;
+  }
+
+  Future<void> _persistComposer() async {
+    if (!_composerHydrated) {
+      return;
+    }
+    _composerDirty = false;
+    await ref.read(storyLabDraftProvider(widget.bookId).notifier).patch(
+          (current) => current.copyWith(composer: _composerController.text),
+        );
+  }
+
   Future<void> _sendMessage() async {
     final text = _composerController.text.trim();
     if (text.isEmpty || _isSending) {
@@ -279,6 +316,7 @@ class _StoryLabPageState extends ConsumerState<StoryLabPage>
 
     setState(() => _isSending = true);
     _composerController.clear();
+    await _persistComposer();
 
     try {
       final storyLabRepo = ref.read(storyLabRepositoryProvider);

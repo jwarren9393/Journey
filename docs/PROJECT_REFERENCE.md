@@ -3,8 +3,8 @@
 > **Living document for Gemini / NotebookLM / external collaborators.**  
 > Upload this file to give full project context. Agents must update it whenever code, structure, or behavior changes.
 
-**Last updated:** 2026-08-13  
-**Version:** 1.0.0 (build 21 in `pubspec.yaml`)
+**Last updated:** 2026-08-14  
+**Version:** 1.0.0 (build 23 in `pubspec.yaml`)
 
 ---
 
@@ -96,6 +96,7 @@ lib/
 | authorsNote | String | Per-book AI style guide (Phase 6) |
 | canonSummary | String | Running canon bullets (Phase 6) |
 | storyLabSummary | String | Folded Story Lab summary (Phase 6) |
+| storyLabDraft | String | JSON: Foundations sparks/prompts + brainstorm composer (not the picture) |
 | createdAt | DateTime | |
 | updatedAt | DateTime | Updated on save |
 
@@ -155,7 +156,8 @@ lib/
 ### Database
 - **Engine:** SQLite via Drift
 - **File:** `journey` (managed by drift_flutter)
-- **Schema version:** 4
+- **Schema version:** 5
+- **Backup format:** 4
 - **Tables:** `books_table`, `chapters_table`, `book_notes_table`, `book_tags_table`, `book_note_tags_table`, `canon_pins_table`, `story_lab_messages_table`
 - **Cascade:** Deleting a book deletes chapters, notes, and tags
 
@@ -188,6 +190,11 @@ lib/
 - `getOrCreate(bookId, name)`
 - `setTagsForNote(noteId, tagIds)`
 - `delete(id)`
+
+### StoryLabRepository
+- `watchByBookId(bookId)` → brainstorm messages
+- `addMessage`, `clearMessages`
+- `getDraft` / `saveDraft` — Foundations sparks/prompts and unsent brainstorm text (`books.story_lab_draft`)
 
 ---
 
@@ -222,8 +229,8 @@ lib/
 - Lore keywords, always-include, priority
 
 ### Foundations / Story Lab (`/books/:bookId/story-lab`)
-- **Foundations tab:** sparks → commit picture → grow notes; opening scene ideas; lore lookup
-- **Brainstorm tab:** chat, canon pins, scene ideas, glossary, summarize
+- **Foundations tab:** sparks → commit picture → grow notes; opening scene ideas; lore lookup. Sparks, grow options, and prompts persist when you leave the screen.
+- **Brainstorm tab:** chat (saved in SQLite), unsent composer draft, canon pins, scene ideas, glossary, summarize
 
 ### Book search (`/books/:bookId/search`)
 - Search bar filters chapter titles and body text within one book
@@ -242,7 +249,7 @@ lib/
 ### Settings (`/settings`) — tabbed
 - **Appearance:** theme mode (system / light / dark), editor font size slider, line spacing slider with live preview
 - **Backup:** export all data to JSON (Downloads/Documents; share sheet on mobile); restore from JSON (replaces all local data)
-- **AI:** enable toggle, active provider, Google Gemini + NanoGPT keys and model pickers
+- **AI:** enable toggle, provider, keys (auto-saved locally), Google model picker, NanoGPT Auto + searchable catalog with stats/filters, remaining subscription allowance and balance
 - Keyboard shortcuts dialog (toolbar icon or Ctrl+/)
 
 **Important:** Google Gemini consumer app / Google One AI subscription is separate from the Gemini API. Users need an API key from AI Studio.
@@ -262,14 +269,14 @@ lib/
 | Provider | Auth | Endpoint | Models |
 |----------|------|----------|--------|
 | **Google Gemini** | AI Studio API key | `google_generative_ai` SDK | Fetched via Gemini API or defaults (2.5 Flash, 2.5 Pro, etc.) |
-| **NanoGPT** | API key (Bearer) | `POST https://nano-gpt.com/api/v1/chat/completions` | `GET https://nano-gpt.com/api/subscription/v1/models?detailed=true` |
+| **NanoGPT** | API key (Bearer) | `POST https://nano-gpt.com/api/v1/chat/completions` | `GET /api/v1/models?detailed=true` + subscription catalog; **Auto** is `auto-model`. Usage: `GET /api/subscription/v1/usage`, balance: `POST /api/check-balance` |
 
 ### Files
 | File | Purpose |
 |------|---------|
 | `ai_service.dart` | `AiService` + `JourneyAiService` (routes to active provider) |
 | `clients/google_gemini_client.dart` | Gemini generateContent + listModels |
-| `clients/nanogpt_client.dart` | Chat completions + subscription model catalog |
+| `clients/nanogpt_client.dart` | Chat completions, full catalog + Auto, usage/balance |
 | `ai_context.dart` | `AiContext`, `AiAction`, `AiResult`, `SensorySense` |
 | `ai_book_actions.dart` | Shared runners for continuity, world bible, entity discovery |
 | `note_context_service.dart` | Keyword note retrieval for AI context |
@@ -280,6 +287,8 @@ lib/
 | `ai_provider_config.dart` | `AiProvider` (none, google, nanoGpt), dual key storage |
 | `prompt_templates.dart` | System instruction + per-action prompts |
 | `models/ai_model_option.dart` | `AiModelOption`, `AiModelGroup` |
+| `models/nanogpt_account.dart` | NanoGPT usage, remaining credits, balance |
+| `nanogpt_model_filters.dart` | Auto model + catalog search/filter/sort |
 
 ### AiAction types (implemented in UI)
 - `continueWriting` — editor menu
@@ -319,8 +328,10 @@ lib/
 - `ai_provider_name` — `none`, `google`, `nanoGpt`
 - `ai_enabled`
 - `google_api_key`, `google_model`
-- `nanogpt_api_key`, `nanogpt_model`
+- `nanogpt_api_key`, `nanogpt_model` (default picker includes `auto-model`)
+- `nanogpt_subscription_only` — bool, model picker filter
 - Legacy keys (`ai_provider`, `ai_api_key`, `ai_model`) migrated on load
+- AI settings auto-save on change; leaving the screen no longer wipes unsaved fields
 
 ---
 
@@ -340,13 +351,15 @@ lib/
 | `googleGeminiClientProvider` | Provider | Gemini API client |
 | `nanoGptClientProvider` | Provider | NanoGPT API client |
 | `googleModelsProvider` | FutureProvider.family | Gemini models by API key |
-| `nanoGptModelGroupsProvider` | FutureProvider.family | NanoGPT subscription models by API key |
+| `nanoGptModelsProvider` | FutureProvider.family | NanoGPT catalog + Auto by API key |
+| `nanoGptAccountProvider` | FutureProvider.family | NanoGPT usage/balance by API key |
 | `aiActionRunnerProvider` | Provider | Convenience wrapper for AI calls |
 | `routerProvider` | Provider<GoRouter> | |
 | `booksStreamProvider` | StreamProvider<List<Book>> | |
 | `bookProvider` | FutureProvider.family | By book ID |
 | `chaptersStreamProvider` | StreamProvider.family | By book ID |
 | `chapterProvider` | FutureProvider.family | By chapter ID |
+| `storyLabDraftProvider` | AsyncNotifierProvider.family | Foundations + brainstorm composer draft |
 
 ---
 
@@ -462,6 +475,7 @@ flutter analyze
 | `lib/features/books/presentation/pages/book_detail_page.dart` | Book hub |
 | `lib/features/books/presentation/pages/story_lab_page.dart` | Foundations + brainstorm |
 | `lib/features/books/presentation/pages/tabs/foundations_panel.dart` | Sparks / picture / grow |
+| `lib/features/books/domain/models/story_lab_draft.dart` | Foundations + brainstorm composer JSON |
 | `lib/shared/widgets/lore_lookup_panel.dart` | Searchable lore reference |
 | `lib/features/editor/presentation/pages/editor_page.dart` | Writing editor |
 | `lib/core/preferences/*.dart` | App preferences model + repository |
@@ -471,6 +485,8 @@ flutter analyze
 | `lib/features/settings/presentation/widgets/appearance_settings_section.dart` | Theme + editor prefs |
 | `lib/features/settings/presentation/widgets/backup_settings_section.dart` | Backup UI |
 | `lib/features/settings/presentation/widgets/ai_settings_section.dart` | AI settings UI |
+| `lib/features/settings/presentation/widgets/model_picker_dialog.dart` | Gemini + NanoGPT model pickers |
+| `lib/core/ai/nanogpt_model_filters.dart` | NanoGPT Auto + catalog filters |
 | `lib/features/editor/presentation/widgets/editor_chapter_sidebar.dart` | Desktop chapter nav |
 | `core/utils/error_messages.dart` | User-friendly error mapping |
 | `shared/widgets/error_state.dart` | Reusable error UI + snackbar helpers |

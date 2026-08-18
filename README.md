@@ -40,7 +40,7 @@ A personal book-writing app for **Windows** and **Android**. Write in a calm, di
 
 AI is **off until you enable it** in Settings. You bring your own keys — data stays on your device except when you call an AI provider.
 
-**Providers:** Google Gemini (AI Studio) or NanoGPT
+**Providers:** Google Gemini (AI Studio) or NanoGPT (includes **Auto**, remaining subscription allowance, and a searchable model catalog)
 
 **Editor actions**
 
@@ -68,11 +68,11 @@ AI is **off until you enable it** in Settings. You bring your own keys — data 
 
 | Action | Description |
 |--------|-------------|
-| Sparks | Generate 4 whole-world pictures; pick one, keep others as idea notes, or ask for more like one |
+| Sparks | Generate 4 whole-world pictures; pick one, keep others as idea notes, or ask for more like one. Sparks and the vibe field stay when you leave. |
 | The picture | Chosen spark becomes book description + canon + tone |
-| Grow | Incrementally create character / place / group / item / history / plot / idea notes |
+| Grow | Incrementally create character / place / group / item / history / plot / idea notes. Options and focus stay when you leave. |
 | Opening scenes | 6 first-page ideas grounded in your picture and notes |
-| Brainstorm chat | Freeform sandbox (only when you send) |
+| Brainstorm chat | Freeform sandbox (only when you send). Messages and unsent draft persist. |
 | Canon pins | Long-press your message to pin a fact |
 | Scene ideas | Generate 6 scene starters |
 | Glossary extract | Pull terms → pre-filled notes |
@@ -119,7 +119,8 @@ Your books are stored locally on that PC in the app’s data directory — copy 
 
 1. Open **Settings → AI** and enable the assistant.
 2. Choose **Google Gemini** or **NanoGPT**.
-3. Add your API key and model ([Google AI Studio](https://aistudio.google.com/apikey) for Gemini).
+3. Add your API key. Journey saves the key and selected model on this device as you change them — you do not need a Save button.
+4. NanoGPT: pick **Auto** or browse models (search, subscription-only, category, capability, sort). Remaining today / billing-period allowance and pay-as-you-go balance appear on that screen.
 
 ---
 

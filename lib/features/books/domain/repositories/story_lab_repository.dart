@@ -1,3 +1,4 @@
+import 'package:journey/features/books/domain/models/story_lab_draft.dart';
 import 'package:journey/features/books/domain/models/story_lab_message.dart';
 
 abstract interface class StoryLabRepository {
@@ -10,4 +11,8 @@ abstract interface class StoryLabRepository {
   });
 
   Future<void> clearMessages(String bookId);
+
+  Future<StoryLabDraft> getDraft(String bookId);
+
+  Future<void> saveDraft(String bookId, StoryLabDraft draft);
 }
