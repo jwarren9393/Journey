@@ -7,6 +7,7 @@ import 'package:journey/core/ai/ai_context_builder.dart';
 import 'package:journey/core/ai/models/grow_option.dart';
 import 'package:journey/core/ai/models/world_spark.dart';
 import 'package:journey/core/providers/app_providers.dart';
+import 'package:journey/core/theme/app_reading_style.dart';
 import 'package:journey/core/utils/debouncer.dart';
 import 'package:journey/features/books/domain/models/book.dart';
 import 'package:journey/features/books/domain/models/note_status.dart';
@@ -97,7 +98,11 @@ class _FoundationsPanelState extends ConsumerState<FoundationsPanel>
             Text(
               hasPicture
                   ? 'Your picture is the north star. Grow named pieces from it — keep what you like, leave the rest.'
-                  : 'Starting from nothing is allowed. Generate a few whole pictures, pick one, then grow characters, places, and history from there.',
+                  : _sparks.isNotEmpty
+                      ? 'You have ${_sparks.length == 1 ? 'a spark' : '${_sparks.length} sparks'} ready. Pick one as the picture, or generate more directions.'
+                      : _seedController.text.trim().isNotEmpty
+                          ? 'Your seed is saved. Generate sparks when you are ready, then pick a picture.'
+                          : 'Starting from nothing is allowed. Generate a few whole pictures, pick one, then grow characters, places, and history from there.',
               style: Theme.of(context).textTheme.bodyMedium,
             ),
             if (_error != null) ...[
@@ -554,18 +559,21 @@ class _SparkCard extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 spark.vibe,
-                style: Theme.of(context).textTheme.bodySmall,
+                style: Theme.of(context).textTheme.bodyMedium,
               ),
             ],
             const SizedBox(height: 8),
-            Text(spark.picture),
+            Text(spark.picture, style: appReadingStyle(context)),
             if (spark.wound.isNotEmpty) ...[
               const SizedBox(height: 8),
-              Text('The wound: ${spark.wound}'),
+              Text(
+                'The wound: ${spark.wound}',
+                style: appReadingStyle(context),
+              ),
             ],
             if (spark.tone.isNotEmpty) ...[
               const SizedBox(height: 4),
-              Text('Tone: ${spark.tone}'),
+              Text('Tone: ${spark.tone}', style: appReadingStyle(context)),
             ],
             const SizedBox(height: 12),
             Wrap(
@@ -691,7 +699,10 @@ class _GrowSection extends StatelessWidget {
                       title: Text(option.name),
                       subtitle: Text(option.type.label),
                     ),
-                    Text(option.description),
+                    Text(
+                      option.description,
+                      style: appReadingStyle(context),
+                    ),
                     const SizedBox(height: 12),
                     Wrap(
                       spacing: 8,

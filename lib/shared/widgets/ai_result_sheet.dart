@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:journey/core/ai/ai_context.dart';
+import 'package:journey/core/theme/app_reading_style.dart';
 import 'package:journey/core/utils/error_messages.dart';
 
 Future<void> showAiResultSheet({
@@ -142,7 +143,10 @@ class _AiResultSheetState extends State<_AiResultSheet> {
                         maxHeight: MediaQuery.sizeOf(context).height * 0.45,
                       ),
                       child: SingleChildScrollView(
-                        child: SelectableText(currentText),
+                        child: SelectableText(
+                          currentText,
+                          style: appReadingStyle(context),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -224,6 +228,10 @@ class _AiResultSheetState extends State<_AiResultSheet> {
       AiAction.foundationsSparks => 'World sparks',
       AiAction.foundationsGrow => 'Grow the picture',
       AiAction.foundationsOpeningScenes => 'Opening scenes',
+      AiAction.promoteToLore => 'Promote to lore',
+      AiAction.deepenNote => 'Deepen note',
+      AiAction.interrogateLore => 'Interrogate lore',
+      AiAction.evolveWorldState => 'Update world state',
     };
   }
 }

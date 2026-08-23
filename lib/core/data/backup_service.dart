@@ -12,7 +12,7 @@ class BackupService {
 
   final AppDatabase _database;
 
-  static const backupVersion = 4;
+  static const backupVersion = 5;
 
   Future<String> exportBackup() async {
     final payload = await _buildPayload();
@@ -64,6 +64,8 @@ class BackupService {
     final canonPins = await _database.select(_database.canonPinsTable).get();
     final storyLabMessages =
         await _database.select(_database.storyLabMessagesTable).get();
+    final relationships =
+        await _database.select(_database.noteRelationshipsTable).get();
 
     return {
       'version': backupVersion,
@@ -75,6 +77,7 @@ class BackupService {
       'noteTags': noteTags.map((row) => row.toJson()).toList(),
       'canonPins': canonPins.map((row) => row.toJson()).toList(),
       'storyLabMessages': storyLabMessages.map((row) => row.toJson()).toList(),
+      'noteRelationships': relationships.map((row) => row.toJson()).toList(),
     };
   }
 
@@ -131,6 +134,26 @@ class BackupService {
                 role: row['role'] as String,
                 content: row['content'] as String,
                 createdAt: DateTime.parse(row['createdAt'] as String),
+              ),
+            );
+      }
+    }
+
+    if (version >= 5) {
+      for (final row in payload['noteRelationships'] as List<dynamic>? ?? []) {
+        final map = row as Map<String, dynamic>;
+        await _database.into(_database.noteRelationshipsTable).insert(
+              NoteRelationshipsTableCompanion.insert(
+                id: map['id'] as String,
+                bookId: map['bookId'] as String,
+                sourceNoteId: map['sourceNoteId'] as String,
+                targetNoteId: map['targetNoteId'] as String,
+                relationshipType: map['relationshipType'] as String,
+                description: Value(map['description'] as String? ?? ''),
+                createdAt: DateTime.parse(map['createdAt'] as String),
+                updatedAt: DateTime.parse(
+                  map['updatedAt'] as String? ?? map['createdAt'] as String,
+                ),
               ),
             );
       }
@@ -197,6 +220,12 @@ class BackupService {
         version >= 2 ? json['lorePriority'] as int? ?? 5 : 5,
       ),
       status: Value(version >= 3 ? json['status'] as String? ?? 'canon' : 'canon'),
+      chronologyOrder: Value(
+        version >= 5
+            ? (json['chronologyOrder'] as num?)?.toDouble()
+            : null,
+      ),
+      era: Value(version >= 5 ? json['era'] as String? ?? '' : ''),
       sortOrder: json['sortOrder'] as int,
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),

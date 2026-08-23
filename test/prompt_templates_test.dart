@@ -9,6 +9,7 @@ import 'package:journey/core/ai/prompt_templates.dart';
 import 'package:journey/features/books/domain/models/book.dart';
 import 'package:journey/features/books/domain/models/book_note.dart';
 import 'package:journey/features/books/domain/models/chapter.dart';
+import 'package:journey/features/books/domain/models/note_status.dart';
 import 'package:journey/features/books/domain/models/note_type.dart';
 
 void main() {
@@ -468,6 +469,60 @@ void main() {
 
       expect(prompt, contains('JSON array'));
       expect(prompt, contains('proposedContent'));
+    });
+
+    test('promoteToLore includes brainstorm and create/update/retire actions', () {
+      final prompt = PromptTemplates.forAction(
+        AiAction.promoteToLore,
+        AiContext(
+          book: Book(
+            id: 'b1',
+            title: 'Tide',
+            description: 'A harbor city.',
+            category: '',
+            authorsNote: '',
+            canonSummary: '- The pier is wood',
+            storyLabSummary: '- Guild controls docks',
+            createdAt: now,
+            updatedAt: now,
+          ),
+          storyLabMessages: const [],
+        ),
+      );
+
+      expect(prompt, contains('create'));
+      expect(prompt, contains('update'));
+      expect(prompt, contains('retire'));
+      expect(prompt, contains('STORY LAB SUMMARY'));
+      expect(prompt, contains('Guild controls docks'));
+    });
+
+    test('deepenNote focuses on the named note', () {
+      final prompt = PromptTemplates.forAction(
+        AiAction.deepenNote,
+        AiContext(
+          focusNote: BookNote(
+            id: 'n1',
+            bookId: 'b1',
+            type: NoteType.character,
+            status: NoteStatus.draft,
+            title: 'Mara',
+            content: 'A scout.',
+            attachmentPath: '',
+            loreKeywords: 'Mara',
+            loreAlwaysInclude: false,
+            lorePriority: 5,
+            sortOrder: 0,
+            createdAt: now,
+            updatedAt: now,
+          ),
+          userPrompt: 'Add her family ties',
+        ),
+      );
+
+      expect(prompt, contains('FOCUS NOTE ("Mara")'));
+      expect(prompt, contains('Add her family ties'));
+      expect(prompt, contains('"action"'));
     });
 
     test('scenePaths asks for six beat ideas', () {

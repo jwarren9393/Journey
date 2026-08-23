@@ -1,6 +1,7 @@
 import 'package:journey/core/ai/ai_context.dart';
 import 'package:journey/core/ai/note_context_service.dart';
 import 'package:journey/core/ai/variants_parser.dart';
+import 'package:journey/features/books/domain/models/book_note.dart';
 import 'package:journey/features/books/domain/models/chapter.dart';
 import 'package:journey/features/books/domain/models/story_lab_message.dart';
 
@@ -88,6 +89,28 @@ You are a first-page assistant in Journey's Foundations.
 Suggest opening scene ideas grounded only in the author's picture and notes.
 Ideas only — not drafted prose.
 ''',
+      AiAction.promoteToLore => '''
+You are a worldbuilding archivist for Journey.
+Turn brainstorm or chapter ideas into structured note proposals.
+Return only a valid JSON array. No markdown or commentary outside the JSON.
+Prefer updating existing notes over creating duplicates. Retire outdated ideas when they conflict with newer canon.
+''',
+      AiAction.deepenNote => '''
+You are a worldbuilding partner for Journey.
+Deepen one focus note and propose related lore changes when needed.
+Return only a valid JSON array. No markdown or commentary outside the JSON.
+''',
+      AiAction.interrogateLore => '''
+You are a developmental editor for Journey's world bible.
+Ask sharp, specific questions that challenge gaps, contradictions, and unearned assumptions in one note.
+Do not rewrite the note. Return only the questions as a short numbered list.
+''',
+      AiAction.evolveWorldState => '''
+You are a continuity archivist for Journey.
+Detect significant world-state changes implied by the chapter (deaths, broken alliances, status shifts, faction changes).
+Propose note updates and relationship link/unlink changes.
+Return only a valid JSON array. No markdown or commentary outside the JSON.
+''',
       _ => systemInstruction,
     };
   }
@@ -146,6 +169,14 @@ Ideas only — not drafted prose.
         '$bookPrefix${_foundationsGrow(context)}',
       AiAction.foundationsOpeningScenes =>
         '$bookPrefix${_foundationsOpeningScenes(context)}',
+      AiAction.promoteToLore =>
+        '$bookPrefix${_promoteToLore(context)}',
+      AiAction.deepenNote =>
+        '$bookPrefix${_deepenNote(context)}',
+      AiAction.interrogateLore =>
+        '$bookPrefix${_interrogateLore(context)}',
+      AiAction.evolveWorldState =>
+        '$bookPrefix${_evolveWorldState(context)}',
     };
   }
 
@@ -521,6 +552,163 @@ Ideas only — not drafted prose.
         'THE PICTURE:\n$picture\n\n'
         'NOTES:\n$notes\n\n'
         'Label as "1." through "6."';
+  }
+
+  static String _promoteToLore(AiContext context) {
+    final pins = _formatCanonPins(context);
+    final history = context.storyLabMessages.isEmpty
+        ? ''
+        : 'BRAINSTORM MESSAGES:\n${_formatStoryLabHistory(context.storyLabMessages)}\n\n';
+    final summary = context.book?.storyLabSummary.trim().isEmpty ?? true
+        ? ''
+        : 'STORY LAB SUMMARY:\n${context.book!.storyLabSummary.trim()}\n\n';
+    final chapterBlock = context.chapter == null
+        ? ''
+        : 'CHAPTER ("${context.chapter!.title}"):\n'
+            '${_excerpt(context.chapter!.content, maxLength: 4000)}\n\n';
+    final selection = context.selectedText?.trim();
+    final selectionBlock =
+        selection == null || selection.isEmpty ? '' : 'SELECTION:\n$selection\n\n';
+    final focus = context.userPrompt?.trim() ?? '';
+    final focusBlock = focus.isEmpty ? '' : 'AUTHOR FOCUS:\n$focus\n\n';
+    final notesDetail = NoteContextService.formatNotesForPrompt(
+      context.notes.take(20).toList(),
+    );
+    final titleIndex = _noteTitleIndex(context.notes);
+
+    return 'Turn useful ideas from the sources below into structured lore proposals. '
+        'Update existing notes when a matching title exists. Create notes for new '
+        'named pieces. Retire notes that the brainstorm clearly abandons or replaces.\n\n'
+        '$summary'
+        '${pins.isNotEmpty ? 'CANON PINS:\n$pins\n\n' : ''}'
+        '$history'
+        '$chapterBlock'
+        '$selectionBlock'
+        '$focusBlock'
+        'EXISTING NOTES (match titles exactly when updating/retiring):\n$titleIndex\n\n'
+        'NOTE DETAILS (subset):\n$notesDetail\n\n'
+        'Return a JSON array of up to 12 objects. Each object must have:\n'
+        '- "action": "create" | "update" | "retire"\n'
+        '- "title": note title (exact existing title for update/retire)\n'
+        '- "type": "character" | "location" | "group" | "item" | "history" | "plot" | "idea" | "general" | "research" '
+        '(required for create; optional for update)\n'
+        '- "status": "spark" | "draft" | "canon" (optional; default draft for create)\n'
+        '- "content": full note body (required for create/update; omit for retire)\n'
+        '- "keywords": comma-separated lore triggers (optional)\n'
+        '- "reason": one sentence for the author\n\n'
+        'Return only the JSON array. If nothing should change, return [].';
+  }
+
+  static String _deepenNote(AiContext context) {
+    final focus = context.focusNote;
+    final focusTitle = focus?.title ?? 'Untitled';
+    final focusBody = focus?.content.trim().isEmpty ?? true
+        ? '(empty)'
+        : focus!.content.trim();
+    final focusType = focus?.type.label ?? 'General';
+    final focusStatus = focus?.status.label ?? 'Draft';
+    final authorFocus = context.userPrompt?.trim() ?? '';
+    final notesDetail = NoteContextService.formatNotesForPrompt(
+      context.notes.take(15).toList(),
+    );
+    final titleIndex = _noteTitleIndex(context.notes);
+
+    return 'Deepen the FOCUS NOTE. Usually return one "update" for that note. '
+        'You may also create related notes or retire outdated ones when the focus '
+        'implies it.\n\n'
+        'FOCUS NOTE ("$focusTitle") — $focusType · $focusStatus:\n$focusBody\n\n'
+        '${authorFocus.isEmpty ? '' : 'AUTHOR FOCUS:\n$authorFocus\n\n'}'
+        'EXISTING NOTES:\n$titleIndex\n\n'
+        'RELATED NOTE DETAILS:\n$notesDetail\n\n'
+        'Return a JSON array. Each object must have:\n'
+        '- "action": "create" | "update" | "retire"\n'
+        '- "title": note title (use "$focusTitle" for the focus update)\n'
+        '- "type": note type string (optional for update/retire)\n'
+        '- "status": "spark" | "draft" | "canon" (optional)\n'
+        '- "content": full note body (required for create/update)\n'
+        '- "keywords": comma-separated lore triggers (optional)\n'
+        '- "reason": one sentence\n\n'
+        'Return only the JSON array.';
+  }
+
+  static String _interrogateLore(AiContext context) {
+    final focus = context.focusNote;
+    final focusTitle = focus?.title ?? 'Untitled';
+    final focusBody = focus?.content.trim().isEmpty ?? true
+        ? '(empty)'
+        : focus!.content.trim();
+    final focusType = focus?.type.label ?? 'General';
+    final focusStatus = focus?.status.label ?? 'Draft';
+    final authorFocus = context.userPrompt?.trim() ?? '';
+    final related = NoteContextService.formatNotesForPrompt(
+      context.notes.take(8).toList(),
+    );
+    final links = _formatRelationships(context);
+
+    return 'Act as a developmental editor. Ask exactly 3 or 4 probing questions '
+        'that would force the author to deepen this note. Be specific to the text. '
+        'Do not answer the questions. Do not rewrite the note.\n\n'
+        'FOCUS NOTE ("$focusTitle") — $focusType · $focusStatus:\n$focusBody\n\n'
+        '${authorFocus.isEmpty ? '' : 'AUTHOR FOCUS:\n$authorFocus\n\n'}'
+        '${links.isNotEmpty ? 'RELATIONSHIPS:\n$links\n\n' : ''}'
+        'RELATED NOTES:\n$related\n\n'
+        'Return a numbered list (1.–4.) of questions only.';
+  }
+
+  static String _evolveWorldState(AiContext context) {
+    final chapterContent = context.chapter?.content.trim() ?? '';
+    final notesDetail = NoteContextService.formatNotesForPrompt(
+      context.notes.take(20).toList(),
+    );
+    final titleIndex = _noteTitleIndex(context.notes);
+    final links = _formatRelationships(context);
+
+    return 'Read the CURRENT CHAPTER and detect significant world-state changes '
+        '(character death or injury, broken/new alliances, faction collapse, '
+        'title/status changes, location control shifts). Propose note updates and '
+        'relationship changes. Prefer updating existing notes over creating duplicates.\n\n'
+        'CURRENT CHAPTER ("${context.chapter?.title ?? 'Untitled'}"):\n'
+        '${_excerpt(chapterContent, maxLength: 5000)}\n\n'
+        'EXISTING NOTES:\n$titleIndex\n\n'
+        'NOTE DETAILS (subset):\n$notesDetail\n\n'
+        '${links.isNotEmpty ? 'EXISTING RELATIONSHIPS:\n$links\n\n' : 'EXISTING RELATIONSHIPS:\n(none)\n\n'}'
+        'Return a JSON array of up to 12 objects. Each object must have "action" and "reason".\n\n'
+        'For note changes:\n'
+        '- "action": "create" | "update" | "retire"\n'
+        '- "title": note title (exact existing title for update/retire)\n'
+        '- "type", "status", "content", "keywords" as for promote-to-lore\n'
+        '- optional "chronologyOrder" (number) and "era" (string) for History/Plot\n\n'
+        'For relationship changes:\n'
+        '- "action": "link" | "unlink"\n'
+        '- "sourceTitle" and "targetTitle" (exact note titles)\n'
+        '- "relationshipType": e.g. Ally, Enemy, Rival, Betrayer, Family, Member of\n'
+        '- optional "description"\n'
+        '- optional "relationshipId" when unlinking a known link\n\n'
+        'Return only the JSON array. If nothing changed, return [].';
+  }
+
+  static String _formatRelationships(AiContext context) {
+    if (context.relationships.isEmpty) {
+      return '';
+    }
+    return context.relationships
+        .map(
+          (rel) =>
+              '- ${rel.sourceNoteTitle.isEmpty ? rel.sourceNoteId : rel.sourceNoteTitle} '
+              '→ [${rel.relationshipType}] → '
+              '${rel.targetNoteTitle.isEmpty ? rel.targetNoteId : rel.targetNoteTitle}'
+              '${rel.description.trim().isEmpty ? '' : ' (${rel.description.trim()})'}',
+        )
+        .join('\n');
+  }
+
+  static String _noteTitleIndex(List<BookNote> notes) {
+    if (notes.isEmpty) {
+      return '(none)';
+    }
+    return notes
+        .map((note) => '- ${note.title} (${note.type.label} · ${note.status.label})')
+        .join('\n');
   }
 
   static String _formatCanonPins(AiContext context) {

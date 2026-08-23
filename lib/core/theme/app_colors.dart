@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-/// Journey color palette — warm, literary tones for a writing environment.
+/// Legacy named colors kept for any direct call sites.
+/// Prefer [ResolvedAppearance] / Settings → Appearance presets for UI chrome.
 abstract final class AppColors {
   static const Color ink = Color(0xFF1A1A2E);
   static const Color parchment = Color(0xFFF5F0E8);

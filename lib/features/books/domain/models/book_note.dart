@@ -17,6 +17,8 @@ class BookNote {
     required this.createdAt,
     required this.updatedAt,
     this.status = NoteStatus.canon,
+    this.chronologyOrder,
+    this.era = '',
     this.tags = const [],
   });
 
@@ -37,12 +39,20 @@ class BookNote {
   /// Higher priority notes are included first (0–10).
   final int lorePriority;
 
+  /// Optional timeline sort key (History / Plot). Null = unset.
+  final double? chronologyOrder;
+
+  /// Optional era label for timeline display.
+  final String era;
+
   final int sortOrder;
   final DateTime createdAt;
   final DateTime updatedAt;
   final List<BookTag> tags;
 
   bool get hasAttachment => attachmentPath.trim().isNotEmpty;
+
+  bool get hasChronology => chronologyOrder != null || era.trim().isNotEmpty;
 
   List<String> get keywordList => loreKeywords
       .split(',')
@@ -62,6 +72,9 @@ class BookNote {
       return true;
     }
     if (loreKeywords.toLowerCase().contains(needle)) {
+      return true;
+    }
+    if (era.toLowerCase().contains(needle)) {
       return true;
     }
     if (type.label.toLowerCase().contains(needle)) {
@@ -84,6 +97,9 @@ class BookNote {
     String? loreKeywords,
     bool? loreAlwaysInclude,
     int? lorePriority,
+    double? chronologyOrder,
+    bool clearChronologyOrder = false,
+    String? era,
     int? sortOrder,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -100,6 +116,10 @@ class BookNote {
       loreKeywords: loreKeywords ?? this.loreKeywords,
       loreAlwaysInclude: loreAlwaysInclude ?? this.loreAlwaysInclude,
       lorePriority: lorePriority ?? this.lorePriority,
+      chronologyOrder: clearChronologyOrder
+          ? null
+          : (chronologyOrder ?? this.chronologyOrder),
+      era: era ?? this.era,
       sortOrder: sortOrder ?? this.sortOrder,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,

@@ -7,9 +7,12 @@ import 'package:journey/core/providers/app_providers.dart';
 import 'package:journey/core/ai/ai_export_actions.dart';
 import 'package:journey/features/books/data/services/book_export_service.dart';
 import 'package:journey/features/books/domain/models/book.dart';
+import 'package:journey/features/books/domain/models/story_lab_draft.dart';
 import 'package:journey/features/books/domain/services/book_exporter.dart';
 import 'package:journey/features/books/presentation/providers/book_providers.dart';
 import 'package:journey/features/books/presentation/providers/chapter_providers.dart';
+import 'package:journey/features/books/presentation/providers/note_providers.dart';
+import 'package:journey/features/books/presentation/providers/story_lab_providers.dart';
 import 'package:journey/shared/widgets/ai_result_sheet.dart';
 import 'package:journey/shared/widgets/book_canon_summary_card.dart';
 import 'package:journey/shared/widgets/book_description_card.dart';
@@ -17,7 +20,6 @@ import 'package:journey/shared/widgets/book_writing_guide_card.dart';
 import 'package:journey/shared/widgets/book_edit_dialog.dart';
 import 'package:journey/shared/widgets/empty_state.dart';
 import 'package:journey/shared/widgets/error_state.dart';
-import 'package:journey/shared/widgets/text_input_dialog.dart';
 
 class BookChaptersTab extends ConsumerWidget {
   const BookChaptersTab({required this.bookId, super.key});
@@ -28,6 +30,10 @@ class BookChaptersTab extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final bookAsync = ref.watch(bookProvider(bookId));
     final chaptersAsync = ref.watch(chaptersStreamProvider(bookId));
+    final draftAsync = ref.watch(storyLabDraftProvider(bookId));
+    final notesAsync = ref.watch(
+      notesStreamProvider(NotesQuery(bookId: bookId)),
+    );
 
     return bookAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
@@ -50,6 +56,11 @@ class BookChaptersTab extends ConsumerWidget {
             onRetry: () => ref.invalidate(chaptersStreamProvider(bookId)),
           ),
           data: (chapters) {
+            final draft = draftAsync.asData?.value ?? StoryLabDraft.empty;
+            final noteCount = notesAsync.asData?.value.length ?? 0;
+            final hasPicture = book.description.trim().isNotEmpty ||
+                book.canonSummary.trim().isNotEmpty;
+
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -70,29 +81,11 @@ class BookChaptersTab extends ConsumerWidget {
                 ),
                 Expanded(
                   child: chapters.isEmpty
-                      ? EmptyState(
-                          icon: Icons.article_outlined,
-                          title: 'No chapters yet',
-                          message:
-                              'Start from scratch if you do not have a world yet, or add a chapter and write.',
-                          action: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              FilledButton.icon(
-                                onPressed: () => context.push(
-                                  AppRoutes.storyLab(bookId),
-                                ),
-                                icon: const Icon(Icons.auto_awesome),
-                                label: const Text('Start from scratch'),
-                              ),
-                              const SizedBox(height: 8),
-                              OutlinedButton.icon(
-                                onPressed: () => _createChapter(context, ref),
-                                icon: const Icon(Icons.add),
-                                label: const Text('New chapter'),
-                              ),
-                            ],
-                          ),
+                      ? _ChaptersEmptyState(
+                          bookId: bookId,
+                          draft: draft,
+                          hasPicture: hasPicture,
+                          noteCount: noteCount,
                         )
                       : ListView.separated(
                           padding: const EdgeInsets.all(16),
@@ -289,30 +282,6 @@ class BookChaptersTab extends ConsumerWidget {
     }
   }
 
-  Future<void> _createChapter(BuildContext context, WidgetRef ref) async {
-    final title = await showTextInputDialog(
-      context: context,
-      title: 'New chapter',
-      label: 'Title',
-    );
-    if (title == null || !context.mounted) {
-      return;
-    }
-
-    try {
-      final chapter = await ref.chapters.create(bookId: bookId, title: title);
-      if (!context.mounted) {
-        return;
-      }
-      context.push(AppRoutes.editor(bookId, chapter.id));
-    } catch (error) {
-      if (!context.mounted) {
-        return;
-      }
-      showErrorSnackBar(context, error);
-    }
-  }
-
   Future<void> _confirmDeleteChapter(
     BuildContext context,
     WidgetRef ref,
@@ -353,5 +322,56 @@ class BookChaptersTab extends ConsumerWidget {
 
   String _formatDate(DateTime date) {
     return '${date.month}/${date.day}/${date.year}';
+  }
+}
+
+class _ChaptersEmptyState extends StatelessWidget {
+  const _ChaptersEmptyState({
+    required this.bookId,
+    required this.draft,
+    required this.hasPicture,
+    required this.noteCount,
+  });
+
+  final String bookId;
+  final StoryLabDraft draft;
+  final bool hasPicture;
+  final int noteCount;
+
+  @override
+  Widget build(BuildContext context) {
+    final inProgress = draft.hasInProgressWork;
+    final String message;
+    final String buttonLabel;
+    final IconData buttonIcon;
+
+    if (hasPicture || noteCount > 0) {
+      message = noteCount > 0
+          ? 'You already have lore notes. Open Foundations to keep growing, or add a chapter with the button below.'
+          : 'Your picture is saved. Continue growing the world in Foundations, or add a chapter with the button below.';
+      buttonLabel = 'Continue Foundations';
+      buttonIcon = Icons.auto_awesome;
+    } else if (inProgress) {
+      message =
+          '${draft.foundationsProgressLabel}. Or start writing with New chapter below.';
+      buttonLabel = 'Continue Foundations';
+      buttonIcon = Icons.auto_awesome;
+    } else {
+      message =
+          'No world yet? Open Foundations to discover one. Ready to write? Use New chapter below.';
+      buttonLabel = 'Start from scratch';
+      buttonIcon = Icons.auto_awesome;
+    }
+
+    return EmptyState(
+      icon: Icons.article_outlined,
+      title: 'No chapters yet',
+      message: message,
+      action: FilledButton.icon(
+        onPressed: () => context.push(AppRoutes.storyLab(bookId)),
+        icon: Icon(buttonIcon),
+        label: Text(buttonLabel),
+      ),
+    );
   }
 }

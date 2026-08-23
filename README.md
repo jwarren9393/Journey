@@ -23,7 +23,10 @@ A personal book-writing app for **Windows**, **Linux**, and **Android**. Write i
 - **Book hub** — Chapters, Outline, and Notes tabs per book
 - **Outline view** — drag-reorder chapters; per-chapter outline notes
 - **Notes** — General, Research, Character, Place, Plot, Item, Group, History, and Idea types
+- **Note scaffolding** — guided headings when creating Character / Group / Place / Item / History / Plot notes
 - **Note status** — Spark (playing), Draft (developing), Canon (locked as true)
+- **Relationships** — link notes (Ally, Enemy, Rival, …) from Notes tab or note editor
+- **Timeline** — optional era + chronology order on History/Plot notes
 - **Tags** — per-book tags on notes; filter by type, status, tag, and search
 - **Attachments** — optional local file on notes
 - **Book description** — editable summary on the Chapters tab (also the Foundations “picture”)
@@ -31,9 +34,9 @@ A personal book-writing app for **Windows**, **Linux**, and **Android**. Write i
 ### Appearance & desktop polish
 
 - **Onboarding** — first-run welcome (skippable)
-- **Theme** — system, light, or dark
-- **Editor preferences** — font size and line spacing
-- **Keyboard shortcuts** (Windows) — `Ctrl+,` settings, `Ctrl+/` help, `Ctrl+Shift+F` focus mode, `Ctrl+Shift+L` lore lookup in the editor
+- **Theme** — system, light, or dark; background palettes (parchment, ink, slate, crimson, forest); highlight colors (gold, yellow, red, amber, cyan, lime, white)
+- **Text size** — app-wide UI/reading scale (up to 200%) for menus and AI card prose; separate editor font size and line spacing
+- **Keyboard shortcuts** (desktop) — `Ctrl+,` settings, `Ctrl+/` help, `Ctrl+Shift+F` focus mode, `Ctrl+Shift+L` lore lookup, `Ctrl+Shift+B` Story Lab brainstorm
 - **Local backup** — export/import all app data as JSON (Settings → Backup)
 
 ### AI assistant (optional)
@@ -56,6 +59,8 @@ AI is **off until you enable it** in Settings. You bring your own keys — data 
 | Fix continuity | Propose note updates — review before applying |
 | Ask the world bible | Q&A over your notes (keyword-triggered lore when relevant) |
 | Discover entities | Scan text → pre-filled character/place notes |
+| Promote chapter to lore | Turn chapter (or selection) ideas into create/update/retire note proposals — review before applying |
+| Update world state from chapter | Detect lore/relationship changes implied by the chapter — review before applying |
 
 **Per-book AI context** (Chapters tab — manual edit or on-demand AI update)
 
@@ -73,11 +78,15 @@ AI is **off until you enable it** in Settings. You bring your own keys — data 
 | Grow | Incrementally create character / place / group / item / history / plot / idea notes. Options and focus stay when you leave. |
 | Opening scenes | 6 first-page ideas grounded in your picture and notes |
 | Brainstorm chat | Freeform sandbox (only when you send). Messages and unsent draft persist. |
+| Promote to lore | Fold brainstorm into notes: create, update, or retire — review before applying. Optional clear of messages afterward. |
 | Canon pins | Long-press your message to pin a fact |
 | Scene ideas | Generate 6 scene starters |
 | Glossary extract | Pull terms → pre-filled notes |
 | Summarize brainstorm | Fold messages into editable Story Lab summary |
 | Lore lookup | Search/filter notes from Story Lab or the editor (`Ctrl+Shift+L`) |
+| Deepen note | From a note: develop it with AI; review creates/updates/retires before applying |
+| Interrogate lore | From a note: 3–4 probing questions; optionally append them to the note |
+| Retire as spark | Soft-archive an old idea as Idea / Spark (excluded from writing AI unless always-include) |
 
 **Book & outline**
 
@@ -87,7 +96,8 @@ AI is **off until you enable it** in Settings. You bring your own keys — data 
 | Check continuity | Book menu / editor |
 | Fix continuity | Book menu / editor |
 | Update canon summary | Book menu / Chapters tab |
-| Foundations / Story Lab | Book menu; empty chapter list |
+| Foundations / Story Lab | Book menu; empty chapter list; editor (`Ctrl+Shift+B`) |
+| Promote Story Lab to lore | Book menu / Story Lab brainstorm menu |
 | Ask the world bible | Book menu |
 | Analyze pacing | Outline tab — heatmap labels (High Action, Dialogue Heavy, …) |
 | Plot bridge | Outline tab — bridge ideas between chapters |

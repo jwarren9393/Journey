@@ -6,6 +6,8 @@ import 'package:journey/features/books/domain/models/book_note.dart' as domain;
 import 'package:journey/features/books/domain/models/book_tag.dart' as domain;
 import 'package:journey/features/books/domain/models/canon_pin.dart' as domain;
 import 'package:journey/features/books/domain/models/chapter.dart' as domain;
+import 'package:journey/features/books/domain/models/note_relationship.dart'
+    as domain;
 import 'package:journey/features/books/domain/models/note_status.dart';
 import 'package:journey/features/books/domain/models/note_type.dart';
 import 'package:journey/features/books/domain/models/story_lab_message.dart' as domain;
@@ -21,13 +23,14 @@ part 'app_database.g.dart';
     BookNoteTagsTable,
     CanonPinsTable,
     StoryLabMessagesTable,
+    NoteRelationshipsTable,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -60,6 +63,14 @@ class AppDatabase extends _$AppDatabase {
           }
           if (from < 5) {
             await migrator.addColumn(booksTable, booksTable.storyLabDraft);
+          }
+          if (from < 6) {
+            await migrator.addColumn(
+              bookNotesTable,
+              bookNotesTable.chronologyOrder,
+            );
+            await migrator.addColumn(bookNotesTable, bookNotesTable.era);
+            await migrator.createTable(noteRelationshipsTable);
           }
         },
       );
@@ -112,6 +123,8 @@ class AppDatabase extends _$AppDatabase {
       await (delete(bookNoteTagsTable)..where((t) => t.noteId.equals(note.id)))
           .go();
     }
+    await (delete(noteRelationshipsTable)..where((t) => t.bookId.equals(id)))
+        .go();
     await (delete(bookNotesTable)..where((t) => t.bookId.equals(id))).go();
     await (delete(bookTagsTable)..where((t) => t.bookId.equals(id))).go();
     await (delete(chaptersTable)..where((t) => t.bookId.equals(id))).go();
@@ -223,7 +236,74 @@ class AppDatabase extends _$AppDatabase {
 
   Future<void> deleteNote(String id) async {
     await (delete(bookNoteTagsTable)..where((t) => t.noteId.equals(id))).go();
+    await (delete(noteRelationshipsTable)
+          ..where(
+            (t) => t.sourceNoteId.equals(id) | t.targetNoteId.equals(id),
+          ))
+        .go();
     await (delete(bookNotesTable)..where((t) => t.id.equals(id))).go();
+  }
+
+  Stream<List<domain.NoteRelationship>> watchRelationshipsByBookId(
+    String bookId,
+  ) {
+    return (select(noteRelationshipsTable)
+          ..where((t) => t.bookId.equals(bookId))
+          ..orderBy([(table) => OrderingTerm.asc(table.updatedAt)]))
+        .watch()
+        .asyncMap((rows) async {
+      final items = <domain.NoteRelationship>[];
+      for (final row in rows) {
+        items.add(await _mapRelationship(row));
+      }
+      return items;
+    });
+  }
+
+  Stream<List<domain.NoteRelationship>> watchRelationshipsByNoteId(
+    String noteId,
+  ) {
+    return (select(noteRelationshipsTable)
+          ..where(
+            (t) =>
+                t.sourceNoteId.equals(noteId) | t.targetNoteId.equals(noteId),
+          )
+          ..orderBy([(table) => OrderingTerm.asc(table.updatedAt)]))
+        .watch()
+        .asyncMap((rows) async {
+      final items = <domain.NoteRelationship>[];
+      for (final row in rows) {
+        items.add(await _mapRelationship(row));
+      }
+      return items;
+    });
+  }
+
+  Future<domain.NoteRelationship?> getRelationshipById(String id) async {
+    final row = await (select(noteRelationshipsTable)
+          ..where((t) => t.id.equals(id)))
+        .getSingleOrNull();
+    return row == null ? null : _mapRelationship(row);
+  }
+
+  Future<domain.NoteRelationship> insertRelationship(
+    NoteRelationshipsTableCompanion companion,
+  ) async {
+    await into(noteRelationshipsTable).insert(companion);
+    final rel = await getRelationshipById(companion.id.value);
+    return rel!;
+  }
+
+  Future<domain.NoteRelationship> updateRelationship(
+    NoteRelationshipsTableCompanion companion,
+  ) async {
+    await update(noteRelationshipsTable).replace(companion);
+    final rel = await getRelationshipById(companion.id.value);
+    return rel!;
+  }
+
+  Future<void> deleteRelationship(String id) async {
+    await (delete(noteRelationshipsTable)..where((t) => t.id.equals(id))).go();
   }
 
   Stream<List<domain.BookTag>> watchTagsByBookId(String bookId) {
@@ -368,10 +448,35 @@ class AppDatabase extends _$AppDatabase {
       loreKeywords: row.loreKeywords,
       loreAlwaysInclude: row.loreAlwaysInclude,
       lorePriority: row.lorePriority,
+      chronologyOrder: row.chronologyOrder,
+      era: row.era,
       sortOrder: row.sortOrder,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
       tags: tags,
+    );
+  }
+
+  Future<domain.NoteRelationship> _mapRelationship(
+    NoteRelationshipsTableData row,
+  ) async {
+    final source = await (select(bookNotesTable)
+          ..where((t) => t.id.equals(row.sourceNoteId)))
+        .getSingleOrNull();
+    final target = await (select(bookNotesTable)
+          ..where((t) => t.id.equals(row.targetNoteId)))
+        .getSingleOrNull();
+    return domain.NoteRelationship(
+      id: row.id,
+      bookId: row.bookId,
+      sourceNoteId: row.sourceNoteId,
+      targetNoteId: row.targetNoteId,
+      relationshipType: row.relationshipType,
+      description: row.description,
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt,
+      sourceNoteTitle: source?.title ?? '',
+      targetNoteTitle: target?.title ?? '',
     );
   }
 
@@ -403,6 +508,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   Future<void> deleteAllData() async {
+    await delete(noteRelationshipsTable).go();
     await delete(bookNoteTagsTable).go();
     await delete(bookNotesTable).go();
     await delete(bookTagsTable).go();

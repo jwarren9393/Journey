@@ -32,6 +32,10 @@ class KeyboardShortcutsDialog extends StatelessWidget {
               shortcut: 'Ctrl + Shift + L',
             ),
             _ShortcutRow(
+              label: 'Story Lab brainstorm (editor)',
+              shortcut: 'Ctrl + Shift + B',
+            ),
+            _ShortcutRow(
               label: 'Exit focus mode',
               shortcut: 'Esc',
             ),

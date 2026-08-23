@@ -5,9 +5,11 @@ import 'package:journey/core/ai/clients/nanogpt_client.dart';
 import 'package:journey/core/ai/continuity_fix_parser.dart';
 import 'package:journey/core/ai/extracted_entity_parser.dart';
 import 'package:journey/core/ai/grow_option_parser.dart';
+import 'package:journey/core/ai/lore_proposal_parser.dart';
 import 'package:journey/core/ai/models/continuity_fix.dart';
 import 'package:journey/core/ai/models/extracted_entity.dart';
 import 'package:journey/core/ai/models/grow_option.dart';
+import 'package:journey/core/ai/models/lore_proposal.dart';
 import 'package:journey/core/ai/models/world_spark.dart';
 import 'package:journey/core/ai/world_spark_parser.dart';
 import 'package:journey/core/ai/note_context_service.dart';
@@ -102,6 +104,16 @@ class JourneyAiService implements AiService {
           ? ContinuityFixParser.parse(text, notes: context.notes)
           : <ContinuityFix>[];
 
+      final loreProposals = action == AiAction.promoteToLore ||
+              action == AiAction.deepenNote ||
+              action == AiAction.evolveWorldState
+          ? LoreProposalParser.parse(
+              text,
+              notes: context.notes,
+              relationships: context.relationships,
+            )
+          : <LoreProposal>[];
+
       final worldSparks = action == AiAction.foundationsSparks
           ? WorldSparkParser.parse(text)
           : <WorldSpark>[];
@@ -126,6 +138,7 @@ class JourneyAiService implements AiService {
         continuityFixes: continuityFixes,
         worldSparks: worldSparks,
         growOptions: growOptions,
+        loreProposals: loreProposals,
       );
     } on GoogleGeminiException catch (error) {
       throw AiServiceException('Google Gemini: ${error.message}');

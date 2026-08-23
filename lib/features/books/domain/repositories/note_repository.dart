@@ -17,6 +17,8 @@ abstract interface class NoteRepository {
     bool loreAlwaysInclude = false,
     int lorePriority = 5,
     NoteStatus status = NoteStatus.draft,
+    double? chronologyOrder,
+    String era = '',
   });
 
   Future<BookNote> update(BookNote note);

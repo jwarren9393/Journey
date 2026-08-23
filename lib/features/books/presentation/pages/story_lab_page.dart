@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:journey/core/ai/ai_book_actions.dart';
 import 'package:journey/core/ai/ai_context.dart';
 import 'package:journey/core/ai/ai_context_builder.dart';
 import 'package:journey/core/providers/app_providers.dart';
+import 'package:journey/core/theme/app_reading_style.dart';
 import 'package:journey/core/utils/debouncer.dart';
 import 'package:journey/features/books/domain/models/story_lab_draft.dart';
 import 'package:journey/features/books/domain/models/story_lab_message.dart';
@@ -97,6 +99,10 @@ class _StoryLabPageState extends ConsumerState<StoryLabPage>
               onSelected: _handleMenuAction,
               itemBuilder: (context) => const [
                 PopupMenuItem(
+                  value: 'promote',
+                  child: Text('Promote to lore'),
+                ),
+                PopupMenuItem(
                   value: 'scene_ideas',
                   child: Text('Generate scene ideas'),
                 ),
@@ -189,7 +195,7 @@ class _StoryLabPageState extends ConsumerState<StoryLabPage>
                     child: Padding(
                       padding: EdgeInsets.all(24),
                       child: Text(
-                        'A sandbox for brainstorming. Nothing here touches your manuscript until you save it to notes or outline.\n\nType a message and tap Send — AI only runs when you ask.',
+                        'A sandbox for brainstorming. When ideas land, use Promote to lore to create, update, or retire notes — nothing changes until you review and apply.\n\nType a message and tap Send — AI only runs when you ask.',
                         textAlign: TextAlign.center,
                       ),
                     ),
@@ -235,7 +241,10 @@ class _StoryLabPageState extends ConsumerState<StoryLabPage>
                                 maxWidth:
                                     MediaQuery.sizeOf(context).width * 0.85,
                               ),
-                              child: Text(message.content),
+                              child: Text(
+                                message.content,
+                                style: appReadingStyle(context),
+                              ),
                             ),
                           ),
                         ),
@@ -404,6 +413,8 @@ class _StoryLabPageState extends ConsumerState<StoryLabPage>
 
   Future<void> _handleMenuAction(String action) async {
     switch (action) {
+      case 'promote':
+        await _runPromoteToLore();
       case 'scene_ideas':
         await _runSceneIdeas();
       case 'glossary':
@@ -412,6 +423,48 @@ class _StoryLabPageState extends ConsumerState<StoryLabPage>
         await _runSummarize();
       case 'clear':
         await _clearMessages();
+    }
+  }
+
+  Future<void> _runPromoteToLore() async {
+    final applied = await AiBookActions.runPromoteToLore(
+      context: context,
+      ref: ref,
+      bookId: widget.bookId,
+    );
+    if (!applied || !mounted) {
+      return;
+    }
+
+    final clear = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Clear brainstorm?'),
+        content: const Text(
+          'Lore was applied. Clear Story Lab messages so the next session starts fresh? Canon pins and any saved summary are kept.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Keep messages'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Clear messages'),
+          ),
+        ],
+      ),
+    );
+
+    if (clear == true && mounted) {
+      try {
+        await ref.read(storyLabRepositoryProvider).clearMessages(widget.bookId);
+      } catch (error) {
+        if (!mounted) {
+          return;
+        }
+        showErrorSnackBar(context, error);
+      }
     }
   }
 

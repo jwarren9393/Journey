@@ -20,11 +20,9 @@ class AppPreferencesNotifier extends AsyncNotifier<AppPreferences> {
   }
 
   Future<void> savePreferences(AppPreferences preferences) async {
-    state = const AsyncLoading();
-    state = await AsyncValue.guard(() async {
-      await ref.read(appPreferencesRepositoryProvider).save(preferences);
-      return preferences;
-    });
+    // Keep prior data visible while saving so appearance sliders don't flicker.
+    state = AsyncData(preferences);
+    await ref.read(appPreferencesRepositoryProvider).save(preferences);
   }
 
   Future<void> completeOnboarding() {

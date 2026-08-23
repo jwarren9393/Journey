@@ -2,9 +2,9 @@
 
 > **Living document for AI agents.** Read this first every session. Update before you finish any work.
 
-**Last updated:** 2026-08-18  
-**Current phase:** 7 (Foundations — start from scratch) — **COMPLETE**  
-**Previous:** Phase 6 (Grounded long-form memory) — complete  
+**Last updated:** 2026-08-23  
+**Current phase:** 9 (Dynamic World Bible) — **COMPLETE** (polish: larger AI reading text)  
+**Previous:** Phase 8 (Lore collaboration loop) — complete  
 **Deferred (non-AI):** Rich text, cloud sync
 
 ---
@@ -21,8 +21,8 @@ Journey is a **personal, casual writing app** — not a commercial author platfo
 
 | Area | Status |
 |------|--------|
-| Phases 0–6 | Done |
-| Phase 7 — Foundations (start from scratch) | **Complete** |
+| Phases 0–8 | Done |
+| Phase 9 — Dynamic World Bible | **Complete** |
 | Onboarding, settings, backup, desktop polish | Done |
 | Cloud sync | Deferred |
 | Secure API key storage | Deferred |
@@ -30,6 +30,21 @@ Journey is a **personal, casual writing app** — not a commercial author platfo
 ---
 
 ## Phase checklist
+
+### Phase 9 — Dynamic World Bible (complete)
+- [x] Guided note scaffolding by type + Insert scaffolding
+- [x] `interrogateLore` — probing questions on a note (optional append)
+- [x] Note relationships table + add/edit/delete dialog
+- [x] Chronology order + era on notes; Timeline section in Notes tab
+- [x] `evolveWorldState` — update world state from chapter (notes + links, review-before-apply)
+- [x] Schema v6; backup format v5
+
+### Phase 8 — Lore collaboration loop (complete)
+- [x] Promote brainstorm → structured lore (create / update / retire) with review-before-apply
+- [x] Promote chapter ideas to lore from the editor
+- [x] Deepen note with AI (review sheet)
+- [x] Retire as spark (manual demotion)
+- [x] Cross-screen workflow links (editor ↔ Story Lab, note → Story Lab, book → promote)
 
 ### Phase 7 — Foundations (complete)
 - [x] Sparks → pick a picture (description + canon + tone)
@@ -72,6 +87,35 @@ Journey is a **personal, casual writing app** — not a commercial author platfo
 ---
 
 ## Changelog
+
+### 2026-08-23 — Larger AI reading text (build 29)
+- App text size max raised to **200%** (was 130%)
+- Theme body sizes bumped; sparks / grow / brainstorm / AI result & proposal sheets use a dedicated reading style
+- Slider copy clarifies it scales AI reading text, not only chrome
+
+### 2026-08-23 — Appearance colors & UI scale (build 28)
+- Settings → Appearance: background presets (parchment, ink, slate, crimson, forest) and highlight colors (gold, yellow, red, amber, cyan, lime, white)
+- App-wide UI text scale (85–130%); editor font size / line spacing unchanged and separate
+- Theme cards/FAB/buttons follow chosen palette; glass-style card treatment kept
+
+### 2026-08-23 — Foundations-aware empty states (build 27)
+- Chapters / Notes empty CTAs say **Continue Foundations** (with progress) when Story Lab draft or picture exists — not always “Start from scratch”
+- Removed duplicate **New chapter** on Chapters empty state (FAB only)
+- Foundations intro acknowledges saved sparks/seed before a picture is committed
+
+### 2026-08-23 — Dynamic World Bible (build 26)
+- Note scaffolding templates by type; Interrogate lore AI action
+- Note relationships (ally/enemy/etc.) with reviewable AI link/unlink proposals
+- Chronology order + era on notes; Timeline + Relationships panels on Notes tab
+- Update world state from chapter (`evolveWorldState`) via LoreProposalSheet
+- SQLite schema v6; backup format v5
+
+### 2026-08-22 — Promote to lore + workflow links (build 25)
+- **Promote to lore:** Story Lab / book menu / editor → review create, update, and retire proposals before applying
+- **Deepen note** from note editor (optional focus prompt; same review sheet)
+- **Retire as spark** on notes (Idea / Spark demotion without AI)
+- Cross-links: editor → Story Lab (`Ctrl+Shift+B`), note → Story Lab, book → Promote Story Lab to lore
+- After promote from Story Lab, optional clear of brainstorm messages
 
 ### 2026-08-18 — Linux release builds (build 24)
 - GitHub Releases now include a portable Linux tarball alongside Windows zip and Android APK

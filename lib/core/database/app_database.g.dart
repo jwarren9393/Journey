@@ -1253,6 +1253,27 @@ class $BookNotesTableTable extends BookNotesTable
     requiredDuringInsert: false,
     defaultValue: const Constant('canon'),
   );
+  static const VerificationMeta _chronologyOrderMeta = const VerificationMeta(
+    'chronologyOrder',
+  );
+  @override
+  late final GeneratedColumn<double> chronologyOrder = GeneratedColumn<double>(
+    'chronology_order',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _eraMeta = const VerificationMeta('era');
+  @override
+  late final GeneratedColumn<String> era = GeneratedColumn<String>(
+    'era',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
   static const VerificationMeta _sortOrderMeta = const VerificationMeta(
     'sortOrder',
   );
@@ -1298,6 +1319,8 @@ class $BookNotesTableTable extends BookNotesTable
     loreAlwaysInclude,
     lorePriority,
     status,
+    chronologyOrder,
+    era,
     sortOrder,
     createdAt,
     updatedAt,
@@ -1391,6 +1414,21 @@ class $BookNotesTableTable extends BookNotesTable
         status.isAcceptableOrUnknown(data['status']!, _statusMeta),
       );
     }
+    if (data.containsKey('chronology_order')) {
+      context.handle(
+        _chronologyOrderMeta,
+        chronologyOrder.isAcceptableOrUnknown(
+          data['chronology_order']!,
+          _chronologyOrderMeta,
+        ),
+      );
+    }
+    if (data.containsKey('era')) {
+      context.handle(
+        _eraMeta,
+        era.isAcceptableOrUnknown(data['era']!, _eraMeta),
+      );
+    }
     if (data.containsKey('sort_order')) {
       context.handle(
         _sortOrderMeta,
@@ -1464,6 +1502,14 @@ class $BookNotesTableTable extends BookNotesTable
         DriftSqlType.string,
         data['${effectivePrefix}status'],
       )!,
+      chronologyOrder: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}chronology_order'],
+      ),
+      era: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}era'],
+      )!,
       sortOrder: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}sort_order'],
@@ -1497,6 +1543,12 @@ class BookNotesTableData extends DataClass
   final bool loreAlwaysInclude;
   final int lorePriority;
   final String status;
+
+  /// Sort key for History/Plot timeline views; null means unset.
+  final double? chronologyOrder;
+
+  /// Optional era label (e.g. "Age of Ash", "Year 12").
+  final String era;
   final int sortOrder;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -1511,6 +1563,8 @@ class BookNotesTableData extends DataClass
     required this.loreAlwaysInclude,
     required this.lorePriority,
     required this.status,
+    this.chronologyOrder,
+    required this.era,
     required this.sortOrder,
     required this.createdAt,
     required this.updatedAt,
@@ -1528,6 +1582,10 @@ class BookNotesTableData extends DataClass
     map['lore_always_include'] = Variable<bool>(loreAlwaysInclude);
     map['lore_priority'] = Variable<int>(lorePriority);
     map['status'] = Variable<String>(status);
+    if (!nullToAbsent || chronologyOrder != null) {
+      map['chronology_order'] = Variable<double>(chronologyOrder);
+    }
+    map['era'] = Variable<String>(era);
     map['sort_order'] = Variable<int>(sortOrder);
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
@@ -1546,6 +1604,10 @@ class BookNotesTableData extends DataClass
       loreAlwaysInclude: Value(loreAlwaysInclude),
       lorePriority: Value(lorePriority),
       status: Value(status),
+      chronologyOrder: chronologyOrder == null && nullToAbsent
+          ? const Value.absent()
+          : Value(chronologyOrder),
+      era: Value(era),
       sortOrder: Value(sortOrder),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
@@ -1568,6 +1630,8 @@ class BookNotesTableData extends DataClass
       loreAlwaysInclude: serializer.fromJson<bool>(json['loreAlwaysInclude']),
       lorePriority: serializer.fromJson<int>(json['lorePriority']),
       status: serializer.fromJson<String>(json['status']),
+      chronologyOrder: serializer.fromJson<double?>(json['chronologyOrder']),
+      era: serializer.fromJson<String>(json['era']),
       sortOrder: serializer.fromJson<int>(json['sortOrder']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
@@ -1587,6 +1651,8 @@ class BookNotesTableData extends DataClass
       'loreAlwaysInclude': serializer.toJson<bool>(loreAlwaysInclude),
       'lorePriority': serializer.toJson<int>(lorePriority),
       'status': serializer.toJson<String>(status),
+      'chronologyOrder': serializer.toJson<double?>(chronologyOrder),
+      'era': serializer.toJson<String>(era),
       'sortOrder': serializer.toJson<int>(sortOrder),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
@@ -1604,6 +1670,8 @@ class BookNotesTableData extends DataClass
     bool? loreAlwaysInclude,
     int? lorePriority,
     String? status,
+    Value<double?> chronologyOrder = const Value.absent(),
+    String? era,
     int? sortOrder,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -1618,6 +1686,10 @@ class BookNotesTableData extends DataClass
     loreAlwaysInclude: loreAlwaysInclude ?? this.loreAlwaysInclude,
     lorePriority: lorePriority ?? this.lorePriority,
     status: status ?? this.status,
+    chronologyOrder: chronologyOrder.present
+        ? chronologyOrder.value
+        : this.chronologyOrder,
+    era: era ?? this.era,
     sortOrder: sortOrder ?? this.sortOrder,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
@@ -1642,6 +1714,10 @@ class BookNotesTableData extends DataClass
           ? data.lorePriority.value
           : this.lorePriority,
       status: data.status.present ? data.status.value : this.status,
+      chronologyOrder: data.chronologyOrder.present
+          ? data.chronologyOrder.value
+          : this.chronologyOrder,
+      era: data.era.present ? data.era.value : this.era,
       sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
@@ -1661,6 +1737,8 @@ class BookNotesTableData extends DataClass
           ..write('loreAlwaysInclude: $loreAlwaysInclude, ')
           ..write('lorePriority: $lorePriority, ')
           ..write('status: $status, ')
+          ..write('chronologyOrder: $chronologyOrder, ')
+          ..write('era: $era, ')
           ..write('sortOrder: $sortOrder, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
@@ -1680,6 +1758,8 @@ class BookNotesTableData extends DataClass
     loreAlwaysInclude,
     lorePriority,
     status,
+    chronologyOrder,
+    era,
     sortOrder,
     createdAt,
     updatedAt,
@@ -1698,6 +1778,8 @@ class BookNotesTableData extends DataClass
           other.loreAlwaysInclude == this.loreAlwaysInclude &&
           other.lorePriority == this.lorePriority &&
           other.status == this.status &&
+          other.chronologyOrder == this.chronologyOrder &&
+          other.era == this.era &&
           other.sortOrder == this.sortOrder &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
@@ -1714,6 +1796,8 @@ class BookNotesTableCompanion extends UpdateCompanion<BookNotesTableData> {
   final Value<bool> loreAlwaysInclude;
   final Value<int> lorePriority;
   final Value<String> status;
+  final Value<double?> chronologyOrder;
+  final Value<String> era;
   final Value<int> sortOrder;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
@@ -1729,6 +1813,8 @@ class BookNotesTableCompanion extends UpdateCompanion<BookNotesTableData> {
     this.loreAlwaysInclude = const Value.absent(),
     this.lorePriority = const Value.absent(),
     this.status = const Value.absent(),
+    this.chronologyOrder = const Value.absent(),
+    this.era = const Value.absent(),
     this.sortOrder = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
@@ -1745,6 +1831,8 @@ class BookNotesTableCompanion extends UpdateCompanion<BookNotesTableData> {
     this.loreAlwaysInclude = const Value.absent(),
     this.lorePriority = const Value.absent(),
     this.status = const Value.absent(),
+    this.chronologyOrder = const Value.absent(),
+    this.era = const Value.absent(),
     required int sortOrder,
     required DateTime createdAt,
     required DateTime updatedAt,
@@ -1767,6 +1855,8 @@ class BookNotesTableCompanion extends UpdateCompanion<BookNotesTableData> {
     Expression<bool>? loreAlwaysInclude,
     Expression<int>? lorePriority,
     Expression<String>? status,
+    Expression<double>? chronologyOrder,
+    Expression<String>? era,
     Expression<int>? sortOrder,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
@@ -1783,6 +1873,8 @@ class BookNotesTableCompanion extends UpdateCompanion<BookNotesTableData> {
       if (loreAlwaysInclude != null) 'lore_always_include': loreAlwaysInclude,
       if (lorePriority != null) 'lore_priority': lorePriority,
       if (status != null) 'status': status,
+      if (chronologyOrder != null) 'chronology_order': chronologyOrder,
+      if (era != null) 'era': era,
       if (sortOrder != null) 'sort_order': sortOrder,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
@@ -1801,6 +1893,8 @@ class BookNotesTableCompanion extends UpdateCompanion<BookNotesTableData> {
     Value<bool>? loreAlwaysInclude,
     Value<int>? lorePriority,
     Value<String>? status,
+    Value<double?>? chronologyOrder,
+    Value<String>? era,
     Value<int>? sortOrder,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
@@ -1817,6 +1911,8 @@ class BookNotesTableCompanion extends UpdateCompanion<BookNotesTableData> {
       loreAlwaysInclude: loreAlwaysInclude ?? this.loreAlwaysInclude,
       lorePriority: lorePriority ?? this.lorePriority,
       status: status ?? this.status,
+      chronologyOrder: chronologyOrder ?? this.chronologyOrder,
+      era: era ?? this.era,
       sortOrder: sortOrder ?? this.sortOrder,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -1857,6 +1953,12 @@ class BookNotesTableCompanion extends UpdateCompanion<BookNotesTableData> {
     if (status.present) {
       map['status'] = Variable<String>(status.value);
     }
+    if (chronologyOrder.present) {
+      map['chronology_order'] = Variable<double>(chronologyOrder.value);
+    }
+    if (era.present) {
+      map['era'] = Variable<String>(era.value);
+    }
     if (sortOrder.present) {
       map['sort_order'] = Variable<int>(sortOrder.value);
     }
@@ -1885,6 +1987,8 @@ class BookNotesTableCompanion extends UpdateCompanion<BookNotesTableData> {
           ..write('loreAlwaysInclude: $loreAlwaysInclude, ')
           ..write('lorePriority: $lorePriority, ')
           ..write('status: $status, ')
+          ..write('chronologyOrder: $chronologyOrder, ')
+          ..write('era: $era, ')
           ..write('sortOrder: $sortOrder, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
@@ -3051,6 +3155,550 @@ class StoryLabMessagesTableCompanion
   }
 }
 
+class $NoteRelationshipsTableTable extends NoteRelationshipsTable
+    with TableInfo<$NoteRelationshipsTableTable, NoteRelationshipsTableData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $NoteRelationshipsTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _bookIdMeta = const VerificationMeta('bookId');
+  @override
+  late final GeneratedColumn<String> bookId = GeneratedColumn<String>(
+    'book_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES books_table (id)',
+    ),
+  );
+  static const VerificationMeta _sourceNoteIdMeta = const VerificationMeta(
+    'sourceNoteId',
+  );
+  @override
+  late final GeneratedColumn<String> sourceNoteId = GeneratedColumn<String>(
+    'source_note_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES book_notes_table (id)',
+    ),
+  );
+  static const VerificationMeta _targetNoteIdMeta = const VerificationMeta(
+    'targetNoteId',
+  );
+  @override
+  late final GeneratedColumn<String> targetNoteId = GeneratedColumn<String>(
+    'target_note_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES book_notes_table (id)',
+    ),
+  );
+  static const VerificationMeta _relationshipTypeMeta = const VerificationMeta(
+    'relationshipType',
+  );
+  @override
+  late final GeneratedColumn<String> relationshipType = GeneratedColumn<String>(
+    'relationship_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _descriptionMeta = const VerificationMeta(
+    'description',
+  );
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+    'description',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    bookId,
+    sourceNoteId,
+    targetNoteId,
+    relationshipType,
+    description,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'note_relationships_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<NoteRelationshipsTableData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('book_id')) {
+      context.handle(
+        _bookIdMeta,
+        bookId.isAcceptableOrUnknown(data['book_id']!, _bookIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_bookIdMeta);
+    }
+    if (data.containsKey('source_note_id')) {
+      context.handle(
+        _sourceNoteIdMeta,
+        sourceNoteId.isAcceptableOrUnknown(
+          data['source_note_id']!,
+          _sourceNoteIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_sourceNoteIdMeta);
+    }
+    if (data.containsKey('target_note_id')) {
+      context.handle(
+        _targetNoteIdMeta,
+        targetNoteId.isAcceptableOrUnknown(
+          data['target_note_id']!,
+          _targetNoteIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_targetNoteIdMeta);
+    }
+    if (data.containsKey('relationship_type')) {
+      context.handle(
+        _relationshipTypeMeta,
+        relationshipType.isAcceptableOrUnknown(
+          data['relationship_type']!,
+          _relationshipTypeMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_relationshipTypeMeta);
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+        _descriptionMeta,
+        description.isAcceptableOrUnknown(
+          data['description']!,
+          _descriptionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  NoteRelationshipsTableData map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return NoteRelationshipsTableData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      bookId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}book_id'],
+      )!,
+      sourceNoteId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source_note_id'],
+      )!,
+      targetNoteId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}target_note_id'],
+      )!,
+      relationshipType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}relationship_type'],
+      )!,
+      description: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}description'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $NoteRelationshipsTableTable createAlias(String alias) {
+    return $NoteRelationshipsTableTable(attachedDatabase, alias);
+  }
+}
+
+class NoteRelationshipsTableData extends DataClass
+    implements Insertable<NoteRelationshipsTableData> {
+  final String id;
+  final String bookId;
+  final String sourceNoteId;
+  final String targetNoteId;
+  final String relationshipType;
+  final String description;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const NoteRelationshipsTableData({
+    required this.id,
+    required this.bookId,
+    required this.sourceNoteId,
+    required this.targetNoteId,
+    required this.relationshipType,
+    required this.description,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['book_id'] = Variable<String>(bookId);
+    map['source_note_id'] = Variable<String>(sourceNoteId);
+    map['target_note_id'] = Variable<String>(targetNoteId);
+    map['relationship_type'] = Variable<String>(relationshipType);
+    map['description'] = Variable<String>(description);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  NoteRelationshipsTableCompanion toCompanion(bool nullToAbsent) {
+    return NoteRelationshipsTableCompanion(
+      id: Value(id),
+      bookId: Value(bookId),
+      sourceNoteId: Value(sourceNoteId),
+      targetNoteId: Value(targetNoteId),
+      relationshipType: Value(relationshipType),
+      description: Value(description),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory NoteRelationshipsTableData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return NoteRelationshipsTableData(
+      id: serializer.fromJson<String>(json['id']),
+      bookId: serializer.fromJson<String>(json['bookId']),
+      sourceNoteId: serializer.fromJson<String>(json['sourceNoteId']),
+      targetNoteId: serializer.fromJson<String>(json['targetNoteId']),
+      relationshipType: serializer.fromJson<String>(json['relationshipType']),
+      description: serializer.fromJson<String>(json['description']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'bookId': serializer.toJson<String>(bookId),
+      'sourceNoteId': serializer.toJson<String>(sourceNoteId),
+      'targetNoteId': serializer.toJson<String>(targetNoteId),
+      'relationshipType': serializer.toJson<String>(relationshipType),
+      'description': serializer.toJson<String>(description),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  NoteRelationshipsTableData copyWith({
+    String? id,
+    String? bookId,
+    String? sourceNoteId,
+    String? targetNoteId,
+    String? relationshipType,
+    String? description,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) => NoteRelationshipsTableData(
+    id: id ?? this.id,
+    bookId: bookId ?? this.bookId,
+    sourceNoteId: sourceNoteId ?? this.sourceNoteId,
+    targetNoteId: targetNoteId ?? this.targetNoteId,
+    relationshipType: relationshipType ?? this.relationshipType,
+    description: description ?? this.description,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  NoteRelationshipsTableData copyWithCompanion(
+    NoteRelationshipsTableCompanion data,
+  ) {
+    return NoteRelationshipsTableData(
+      id: data.id.present ? data.id.value : this.id,
+      bookId: data.bookId.present ? data.bookId.value : this.bookId,
+      sourceNoteId: data.sourceNoteId.present
+          ? data.sourceNoteId.value
+          : this.sourceNoteId,
+      targetNoteId: data.targetNoteId.present
+          ? data.targetNoteId.value
+          : this.targetNoteId,
+      relationshipType: data.relationshipType.present
+          ? data.relationshipType.value
+          : this.relationshipType,
+      description: data.description.present
+          ? data.description.value
+          : this.description,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('NoteRelationshipsTableData(')
+          ..write('id: $id, ')
+          ..write('bookId: $bookId, ')
+          ..write('sourceNoteId: $sourceNoteId, ')
+          ..write('targetNoteId: $targetNoteId, ')
+          ..write('relationshipType: $relationshipType, ')
+          ..write('description: $description, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    bookId,
+    sourceNoteId,
+    targetNoteId,
+    relationshipType,
+    description,
+    createdAt,
+    updatedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is NoteRelationshipsTableData &&
+          other.id == this.id &&
+          other.bookId == this.bookId &&
+          other.sourceNoteId == this.sourceNoteId &&
+          other.targetNoteId == this.targetNoteId &&
+          other.relationshipType == this.relationshipType &&
+          other.description == this.description &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class NoteRelationshipsTableCompanion
+    extends UpdateCompanion<NoteRelationshipsTableData> {
+  final Value<String> id;
+  final Value<String> bookId;
+  final Value<String> sourceNoteId;
+  final Value<String> targetNoteId;
+  final Value<String> relationshipType;
+  final Value<String> description;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<int> rowid;
+  const NoteRelationshipsTableCompanion({
+    this.id = const Value.absent(),
+    this.bookId = const Value.absent(),
+    this.sourceNoteId = const Value.absent(),
+    this.targetNoteId = const Value.absent(),
+    this.relationshipType = const Value.absent(),
+    this.description = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  NoteRelationshipsTableCompanion.insert({
+    required String id,
+    required String bookId,
+    required String sourceNoteId,
+    required String targetNoteId,
+    required String relationshipType,
+    this.description = const Value.absent(),
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       bookId = Value(bookId),
+       sourceNoteId = Value(sourceNoteId),
+       targetNoteId = Value(targetNoteId),
+       relationshipType = Value(relationshipType),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt);
+  static Insertable<NoteRelationshipsTableData> custom({
+    Expression<String>? id,
+    Expression<String>? bookId,
+    Expression<String>? sourceNoteId,
+    Expression<String>? targetNoteId,
+    Expression<String>? relationshipType,
+    Expression<String>? description,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (bookId != null) 'book_id': bookId,
+      if (sourceNoteId != null) 'source_note_id': sourceNoteId,
+      if (targetNoteId != null) 'target_note_id': targetNoteId,
+      if (relationshipType != null) 'relationship_type': relationshipType,
+      if (description != null) 'description': description,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  NoteRelationshipsTableCompanion copyWith({
+    Value<String>? id,
+    Value<String>? bookId,
+    Value<String>? sourceNoteId,
+    Value<String>? targetNoteId,
+    Value<String>? relationshipType,
+    Value<String>? description,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<int>? rowid,
+  }) {
+    return NoteRelationshipsTableCompanion(
+      id: id ?? this.id,
+      bookId: bookId ?? this.bookId,
+      sourceNoteId: sourceNoteId ?? this.sourceNoteId,
+      targetNoteId: targetNoteId ?? this.targetNoteId,
+      relationshipType: relationshipType ?? this.relationshipType,
+      description: description ?? this.description,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (bookId.present) {
+      map['book_id'] = Variable<String>(bookId.value);
+    }
+    if (sourceNoteId.present) {
+      map['source_note_id'] = Variable<String>(sourceNoteId.value);
+    }
+    if (targetNoteId.present) {
+      map['target_note_id'] = Variable<String>(targetNoteId.value);
+    }
+    if (relationshipType.present) {
+      map['relationship_type'] = Variable<String>(relationshipType.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('NoteRelationshipsTableCompanion(')
+          ..write('id: $id, ')
+          ..write('bookId: $bookId, ')
+          ..write('sourceNoteId: $sourceNoteId, ')
+          ..write('targetNoteId: $targetNoteId, ')
+          ..write('relationshipType: $relationshipType, ')
+          ..write('description: $description, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -3063,6 +3711,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $CanonPinsTableTable canonPinsTable = $CanonPinsTableTable(this);
   late final $StoryLabMessagesTableTable storyLabMessagesTable =
       $StoryLabMessagesTableTable(this);
+  late final $NoteRelationshipsTableTable noteRelationshipsTable =
+      $NoteRelationshipsTableTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -3075,6 +3725,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     bookNoteTagsTable,
     canonPinsTable,
     storyLabMessagesTable,
+    noteRelationshipsTable,
   ];
 }
 
@@ -3202,6 +3853,31 @@ final class $$BooksTableTableReferences
 
     final cache = $_typedResult.readTableOrNull(
       _storyLabMessagesTableRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<
+    $NoteRelationshipsTableTable,
+    List<NoteRelationshipsTableData>
+  >
+  _noteRelationshipsTableRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.noteRelationshipsTable,
+        aliasName: 'books_table__id__note_relationships_table__book_id',
+      );
+
+  $$NoteRelationshipsTableTableProcessedTableManager
+  get noteRelationshipsTableRefs {
+    final manager = $$NoteRelationshipsTableTableTableManager(
+      $_db,
+      $_db.noteRelationshipsTable,
+    ).filter((f) => f.bookId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _noteRelationshipsTableRefsTable($_db),
     );
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
@@ -3385,6 +4061,32 @@ class $$BooksTableTableFilterComposer
               }) => $$StoryLabMessagesTableTableFilterComposer(
                 $db: $db,
                 $table: $db.storyLabMessagesTable,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+
+  Expression<bool> noteRelationshipsTableRefs(
+    Expression<bool> Function($$NoteRelationshipsTableTableFilterComposer f) f,
+  ) {
+    final $$NoteRelationshipsTableTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.noteRelationshipsTable,
+          getReferencedColumn: (t) => t.bookId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$NoteRelationshipsTableTableFilterComposer(
+                $db: $db,
+                $table: $db.noteRelationshipsTable,
                 $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
                 joinBuilder: joinBuilder,
                 $removeJoinBuilderFromRootComposer:
@@ -3629,6 +4331,32 @@ class $$BooksTableTableAnnotationComposer
         );
     return f(composer);
   }
+
+  Expression<T> noteRelationshipsTableRefs<T extends Object>(
+    Expression<T> Function($$NoteRelationshipsTableTableAnnotationComposer a) f,
+  ) {
+    final $$NoteRelationshipsTableTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.noteRelationshipsTable,
+          getReferencedColumn: (t) => t.bookId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$NoteRelationshipsTableTableAnnotationComposer(
+                $db: $db,
+                $table: $db.noteRelationshipsTable,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
 }
 
 class $$BooksTableTableTableManager
@@ -3650,6 +4378,7 @@ class $$BooksTableTableTableManager
             bool bookTagsTableRefs,
             bool canonPinsTableRefs,
             bool storyLabMessagesTableRefs,
+            bool noteRelationshipsTableRefs,
           })
         > {
   $$BooksTableTableTableManager(_$AppDatabase db, $BooksTableTable table)
@@ -3730,6 +4459,7 @@ class $$BooksTableTableTableManager
                 bookTagsTableRefs = false,
                 canonPinsTableRefs = false,
                 storyLabMessagesTableRefs = false,
+                noteRelationshipsTableRefs = false,
               }) {
                 return PrefetchHooks(
                   db: db,
@@ -3739,6 +4469,7 @@ class $$BooksTableTableTableManager
                     if (bookTagsTableRefs) db.bookTagsTable,
                     if (canonPinsTableRefs) db.canonPinsTable,
                     if (storyLabMessagesTableRefs) db.storyLabMessagesTable,
+                    if (noteRelationshipsTableRefs) db.noteRelationshipsTable,
                   ],
                   addJoins: null,
                   getPrefetchedDataCallback: (items) async {
@@ -3848,6 +4579,27 @@ class $$BooksTableTableTableManager
                               ),
                           typedResults: items,
                         ),
+                      if (noteRelationshipsTableRefs)
+                        await $_getPrefetchedData<
+                          BooksTableData,
+                          $BooksTableTable,
+                          NoteRelationshipsTableData
+                        >(
+                          currentTable: table,
+                          referencedTable: $$BooksTableTableReferences
+                              ._noteRelationshipsTableRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$BooksTableTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).noteRelationshipsTableRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.bookId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                     ];
                   },
                 );
@@ -3874,6 +4626,7 @@ typedef $$BooksTableTableProcessedTableManager =
         bool bookTagsTableRefs,
         bool canonPinsTableRefs,
         bool storyLabMessagesTableRefs,
+        bool noteRelationshipsTableRefs,
       })
     >;
 typedef $$ChaptersTableTableCreateCompanionBuilder =
@@ -4269,6 +5022,8 @@ typedef $$BookNotesTableTableCreateCompanionBuilder =
       Value<bool> loreAlwaysInclude,
       Value<int> lorePriority,
       Value<String> status,
+      Value<double?> chronologyOrder,
+      Value<String> era,
       required int sortOrder,
       required DateTime createdAt,
       required DateTime updatedAt,
@@ -4286,6 +5041,8 @@ typedef $$BookNotesTableTableUpdateCompanionBuilder =
       Value<bool> loreAlwaysInclude,
       Value<int> lorePriority,
       Value<String> status,
+      Value<double?> chronologyOrder,
+      Value<String> era,
       Value<int> sortOrder,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
@@ -4398,6 +5155,16 @@ class $$BookNotesTableTableFilterComposer
 
   ColumnFilters<String> get status => $composableBuilder(
     column: $table.status,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get chronologyOrder => $composableBuilder(
+    column: $table.chronologyOrder,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get era => $composableBuilder(
+    column: $table.era,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -4519,6 +5286,16 @@ class $$BookNotesTableTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<double> get chronologyOrder => $composableBuilder(
+    column: $table.chronologyOrder,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get era => $composableBuilder(
+    column: $table.era,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get sortOrder => $composableBuilder(
     column: $table.sortOrder,
     builder: (column) => ColumnOrderings(column),
@@ -4601,6 +5378,14 @@ class $$BookNotesTableTableAnnotationComposer
 
   GeneratedColumn<String> get status =>
       $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<double> get chronologyOrder => $composableBuilder(
+    column: $table.chronologyOrder,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get era =>
+      $composableBuilder(column: $table.era, builder: (column) => column);
 
   GeneratedColumn<int> get sortOrder =>
       $composableBuilder(column: $table.sortOrder, builder: (column) => column);
@@ -4701,6 +5486,8 @@ class $$BookNotesTableTableTableManager
                 Value<bool> loreAlwaysInclude = const Value.absent(),
                 Value<int> lorePriority = const Value.absent(),
                 Value<String> status = const Value.absent(),
+                Value<double?> chronologyOrder = const Value.absent(),
+                Value<String> era = const Value.absent(),
                 Value<int> sortOrder = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
@@ -4716,6 +5503,8 @@ class $$BookNotesTableTableTableManager
                 loreAlwaysInclude: loreAlwaysInclude,
                 lorePriority: lorePriority,
                 status: status,
+                chronologyOrder: chronologyOrder,
+                era: era,
                 sortOrder: sortOrder,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
@@ -4733,6 +5522,8 @@ class $$BookNotesTableTableTableManager
                 Value<bool> loreAlwaysInclude = const Value.absent(),
                 Value<int> lorePriority = const Value.absent(),
                 Value<String> status = const Value.absent(),
+                Value<double?> chronologyOrder = const Value.absent(),
+                Value<String> era = const Value.absent(),
                 required int sortOrder,
                 required DateTime createdAt,
                 required DateTime updatedAt,
@@ -4748,6 +5539,8 @@ class $$BookNotesTableTableTableManager
                 loreAlwaysInclude: loreAlwaysInclude,
                 lorePriority: lorePriority,
                 status: status,
+                chronologyOrder: chronologyOrder,
+                era: era,
                 sortOrder: sortOrder,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
@@ -6247,6 +7040,595 @@ typedef $$StoryLabMessagesTableTableProcessedTableManager =
       StoryLabMessagesTableData,
       PrefetchHooks Function({bool bookId})
     >;
+typedef $$NoteRelationshipsTableTableCreateCompanionBuilder =
+    NoteRelationshipsTableCompanion Function({
+      required String id,
+      required String bookId,
+      required String sourceNoteId,
+      required String targetNoteId,
+      required String relationshipType,
+      Value<String> description,
+      required DateTime createdAt,
+      required DateTime updatedAt,
+      Value<int> rowid,
+    });
+typedef $$NoteRelationshipsTableTableUpdateCompanionBuilder =
+    NoteRelationshipsTableCompanion Function({
+      Value<String> id,
+      Value<String> bookId,
+      Value<String> sourceNoteId,
+      Value<String> targetNoteId,
+      Value<String> relationshipType,
+      Value<String> description,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<int> rowid,
+    });
+
+final class $$NoteRelationshipsTableTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $NoteRelationshipsTableTable,
+          NoteRelationshipsTableData
+        > {
+  $$NoteRelationshipsTableTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $BooksTableTable _bookIdTable(_$AppDatabase db) => db.booksTable
+      .createAlias('note_relationships_table__book_id__books_table__id');
+
+  $$BooksTableTableProcessedTableManager get bookId {
+    final $_column = $_itemColumn<String>('book_id')!;
+
+    final manager = $$BooksTableTableTableManager(
+      $_db,
+      $_db.booksTable,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_bookIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $BookNotesTableTable _sourceNoteIdTable(_$AppDatabase db) =>
+      db.bookNotesTable.createAlias(
+        'note_relationships_table__source_note_id__book_notes_table__id',
+      );
+
+  $$BookNotesTableTableProcessedTableManager get sourceNoteId {
+    final $_column = $_itemColumn<String>('source_note_id')!;
+
+    final manager = $$BookNotesTableTableTableManager(
+      $_db,
+      $_db.bookNotesTable,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_sourceNoteIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $BookNotesTableTable _targetNoteIdTable(_$AppDatabase db) =>
+      db.bookNotesTable.createAlias(
+        'note_relationships_table__target_note_id__book_notes_table__id',
+      );
+
+  $$BookNotesTableTableProcessedTableManager get targetNoteId {
+    final $_column = $_itemColumn<String>('target_note_id')!;
+
+    final manager = $$BookNotesTableTableTableManager(
+      $_db,
+      $_db.bookNotesTable,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_targetNoteIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$NoteRelationshipsTableTableFilterComposer
+    extends Composer<_$AppDatabase, $NoteRelationshipsTableTable> {
+  $$NoteRelationshipsTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get relationshipType => $composableBuilder(
+    column: $table.relationshipType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$BooksTableTableFilterComposer get bookId {
+    final $$BooksTableTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.bookId,
+      referencedTable: $db.booksTable,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BooksTableTableFilterComposer(
+            $db: $db,
+            $table: $db.booksTable,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$BookNotesTableTableFilterComposer get sourceNoteId {
+    final $$BookNotesTableTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.sourceNoteId,
+      referencedTable: $db.bookNotesTable,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BookNotesTableTableFilterComposer(
+            $db: $db,
+            $table: $db.bookNotesTable,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$BookNotesTableTableFilterComposer get targetNoteId {
+    final $$BookNotesTableTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.targetNoteId,
+      referencedTable: $db.bookNotesTable,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BookNotesTableTableFilterComposer(
+            $db: $db,
+            $table: $db.bookNotesTable,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$NoteRelationshipsTableTableOrderingComposer
+    extends Composer<_$AppDatabase, $NoteRelationshipsTableTable> {
+  $$NoteRelationshipsTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get relationshipType => $composableBuilder(
+    column: $table.relationshipType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$BooksTableTableOrderingComposer get bookId {
+    final $$BooksTableTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.bookId,
+      referencedTable: $db.booksTable,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BooksTableTableOrderingComposer(
+            $db: $db,
+            $table: $db.booksTable,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$BookNotesTableTableOrderingComposer get sourceNoteId {
+    final $$BookNotesTableTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.sourceNoteId,
+      referencedTable: $db.bookNotesTable,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BookNotesTableTableOrderingComposer(
+            $db: $db,
+            $table: $db.bookNotesTable,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$BookNotesTableTableOrderingComposer get targetNoteId {
+    final $$BookNotesTableTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.targetNoteId,
+      referencedTable: $db.bookNotesTable,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BookNotesTableTableOrderingComposer(
+            $db: $db,
+            $table: $db.bookNotesTable,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$NoteRelationshipsTableTableAnnotationComposer
+    extends Composer<_$AppDatabase, $NoteRelationshipsTableTable> {
+  $$NoteRelationshipsTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get relationshipType => $composableBuilder(
+    column: $table.relationshipType,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  $$BooksTableTableAnnotationComposer get bookId {
+    final $$BooksTableTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.bookId,
+      referencedTable: $db.booksTable,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BooksTableTableAnnotationComposer(
+            $db: $db,
+            $table: $db.booksTable,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$BookNotesTableTableAnnotationComposer get sourceNoteId {
+    final $$BookNotesTableTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.sourceNoteId,
+      referencedTable: $db.bookNotesTable,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BookNotesTableTableAnnotationComposer(
+            $db: $db,
+            $table: $db.bookNotesTable,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$BookNotesTableTableAnnotationComposer get targetNoteId {
+    final $$BookNotesTableTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.targetNoteId,
+      referencedTable: $db.bookNotesTable,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BookNotesTableTableAnnotationComposer(
+            $db: $db,
+            $table: $db.bookNotesTable,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$NoteRelationshipsTableTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $NoteRelationshipsTableTable,
+          NoteRelationshipsTableData,
+          $$NoteRelationshipsTableTableFilterComposer,
+          $$NoteRelationshipsTableTableOrderingComposer,
+          $$NoteRelationshipsTableTableAnnotationComposer,
+          $$NoteRelationshipsTableTableCreateCompanionBuilder,
+          $$NoteRelationshipsTableTableUpdateCompanionBuilder,
+          (NoteRelationshipsTableData, $$NoteRelationshipsTableTableReferences),
+          NoteRelationshipsTableData,
+          PrefetchHooks Function({
+            bool bookId,
+            bool sourceNoteId,
+            bool targetNoteId,
+          })
+        > {
+  $$NoteRelationshipsTableTableTableManager(
+    _$AppDatabase db,
+    $NoteRelationshipsTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$NoteRelationshipsTableTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$NoteRelationshipsTableTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$NoteRelationshipsTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> bookId = const Value.absent(),
+                Value<String> sourceNoteId = const Value.absent(),
+                Value<String> targetNoteId = const Value.absent(),
+                Value<String> relationshipType = const Value.absent(),
+                Value<String> description = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => NoteRelationshipsTableCompanion(
+                id: id,
+                bookId: bookId,
+                sourceNoteId: sourceNoteId,
+                targetNoteId: targetNoteId,
+                relationshipType: relationshipType,
+                description: description,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String bookId,
+                required String sourceNoteId,
+                required String targetNoteId,
+                required String relationshipType,
+                Value<String> description = const Value.absent(),
+                required DateTime createdAt,
+                required DateTime updatedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => NoteRelationshipsTableCompanion.insert(
+                id: id,
+                bookId: bookId,
+                sourceNoteId: sourceNoteId,
+                targetNoteId: targetNoteId,
+                relationshipType: relationshipType,
+                description: description,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$NoteRelationshipsTableTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback:
+              ({bookId = false, sourceNoteId = false, targetNoteId = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (bookId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.bookId,
+                                    referencedTable:
+                                        $$NoteRelationshipsTableTableReferences
+                                            ._bookIdTable(db),
+                                    referencedColumn:
+                                        $$NoteRelationshipsTableTableReferences
+                                            ._bookIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+                        if (sourceNoteId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.sourceNoteId,
+                                    referencedTable:
+                                        $$NoteRelationshipsTableTableReferences
+                                            ._sourceNoteIdTable(db),
+                                    referencedColumn:
+                                        $$NoteRelationshipsTableTableReferences
+                                            ._sourceNoteIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+                        if (targetNoteId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.targetNoteId,
+                                    referencedTable:
+                                        $$NoteRelationshipsTableTableReferences
+                                            ._targetNoteIdTable(db),
+                                    referencedColumn:
+                                        $$NoteRelationshipsTableTableReferences
+                                            ._targetNoteIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [];
+                  },
+                );
+              },
+        ),
+      );
+}
+
+typedef $$NoteRelationshipsTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $NoteRelationshipsTableTable,
+      NoteRelationshipsTableData,
+      $$NoteRelationshipsTableTableFilterComposer,
+      $$NoteRelationshipsTableTableOrderingComposer,
+      $$NoteRelationshipsTableTableAnnotationComposer,
+      $$NoteRelationshipsTableTableCreateCompanionBuilder,
+      $$NoteRelationshipsTableTableUpdateCompanionBuilder,
+      (NoteRelationshipsTableData, $$NoteRelationshipsTableTableReferences),
+      NoteRelationshipsTableData,
+      PrefetchHooks Function({
+        bool bookId,
+        bool sourceNoteId,
+        bool targetNoteId,
+      })
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -6265,4 +7647,9 @@ class $AppDatabaseManager {
       $$CanonPinsTableTableTableManager(_db, _db.canonPinsTable);
   $$StoryLabMessagesTableTableTableManager get storyLabMessagesTable =>
       $$StoryLabMessagesTableTableTableManager(_db, _db.storyLabMessagesTable);
+  $$NoteRelationshipsTableTableTableManager get noteRelationshipsTable =>
+      $$NoteRelationshipsTableTableTableManager(
+        _db,
+        _db.noteRelationshipsTable,
+      );
 }

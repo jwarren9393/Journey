@@ -45,4 +45,34 @@ void main() {
     expect(StoryLabDraft.decode('').seed, isEmpty);
     expect(StoryLabDraft.decode('not json').sparks, isEmpty);
   });
+
+  test('hasInProgressWork and foundationsProgressLabel reflect draft state', () {
+    expect(StoryLabDraft.empty.hasInProgressWork, isFalse);
+    expect(StoryLabDraft.empty.foundationsProgressLabel, 'Continue Foundations');
+
+    const withSparks = StoryLabDraft(
+      sparks: [
+        WorldSpark(
+          title: 'A',
+          vibe: 'v',
+          picture: 'p',
+          wound: 'w',
+          tone: 't',
+          canon: [],
+        ),
+      ],
+    );
+    expect(withSparks.hasInProgressWork, isTrue);
+    expect(
+      withSparks.foundationsProgressLabel,
+      '1 spark saved — continue Foundations',
+    );
+
+    const withSeed = StoryLabDraft(seed: 'lonely grandeur');
+    expect(withSeed.hasInProgressWork, isTrue);
+    expect(
+      withSeed.foundationsProgressLabel,
+      'Seed saved — continue Foundations',
+    );
+  });
 }

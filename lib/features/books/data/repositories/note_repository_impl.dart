@@ -31,6 +31,8 @@ class NoteRepositoryImpl implements NoteRepository {
     bool loreAlwaysInclude = false,
     int lorePriority = 5,
     NoteStatus status = NoteStatus.draft,
+    double? chronologyOrder,
+    String era = '',
   }) async {
     final now = DateTime.now();
     final sortOrder = await _database.nextNoteSortOrder(bookId);
@@ -47,6 +49,8 @@ class NoteRepositoryImpl implements NoteRepository {
         loreAlwaysInclude: Value(loreAlwaysInclude),
         lorePriority: Value(lorePriority.clamp(0, 10)),
         status: Value(status.storageValue),
+        chronologyOrder: Value(chronologyOrder),
+        era: Value(era),
         sortOrder: sortOrder,
         createdAt: now,
         updatedAt: now,
@@ -68,6 +72,8 @@ class NoteRepositoryImpl implements NoteRepository {
         loreAlwaysInclude: Value(note.loreAlwaysInclude),
         lorePriority: Value(note.lorePriority.clamp(0, 10)),
         status: Value(note.status.storageValue),
+        chronologyOrder: Value(note.chronologyOrder),
+        era: Value(note.era),
         sortOrder: Value(note.sortOrder),
         createdAt: Value(note.createdAt),
         updatedAt: Value(DateTime.now()),

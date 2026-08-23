@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:journey/core/ai/ai_context.dart';
 import 'package:journey/core/ai/models/continuity_fix.dart';
 import 'package:journey/core/providers/app_providers.dart';
+import 'package:journey/core/theme/app_reading_style.dart';
 import 'package:journey/core/utils/error_messages.dart';
 import 'package:journey/features/books/presentation/providers/note_providers.dart';
 
@@ -255,7 +256,10 @@ class _FixTile extends StatelessWidget {
           style: Theme.of(context).textTheme.labelMedium,
         ),
         const SizedBox(height: 4),
-        SelectableText(fix.proposedContent),
+        SelectableText(
+          fix.proposedContent,
+          style: appReadingStyle(context),
+        ),
       ],
     );
   }

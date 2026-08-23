@@ -42,7 +42,25 @@ class BookNotesTable extends Table {
       boolean().withDefault(const Constant(false))();
   IntColumn get lorePriority => integer().withDefault(const Constant(5))();
   TextColumn get status => text().withDefault(const Constant('canon'))();
+  /// Sort key for History/Plot timeline views; null means unset.
+  RealColumn get chronologyOrder => real().nullable()();
+  /// Optional era label (e.g. "Age of Ash", "Year 12").
+  TextColumn get era => text().withDefault(const Constant(''))();
   IntColumn get sortOrder => integer()();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {id};
+}
+
+class NoteRelationshipsTable extends Table {
+  TextColumn get id => text()();
+  TextColumn get bookId => text().references(BooksTable, #id)();
+  TextColumn get sourceNoteId => text().references(BookNotesTable, #id)();
+  TextColumn get targetNoteId => text().references(BookNotesTable, #id)();
+  TextColumn get relationshipType => text()();
+  TextColumn get description => text().withDefault(const Constant(''))();
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
 

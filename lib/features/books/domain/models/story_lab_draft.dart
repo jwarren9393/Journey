@@ -24,6 +24,35 @@ class StoryLabDraft {
   final List<GrowOption> growOptions;
   final String composer;
 
+  /// True when Foundations or Brainstorm draft work exists (not a blank start).
+  bool get hasInProgressWork =>
+      seed.trim().isNotEmpty ||
+      sparks.isNotEmpty ||
+      growFocus.trim().isNotEmpty ||
+      growOptions.isNotEmpty ||
+      growType != null ||
+      composer.trim().isNotEmpty;
+
+  /// Short label for empty-state CTAs when Foundations is mid-flight.
+  String get foundationsProgressLabel {
+    if (sparks.isNotEmpty) {
+      final count = sparks.length;
+      return count == 1
+          ? '1 spark saved — continue Foundations'
+          : '$count sparks saved — continue Foundations';
+    }
+    if (growOptions.isNotEmpty || growFocus.trim().isNotEmpty) {
+      return 'Grow options in progress — continue Foundations';
+    }
+    if (seed.trim().isNotEmpty) {
+      return 'Seed saved — continue Foundations';
+    }
+    if (composer.trim().isNotEmpty) {
+      return 'Brainstorm draft waiting — open Story Lab';
+    }
+    return 'Continue Foundations';
+  }
+
   StoryLabDraft copyWith({
     String? seed,
     List<WorldSpark>? sparks,

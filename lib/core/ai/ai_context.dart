@@ -1,11 +1,13 @@
 import 'package:journey/core/ai/models/continuity_fix.dart';
 import 'package:journey/core/ai/models/extracted_entity.dart';
 import 'package:journey/core/ai/models/grow_option.dart';
+import 'package:journey/core/ai/models/lore_proposal.dart';
 import 'package:journey/core/ai/models/world_spark.dart';
 import 'package:journey/features/books/domain/models/book.dart';
 import 'package:journey/features/books/domain/models/book_note.dart';
 import 'package:journey/features/books/domain/models/chapter.dart';
 import 'package:journey/features/books/domain/models/canon_pin.dart';
+import 'package:journey/features/books/domain/models/note_relationship.dart';
 import 'package:journey/features/books/domain/models/note_type.dart';
 import 'package:journey/features/books/domain/models/story_lab_message.dart';
 
@@ -35,7 +37,9 @@ class AiContext {
     this.plotBridgeAfter,
     this.canonPins = const [],
     this.storyLabMessages = const [],
+    this.relationships = const [],
     this.growType,
+    this.focusNote,
     this.requestVariants = false,
     this.variantCount = 3,
     this.triggeredNoteTitles = const [],
@@ -75,8 +79,14 @@ class AiContext {
   /// Recent Story Lab messages for brainstorm actions.
   final List<StoryLabMessage> storyLabMessages;
 
+  /// Note relationships for world-state / promote context.
+  final List<NoteRelationship> relationships;
+
   /// Optional note type to grow in Foundations.
   final NoteType? growType;
+
+  /// Primary note for [AiAction.deepenNote].
+  final BookNote? focusNote;
 
   /// When true, selection transforms return multiple variants.
   final bool requestVariants;
@@ -100,7 +110,9 @@ class AiContext {
     Chapter? plotBridgeAfter,
     List<CanonPin>? canonPins,
     List<StoryLabMessage>? storyLabMessages,
+    List<NoteRelationship>? relationships,
     NoteType? growType,
+    BookNote? focusNote,
     bool? requestVariants,
     int? variantCount,
     List<String>? triggeredNoteTitles,
@@ -119,7 +131,9 @@ class AiContext {
       plotBridgeAfter: plotBridgeAfter ?? this.plotBridgeAfter,
       canonPins: canonPins ?? this.canonPins,
       storyLabMessages: storyLabMessages ?? this.storyLabMessages,
+      relationships: relationships ?? this.relationships,
       growType: growType ?? this.growType,
+      focusNote: focusNote ?? this.focusNote,
       requestVariants: requestVariants ?? this.requestVariants,
       variantCount: variantCount ?? this.variantCount,
       triggeredNoteTitles: triggeredNoteTitles ?? this.triggeredNoteTitles,
@@ -153,6 +167,10 @@ enum AiAction {
   foundationsSparks,
   foundationsGrow,
   foundationsOpeningScenes,
+  promoteToLore,
+  deepenNote,
+  interrogateLore,
+  evolveWorldState,
 }
 
 class AiResult {
@@ -166,6 +184,7 @@ class AiResult {
     this.continuityFixes = const [],
     this.worldSparks = const [],
     this.growOptions = const [],
+    this.loreProposals = const [],
   });
 
   final String text;
@@ -177,4 +196,5 @@ class AiResult {
   final List<ContinuityFix> continuityFixes;
   final List<WorldSpark> worldSparks;
   final List<GrowOption> growOptions;
+  final List<LoreProposal> loreProposals;
 }

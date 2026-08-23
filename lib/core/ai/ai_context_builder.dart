@@ -4,6 +4,7 @@ import 'package:journey/features/books/domain/models/book.dart';
 import 'package:journey/features/books/domain/models/book_note.dart';
 import 'package:journey/features/books/domain/models/chapter.dart';
 import 'package:journey/features/books/domain/models/canon_pin.dart';
+import 'package:journey/features/books/domain/models/note_relationship.dart';
 import 'package:journey/features/books/domain/models/note_status.dart';
 import 'package:journey/features/books/domain/models/note_type.dart';
 import 'package:journey/features/books/domain/models/story_lab_message.dart';
@@ -126,6 +127,149 @@ abstract final class AiContextBuilder {
       notes: triggered.notes,
       canonPins: canonPins,
       storyLabMessages: messages,
+      triggeredNoteTitles: triggered.triggeredTitles,
+    );
+  }
+
+  /// Promote brainstorm and/or chapter ideas into structured note proposals.
+  ///
+  /// Passes all notes for title matching in the parser; the prompt includes
+  /// triggered note bodies plus a compact title index of every note.
+  static AiContext forPromoteToLore({
+    required Book book,
+    required List<BookNote> allNotes,
+    List<StoryLabMessage> messages = const [],
+    List<CanonPin> canonPins = const [],
+    List<NoteRelationship> relationships = const [],
+    Chapter? chapter,
+    String? selectedText,
+    String? userPrompt,
+  }) {
+    final scanText = [
+      userPrompt ?? '',
+      selectedText ?? '',
+      chapter?.content ?? '',
+      book.storyLabSummary,
+      ...messages.map((message) => message.content),
+      ...canonPins.map((pin) => pin.text),
+    ].join('\n');
+
+    final triggered = NoteContextService.findTriggeredNotes(
+      allNotes,
+      scanText,
+      limit: 20,
+    );
+
+    // Ensure parser can resolve any title the model cites.
+    final notesForParser = <BookNote>[
+      ...triggered.notes,
+      for (final note in allNotes)
+        if (!triggered.notes.any((n) => n.id == note.id)) note,
+    ];
+
+    return AiContext(
+      book: book,
+      chapter: chapter,
+      selectedText: selectedText,
+      userPrompt: userPrompt,
+      notes: notesForParser,
+      canonPins: canonPins,
+      storyLabMessages: messages,
+      relationships: relationships,
+      triggeredNoteTitles: triggered.triggeredTitles,
+    );
+  }
+
+  static AiContext forDeepenNote({
+    required Book book,
+    required BookNote focusNote,
+    required List<BookNote> allNotes,
+    List<NoteRelationship> relationships = const [],
+    String? userPrompt,
+  }) {
+    final scanText = [
+      focusNote.title,
+      focusNote.content,
+      userPrompt ?? '',
+      book.canonSummary,
+      book.description,
+    ].join('\n');
+
+    final triggered = NoteContextService.findTriggeredNotes(
+      allNotes.where((note) => note.id != focusNote.id).toList(),
+      scanText,
+      limit: 10,
+    );
+
+    final notesForParser = <BookNote>[
+      focusNote,
+      ...triggered.notes,
+      for (final note in allNotes)
+        if (note.id != focusNote.id &&
+            !triggered.notes.any((n) => n.id == note.id))
+          note,
+    ];
+
+    final relatedLinks = relationships
+        .where(
+          (rel) =>
+              rel.sourceNoteId == focusNote.id ||
+              rel.targetNoteId == focusNote.id,
+        )
+        .toList();
+
+    return AiContext(
+      book: book,
+      focusNote: focusNote,
+      userPrompt: userPrompt,
+      notes: notesForParser,
+      relationships: relatedLinks,
+      triggeredNoteTitles: [
+        focusNote.title,
+        ...triggered.triggeredTitles,
+      ],
+    );
+  }
+
+  static AiContext forInterrogateLore({
+    required Book book,
+    required BookNote focusNote,
+    required List<BookNote> allNotes,
+    List<NoteRelationship> relationships = const [],
+    String? userPrompt,
+  }) {
+    return forDeepenNote(
+      book: book,
+      focusNote: focusNote,
+      allNotes: allNotes,
+      relationships: relationships,
+      userPrompt: userPrompt,
+    );
+  }
+
+  static AiContext forEvolveWorldState({
+    required Book book,
+    required Chapter chapter,
+    required List<BookNote> allNotes,
+    List<NoteRelationship> relationships = const [],
+  }) {
+    final triggered = NoteContextService.findTriggeredNotes(
+      allNotes,
+      chapter.content,
+      limit: 20,
+    );
+
+    final notesForParser = <BookNote>[
+      ...triggered.notes,
+      for (final note in allNotes)
+        if (!triggered.notes.any((n) => n.id == note.id)) note,
+    ];
+
+    return AiContext(
+      book: book,
+      chapter: chapter,
+      notes: notesForParser,
+      relationships: relationships,
       triggeredNoteTitles: triggered.triggeredTitles,
     );
   }

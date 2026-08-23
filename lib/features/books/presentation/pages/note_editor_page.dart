@@ -3,14 +3,19 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:journey/app/router.dart';
+import 'package:journey/core/ai/ai_book_actions.dart';
 import 'package:journey/core/utils/debouncer.dart';
 import 'package:journey/features/books/domain/models/book_note.dart';
 import 'package:journey/features/books/domain/models/book_tag.dart';
 import 'package:journey/features/books/domain/models/note_status.dart';
 import 'package:journey/features/books/domain/models/note_type.dart';
+import 'package:journey/features/books/domain/note_templates.dart';
 import 'package:journey/features/books/presentation/providers/note_providers.dart';
 import 'package:journey/features/books/presentation/providers/tag_providers.dart';
 import 'package:journey/shared/widgets/error_state.dart';
+import 'package:journey/shared/widgets/note_relationship_dialog.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class NoteEditorPage extends ConsumerStatefulWidget {
@@ -31,6 +36,8 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
   final _titleController = TextEditingController();
   final _contentController = TextEditingController();
   final _loreKeywordsController = TextEditingController();
+  final _eraController = TextEditingController();
+  final _chronologyController = TextEditingController();
   final _debouncer = Debouncer();
 
   String? _loadedNoteId;
@@ -50,6 +57,8 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
     _titleController.dispose();
     _contentController.dispose();
     _loreKeywordsController.dispose();
+    _eraController.dispose();
+    _chronologyController.dispose();
     super.dispose();
   }
 
@@ -84,6 +93,8 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
           _titleController.text = note.title;
           _contentController.text = note.content;
           _loreKeywordsController.text = note.loreKeywords;
+          _eraController.text = note.era;
+          _chronologyController.text = note.chronologyOrder?.toString() ?? '';
           _type = note.type;
           _status = note.status;
           _attachmentPath = note.attachmentPath;
@@ -98,6 +109,34 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
           appBar: AppBar(
             title: const Text('Note'),
             actions: [
+              PopupMenuButton<String>(
+                tooltip: 'Note actions',
+                onSelected: (value) => _handleMenuAction(value, note),
+                itemBuilder: (context) => [
+                  const PopupMenuItem(
+                    value: 'deepen',
+                    child: Text('Deepen with AI'),
+                  ),
+                  const PopupMenuItem(
+                    value: 'interrogate',
+                    child: Text('Interrogate lore'),
+                  ),
+                  if (NoteTemplates.hasTemplate(_type))
+                    const PopupMenuItem(
+                      value: 'template',
+                      child: Text('Insert scaffolding'),
+                    ),
+                  const PopupMenuItem(
+                    value: 'story_lab',
+                    child: Text('Open Story Lab'),
+                  ),
+                  if (_status != NoteStatus.spark)
+                    const PopupMenuItem(
+                      value: 'retire',
+                      child: Text('Retire as spark'),
+                    ),
+                ],
+              ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Center(child: _saveStatusWidget()),
@@ -166,15 +205,79 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
               const SizedBox(height: 16),
               TextField(
                 controller: _contentController,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Content',
-                  border: OutlineInputBorder(),
+                  border: const OutlineInputBorder(),
                   alignLabelWithHint: true,
+                  suffixIcon: NoteTemplates.hasTemplate(_type)
+                      ? IconButton(
+                          tooltip: 'Insert scaffolding',
+                          icon: const Icon(Icons.view_agenda_outlined),
+                          onPressed: () => _insertTemplate(note),
+                        )
+                      : null,
                 ),
                 textCapitalization: TextCapitalization.sentences,
                 minLines: 10,
                 maxLines: null,
                 onChanged: (_) => _markDirty(note),
+              ),
+              if (_type == NoteType.history || _type == NoteType.plot) ...[
+                const SizedBox(height: 16),
+                Text(
+                  'Timeline',
+                  style: Theme.of(context).textTheme.titleSmall,
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: _eraController,
+                  decoration: const InputDecoration(
+                    labelText: 'Era (optional)',
+                    border: OutlineInputBorder(),
+                    hintText: 'Age of Ash, Year 12…',
+                  ),
+                  onChanged: (_) => _markDirty(note),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: _chronologyController,
+                  decoration: const InputDecoration(
+                    labelText: 'Chronology order (optional)',
+                    border: OutlineInputBorder(),
+                    hintText: 'e.g. 1.0, 2.5',
+                    helperText: 'Lower numbers sort earlier on the timeline.',
+                  ),
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                    signed: true,
+                  ),
+                  onChanged: (_) => _markDirty(note),
+                ),
+              ],
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Relationships',
+                      style: Theme.of(context).textTheme.titleSmall,
+                    ),
+                  ),
+                  TextButton.icon(
+                    onPressed: () => showNoteRelationshipDialog(
+                      context: context,
+                      bookId: widget.bookId,
+                      fixedSourceNoteId: note.id,
+                    ),
+                    icon: const Icon(Icons.add_link, size: 18),
+                    label: const Text('Add link'),
+                  ),
+                ],
+              ),
+              NoteRelationshipsList(
+                bookId: widget.bookId,
+                noteId: note.id,
+                compact: true,
               ),
               const SizedBox(height: 16),
               Text(
@@ -304,6 +407,90 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
     return const Text('Saved');
   }
 
+  Future<void> _handleMenuAction(String action, BookNote note) async {
+    switch (action) {
+      case 'deepen':
+        if (_hasUnsavedChanges) {
+          await _save(note);
+          if (_saveFailed || !mounted) {
+            return;
+          }
+        }
+        final latest = await ref.read(noteProvider(widget.noteId).future);
+        if (latest == null || !mounted) {
+          return;
+        }
+        final applied = await AiBookActions.runDeepenNote(
+          context: context,
+          ref: ref,
+          bookId: widget.bookId,
+          note: latest,
+        );
+        if (applied && mounted) {
+          ref.invalidate(noteProvider(widget.noteId));
+        }
+      case 'interrogate':
+        if (_hasUnsavedChanges) {
+          await _save(note);
+          if (_saveFailed || !mounted) {
+            return;
+          }
+        }
+        final latestForQ = await ref.read(noteProvider(widget.noteId).future);
+        if (latestForQ == null || !mounted) {
+          return;
+        }
+        await AiBookActions.runInterrogateLore(
+          context: context,
+          ref: ref,
+          bookId: widget.bookId,
+          note: latestForQ,
+        );
+        if (mounted) {
+          ref.invalidate(noteProvider(widget.noteId));
+        }
+      case 'template':
+        _insertTemplate(note);
+      case 'story_lab':
+        if (!mounted) {
+          return;
+        }
+        context.push(AppRoutes.storyLab(widget.bookId, tab: 'brainstorm'));
+      case 'retire':
+        setState(() {
+          _type = NoteType.idea;
+          _status = NoteStatus.spark;
+        });
+        _markDirty(note);
+        if (!mounted) {
+          return;
+        }
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Marked as Idea / Spark — excluded from writing AI unless always-include.',
+              ),
+            ),
+          );
+    }
+  }
+
+  void _insertTemplate(BookNote note) {
+    final next = NoteTemplates.insertTemplate(_type, _contentController.text);
+    if (next == _contentController.text) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          const SnackBar(content: Text('Scaffolding already present.')),
+        );
+      return;
+    }
+    setState(() => _contentController.text = next);
+    _markDirty(note);
+  }
+
   void _markDirty(BookNote note) {
     setState(() {
       _hasUnsavedChanges = true;
@@ -329,6 +516,9 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
           loreKeywords: _loreKeywordsController.text,
           loreAlwaysInclude: _loreAlwaysInclude,
           lorePriority: _lorePriority,
+          era: _eraController.text.trim(),
+          chronologyOrder: double.tryParse(_chronologyController.text.trim()),
+          clearChronologyOrder: _chronologyController.text.trim().isEmpty,
         ),
       );
       await ref.tags.setTagsForNote(

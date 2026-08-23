@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:journey/core/ai/ai_context.dart';
 import 'package:journey/core/ai/models/extracted_entity.dart';
+import 'package:journey/core/theme/app_reading_style.dart';
 import 'package:journey/core/utils/error_messages.dart';
 import 'package:journey/features/books/presentation/providers/note_providers.dart';
 import 'package:journey/shared/widgets/error_state.dart';
@@ -235,7 +236,7 @@ class _EntityCard extends StatelessWidget {
             ),
             if (entity.description.isNotEmpty) ...[
               const SizedBox(height: 8),
-              Text(entity.description),
+              Text(entity.description, style: appReadingStyle(context)),
             ],
             const SizedBox(height: 12),
             Align(

@@ -39,9 +39,25 @@ class JourneyApp extends ConsumerWidget {
         child: MaterialApp.router(
           title: AppConstants.appName,
           debugShowCheckedModeBanner: false,
-          theme: AppTheme.light,
-          darkTheme: AppTheme.dark,
+          theme: AppTheme.light(
+            background: prefs.backgroundPreset,
+            accent: prefs.accentPreset,
+          ),
+          darkTheme: AppTheme.dark(
+            background: prefs.backgroundPreset,
+            accent: prefs.accentPreset,
+          ),
           themeMode: prefs.themeMode,
+          builder: (context, child) {
+            final media = MediaQuery.of(context);
+            final systemScale = media.textScaler.scale(1.0);
+            return MediaQuery(
+              data: media.copyWith(
+                textScaler: TextScaler.linear(systemScale * prefs.uiFontScale),
+              ),
+              child: child ?? const SizedBox.shrink(),
+            );
+          },
           routerConfig: router,
         ),
       ),

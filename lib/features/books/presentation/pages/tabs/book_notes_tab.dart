@@ -7,13 +7,17 @@ import 'package:journey/features/books/domain/models/book_note.dart';
 import 'package:journey/features/books/domain/models/note_status.dart';
 import 'package:journey/features/books/domain/models/note_type.dart';
 import 'package:journey/features/books/domain/note_search.dart';
+import 'package:journey/features/books/domain/note_templates.dart';
 import 'package:journey/features/books/presentation/note_presentation.dart';
+import 'package:journey/features/books/domain/models/story_lab_draft.dart';
 import 'package:journey/features/books/presentation/providers/book_providers.dart';
 import 'package:journey/features/books/presentation/providers/chapter_providers.dart';
 import 'package:journey/features/books/presentation/providers/note_providers.dart';
+import 'package:journey/features/books/presentation/providers/story_lab_providers.dart';
 import 'package:journey/features/books/presentation/providers/tag_providers.dart';
 import 'package:journey/shared/widgets/empty_state.dart';
 import 'package:journey/shared/widgets/error_state.dart';
+import 'package:journey/shared/widgets/note_relationship_dialog.dart';
 import 'package:journey/shared/widgets/text_input_dialog.dart';
 
 class BookNotesTab extends ConsumerStatefulWidget {
@@ -45,6 +49,8 @@ class _BookNotesTabState extends ConsumerState<BookNotesTab> {
       notesStreamProvider(NotesQuery(bookId: widget.bookId)),
     );
     final tagsAsync = ref.watch(tagsStreamProvider(widget.bookId));
+    final draftAsync = ref.watch(storyLabDraftProvider(widget.bookId));
+    final bookAsync = ref.watch(bookProvider(widget.bookId));
 
     return Stack(
       children: [
@@ -196,17 +202,38 @@ class _BookNotesTabState extends ConsumerState<BookNotesTab> {
                   );
 
                   if (notes.isEmpty) {
+                    final draft =
+                        draftAsync.asData?.value ?? StoryLabDraft.empty;
+                    final book = bookAsync.asData?.value;
+                    final hasPicture = book != null &&
+                        (book.description.trim().isNotEmpty ||
+                            book.canonSummary.trim().isNotEmpty);
+                    final inProgress = draft.hasInProgressWork;
+                    final String message;
+                    final String buttonLabel;
+                    if (hasPicture) {
+                      message =
+                          'Your picture is set. Grow named pieces in Foundations, or add a note with the button below.';
+                      buttonLabel = 'Continue Foundations';
+                    } else if (inProgress) {
+                      message =
+                          '${draft.foundationsProgressLabel}. Or add a note with New note below.';
+                      buttonLabel = 'Continue Foundations';
+                    } else {
+                      message =
+                          'Start from scratch in Foundations, or jot down characters, places, groups, and history here.';
+                      buttonLabel = 'Start from scratch';
+                    }
                     return EmptyState(
                       icon: Icons.sticky_note_2_outlined,
                       title: 'No notes yet',
-                      message:
-                          'Start from scratch in Foundations, or jot down characters, places, groups, and history here.',
+                      message: message,
                       action: FilledButton.icon(
                         onPressed: () => context.push(
                           AppRoutes.storyLab(widget.bookId),
                         ),
                         icon: const Icon(Icons.auto_awesome),
-                        label: const Text('Start from scratch'),
+                        label: Text(buttonLabel),
                       ),
                     );
                   }
@@ -219,20 +246,52 @@ class _BookNotesTabState extends ConsumerState<BookNotesTab> {
                     );
                   }
 
-                  return ListView.separated(
+                  return ListView(
                     padding: const EdgeInsets.fromLTRB(16, 12, 16, 88),
-                    itemCount: filtered.length,
-                    separatorBuilder: (_, _) => const SizedBox(height: 8),
-                    itemBuilder: (context, index) {
-                      final note = filtered[index];
-                      return _NoteCard(
-                        note: note,
-                        onOpen: () => context.push(
-                          AppRoutes.noteEditor(widget.bookId, note.id),
+                    children: [
+                      ExpansionTile(
+                        initiallyExpanded: false,
+                        title: const Text('Relationships'),
+                        subtitle: const Text('Links between notes'),
+                        children: [
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: TextButton.icon(
+                              onPressed: () => showNoteRelationshipDialog(
+                                context: context,
+                                bookId: widget.bookId,
+                              ),
+                              icon: const Icon(Icons.add_link),
+                              label: const Text('Add link'),
+                            ),
+                          ),
+                          NoteRelationshipsList(bookId: widget.bookId),
+                          const SizedBox(height: 8),
+                        ],
+                      ),
+                      ExpansionTile(
+                        title: const Text('Timeline'),
+                        subtitle: const Text('History & plot by chronology'),
+                        children: [
+                          _TimelineSection(notes: notes),
+                          const SizedBox(height: 8),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      for (var index = 0; index < filtered.length; index++) ...[
+                        if (index > 0) const SizedBox(height: 8),
+                        _NoteCard(
+                          note: filtered[index],
+                          onOpen: () => context.push(
+                            AppRoutes.noteEditor(
+                              widget.bookId,
+                              filtered[index].id,
+                            ),
+                          ),
+                          onDelete: () => _deleteNote(filtered[index].id),
                         ),
-                        onDelete: () => _deleteNote(note.id),
-                      );
-                    },
+                      ],
+                    ],
                   );
                 },
               ),
@@ -282,10 +341,12 @@ class _BookNotesTabState extends ConsumerState<BookNotesTab> {
     }
 
     try {
+      final template = NoteTemplates.templateFor(type)?.trimRight() ?? '';
       final note = await ref.notes.create(
         bookId: widget.bookId,
         type: type,
         title: title,
+        content: template,
         loreKeywords: title,
         status: NoteStatus.draft,
       );
@@ -353,6 +414,18 @@ class _NoteCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('${note.type.label} · ${note.status.label}'),
+            if (note.hasChronology)
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Text(
+                  [
+                    if (note.era.trim().isNotEmpty) note.era.trim(),
+                    if (note.chronologyOrder != null)
+                      't=${note.chronologyOrder}',
+                  ].join(' · '),
+                  style: Theme.of(context).textTheme.labelSmall,
+                ),
+              ),
             if (note.tags.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: 4),
@@ -384,6 +457,60 @@ class _NoteCard extends StatelessWidget {
         ),
         onTap: onOpen,
       ),
+    );
+  }
+}
+
+class _TimelineSection extends StatelessWidget {
+  const _TimelineSection({required this.notes});
+
+  final List<BookNote> notes;
+
+  @override
+  Widget build(BuildContext context) {
+    final timeline = notes
+        .where(
+          (note) =>
+              (note.type == NoteType.history || note.type == NoteType.plot) &&
+              note.hasChronology,
+        )
+        .toList()
+      ..sort((a, b) {
+        final ao = a.chronologyOrder ?? double.infinity;
+        final bo = b.chronologyOrder ?? double.infinity;
+        final byOrder = ao.compareTo(bo);
+        if (byOrder != 0) {
+          return byOrder;
+        }
+        return a.title.compareTo(b.title);
+      });
+
+    if (timeline.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.all(12),
+        child: Text(
+          'Add era or chronology order on History / Plot notes to build a timeline.',
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+      );
+    }
+
+    return Column(
+      children: [
+        for (final note in timeline)
+          ListTile(
+            dense: true,
+            leading: Icon(NotePresentation.iconForType(note.type)),
+            title: Text(note.title),
+            subtitle: Text(
+              [
+                note.type.label,
+                if (note.era.trim().isNotEmpty) note.era.trim(),
+                if (note.chronologyOrder != null) '${note.chronologyOrder}',
+              ].join(' · '),
+            ),
+          ),
+      ],
     );
   }
 }

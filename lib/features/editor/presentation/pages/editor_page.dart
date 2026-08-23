@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:journey/app/router.dart';
 import 'package:journey/core/ai/ai_book_actions.dart';
 import 'package:journey/core/ai/ai_context.dart';
 import 'package:journey/core/ai/ai_context_builder.dart';
@@ -168,6 +170,10 @@ class _EditorPageState extends ConsumerState<EditorPage> {
                   context: context,
                   bookId: widget.bookId,
                 ),
+        const SingleActivator(LogicalKeyboardKey.keyB, control: true, shift: true):
+            () => context.push(
+                  AppRoutes.storyLab(widget.bookId, tab: 'brainstorm'),
+                ),
       },
       child: Scaffold(
         appBar: AppBar(
@@ -186,6 +192,13 @@ class _EditorPageState extends ConsumerState<EditorPage> {
                 bookId: widget.bookId,
               ),
               icon: const Icon(Icons.menu_book_outlined),
+            ),
+            IconButton(
+              tooltip: 'Story Lab brainstorm',
+              onPressed: () => context.push(
+                AppRoutes.storyLab(widget.bookId, tab: 'brainstorm'),
+              ),
+              icon: const Icon(Icons.science_outlined),
             ),
             IconButton(
               tooltip: 'Focus mode',
@@ -263,6 +276,14 @@ class _EditorPageState extends ConsumerState<EditorPage> {
                 const PopupMenuItem(
                   value: AiAction.extractEntities,
                   child: Text('Discover entities'),
+                ),
+                const PopupMenuItem(
+                  value: AiAction.promoteToLore,
+                  child: Text('Promote chapter to lore'),
+                ),
+                const PopupMenuItem(
+                  value: AiAction.evolveWorldState,
+                  child: Text('Update world state from chapter'),
                 ),
               ],
             ),
@@ -492,6 +513,30 @@ class _EditorPageState extends ConsumerState<EditorPage> {
           book: book,
         );
         return;
+      case AiAction.promoteToLore:
+        await AiBookActions.runPromoteToLore(
+          context: context,
+          ref: ref,
+          bookId: widget.bookId,
+          book: book,
+          chapter: liveChapter,
+          selectedText: hasSelection ? selectedText : null,
+          sheetTitle: 'Promote chapter to lore',
+          sheetSubtitle:
+              'Review note creates, updates, and retires from this chapter before applying.',
+        );
+        return;
+      case AiAction.evolveWorldState:
+        await AiBookActions.runEvolveWorldState(
+          context: context,
+          ref: ref,
+          bookId: widget.bookId,
+          chapter: liveChapter,
+          book: book,
+        );
+        return;
+      case AiAction.deepenNote:
+      case AiAction.interrogateLore:
       case AiAction.pacingHeatmap:
       case AiAction.plotBridge:
       case AiAction.blurbPitchGenerator:

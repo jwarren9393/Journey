@@ -72,6 +72,10 @@ class _BookDetailPageState extends ConsumerState<BookDetailPage>
                 child: Text('Foundations / Story Lab'),
               ),
               PopupMenuItem(
+                value: BookDetailMenuAction.promoteToLore,
+                child: Text('Promote Story Lab to lore'),
+              ),
+              PopupMenuItem(
                 value: BookDetailMenuAction.updateCanon,
                 child: Text('Update canon summary'),
               ),
@@ -169,6 +173,12 @@ class _BookDetailPageState extends ConsumerState<BookDetailPage>
         _runFixContinuity();
       case BookDetailMenuAction.storyLab:
         context.push(AppRoutes.storyLab(widget.bookId));
+      case BookDetailMenuAction.promoteToLore:
+        AiBookActions.runPromoteToLore(
+          context: context,
+          ref: ref,
+          bookId: widget.bookId,
+        );
       case BookDetailMenuAction.updateCanon:
         AiBookActions.runUpdateCanonSummary(
           context: context,
@@ -269,6 +279,7 @@ enum BookDetailMenuAction {
   continuityCheck,
   fixContinuity,
   storyLab,
+  promoteToLore,
   updateCanon,
   askWorldBible,
   recap,

@@ -182,11 +182,44 @@ Hook into existing export flow (`share_plus` / book detail export menu).
 - Auto-generating a full cast or encyclopedia dump
 - Always-on lore while typing
 
+## Phase 8: Lore collaboration loop (complete)
+
+**Goal:** Close the loop between brainstorming and the world bible — talk, then promote structured changes with review-before-apply — and connect writing / notes / Story Lab without forcing a single screen.
+
+- [x] **Promote to lore** — from Story Lab brainstorm (and chapter context from the editor): AI proposes create / update / retire note changes; author reviews before apply
+- [x] **Retire** — soft-archive outdated notes as Idea / Spark (excluded from writing AI unless always-include)
+- [x] **Deepen note** — from note editor; optional focus prompt; same review sheet
+- [x] **Workflow links** — editor → Story Lab (`Ctrl+Shift+B`), note → Story Lab, book menu → Promote Story Lab to lore; optional clear brainstorm after promote
+- [x] Manual **Retire as spark** on notes without AI
+
+### Phase 8 excluded
+
+- Always-on lore while typing
+- Automatic promote on every brainstorm message
+- Hard-delete of notes via AI (retire is demotion only)
+
+## Phase 9: Dynamic World Bible (complete)
+
+**Goal:** Structured worldbuilding templates, lightweight relationships/timeline, and living world-state updates from the manuscript — still user-initiated with review-before-apply.
+
+- [x] Guided note scaffolding by `NoteType` (create + insert)
+- [x] `interrogateLore` — developmental questions on a note
+- [x] `note_relationships_table` + UI dialog/list
+- [x] `chronologyOrder` + `era` on notes; Timeline panel
+- [x] `evolveWorldState` — chapter → note/relationship proposals via `LoreProposalSheet`
+- [x] Schema v6; backup v5
+
+### Phase 9 excluded
+
+- Full graph visualization / family trees
+- Automatic relationship inference while typing
+- Hard-delete of notes via AI
+
 ## Open Questions
 
 Use this section to capture decisions as we discuss them:
 
-- **Target platforms**: Windows + Android first (locked). iOS/macOS/web later.
+- **Target platforms**: Windows + Linux + Android (locked). iOS/macOS/web later.
 - **Editor style**: Plain text for now. Markdown or rich text TBD.
 - **Data storage**: Local-only (Drift/SQLite). Cloud sync in Phase 4.
 - **Book structure**: Chapters only for now. Scenes TBD.
