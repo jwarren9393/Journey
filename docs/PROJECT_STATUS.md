@@ -88,6 +88,10 @@ Journey is a **personal, casual writing app** — not a commercial author platfo
 
 ## Changelog
 
+### 2026-08-23 — Fix Android release APK AI offline (build 30)
+- Added missing `INTERNET` permission to `android/app/src/main/AndroidManifest.xml` — release APKs could not make AI API calls, showing "You appear to be offline."
+- Debug and profile manifests already had the permission, so the issue only affected downloaded release builds
+
 ### 2026-08-23 — Larger AI reading text (build 29)
 - App text size max raised to **200%** (was 130%)
 - Theme body sizes bumped; sparks / grow / brainstorm / AI result & proposal sheets use a dedicated reading style

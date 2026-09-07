@@ -1,0 +1,129 @@
+#!/usr/bin/env bash
+set -e
+
+# ==============================================================================
+# Journey — One-Command Deploy
+# ==============================================================================
+# Builds Android APK + Linux desktop, installs to phone, updates local desktop
+# copy, packages release artifacts, and pushes tag to trigger GitHub Actions CI
+# (which builds Windows + publishes the release).
+#
+# Usage:
+#   ./deploy.sh "optional changelog message"
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# Automatic value extraction
+# ------------------------------------------------------------------------------
+
+if [ ! -f "pubspec.yaml" ]; then
+  echo "❌ Error: pubspec.yaml not found in current directory."
+  echo "   Run this script from the Journey project root."
+  exit 1
+fi
+
+FULL_VERSION=$(grep "^version:" pubspec.yaml | head -n1 | awk '{print $2}' | tr -d '\r')
+VERSION=$(echo "$FULL_VERSION" | cut -d'+' -f1 | tr -d '\r')
+BUILD_NUM=$(echo "$FULL_VERSION" | cut -d'+' -f2 | tr -d '\r')
+
+if [ -z "$BUILD_NUM" ]; then
+  echo "❌ Error: Could not parse build number from pubspec.yaml"
+  exit 1
+fi
+
+PROJECT_ROOT="$(pwd)"
+DEVICE_ID=$(adb devices | grep -w "device" | awk '{print $1}' | head -n1 | tr -d '\r')
+DESKTOP_DIR="$HOME/.local/share/journey"
+CHANGELOG="${1:-Build ${BUILD_NUM} release update and improvements}"
+
+echo "=================================================="
+echo "🚀 Deploying Journey ${VERSION} (Build ${BUILD_NUM})"
+echo "📱 Connected Device: ${DEVICE_ID:-None (Skipping phone install)}"
+echo "💻 Desktop Target:   ${DESKTOP_DIR}"
+echo "📝 Notes:            ${CHANGELOG}"
+echo "=================================================="
+
+# ==============================================================================
+# 1. GIT COMMIT & PUSH (source code, no tag yet)
+# ==============================================================================
+echo -e "\n📦 [1/5] Syncing source code to GitHub..."
+git add .
+if git diff --staged --quiet; then
+  echo "   No uncommitted code changes."
+else
+  git commit -m "Build ${BUILD_NUM}: ${CHANGELOG}"
+fi
+git push origin master
+echo "   ✅ Source code pushed."
+
+# ==============================================================================
+# 2. BUILD ANDROID APK & INSTALL TO PHONE
+# ==============================================================================
+echo -e "\n📱 [2/5] Compiling Android Release APK..."
+flutter build apk --release --build-name="$VERSION" --build-number="$BUILD_NUM"
+cp build/app/outputs/flutter-apk/app-release.apk "journey-android-build-${BUILD_NUM}.apk"
+
+if [ -n "$DEVICE_ID" ]; then
+  echo "   Installing in-place onto device ($DEVICE_ID)..."
+  adb -s "$DEVICE_ID" install -r "journey-android-build-${BUILD_NUM}.apk"
+  echo "   ✅ Phone updated successfully!"
+else
+  echo "   ⚠️ No ADB device found. Skipping physical phone install."
+fi
+
+# ==============================================================================
+# 3. BUILD LINUX DESKTOP & UPDATE IN-PLACE
+# ==============================================================================
+echo -e "\n💻 [3/5] Compiling Linux Desktop Release..."
+flutter build linux --release --build-name="$VERSION" --build-number="$BUILD_NUM"
+
+echo "   Updating desktop application in-place..."
+mkdir -p "$DESKTOP_DIR"
+rsync -av --delete build/linux/x64/release/bundle/ "$DESKTOP_DIR/"
+echo "   ✅ Desktop app updated in-place!"
+
+# ==============================================================================
+# 4. PACKAGE LINUX TARBALL FOR GITHUB RELEASE
+# ==============================================================================
+echo -e "\n🗜️  [4/5] Packaging Linux Release Tarball..."
+LINUX_ARCHIVE="journey-linux-x64-build-${BUILD_NUM}.tar.gz"
+tar czf "${LINUX_ARCHIVE}" -C build/linux/x64/release/bundle .
+echo "   ✅ Created ${LINUX_ARCHIVE}"
+
+# ==============================================================================
+# 5. PUSH TAG & UPDATE GITHUB RELEASE
+# ==============================================================================
+echo -e "\n🌐 [5/5] Pushing tag and updating GitHub Release..."
+TAG="build-${BUILD_NUM}"
+RELEASE_TITLE="Journey ${VERSION} (build ${BUILD_NUM})"
+RELEASE_BODY="Install the new APK over the existing app (do not uninstall first).
+
+### What's new in build ${BUILD_NUM}
+- ${CHANGELOG}"
+
+# Push the tag to trigger GitHub Actions CI (builds Windows + publishes release)
+git tag -f "$TAG"
+git push origin "$TAG" --force
+echo "   ✅ Tag ${TAG} pushed. CI will build Windows and publish the release."
+
+# Also update the release notes immediately via gh CLI
+if command -v gh &> /dev/null; then
+  # Create or update the release with locally built assets (CI will overwrite
+  # Linux/Android with its own builds, but this gives instant availability)
+  gh release edit "$TAG" --title "$RELEASE_TITLE" --notes "$RELEASE_BODY" 2>/dev/null || \
+  gh release create "$TAG" --title "$RELEASE_TITLE" --notes "$RELEASE_BODY"
+
+  # Upload local builds; --clobber means CI can overwrite later without conflict
+  gh release upload "$TAG" "journey-android-build-${BUILD_NUM}.apk" "${LINUX_ARCHIVE}" --clobber 2>/dev/null || true
+  echo "   ✅ GitHub Release updated: https://github.com/jwarren9393/Journey/releases/tag/${TAG}"
+else
+  echo "   ⚠️ GitHub CLI (gh) not found. Release will be published by CI once the Windows build completes."
+fi
+
+echo -e "\n🎉 ALL DONE! App built, phone updated, desktop updated, and release published!"
+echo ""
+echo "   ┌──────────────────────────────────────────────────────────────┐"
+echo "   │  Next: CI will build the Windows portable zip and finish    │"
+echo "   │  the GitHub Release automatically. Watch progress at:       │"
+echo "   │  https://github.com/jwarren9393/Journey/actions             │"
+echo "   └──────────────────────────────────────────────────────────────┘"

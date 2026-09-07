@@ -44,6 +44,8 @@
 
 **Target platforms:** Android, Linux, Windows (iOS/macOS/web folders exist but are not prioritized for releases).
 
+> **Android requirement:** The release manifest (`android/app/src/main/AndroidManifest.xml`) must declare `<uses-permission android:name="android.permission.INTERNET"/>` for AI API calls. Debug and profile manifests include it automatically.
+
 ---
 
 ## 3. Architecture
