@@ -625,5 +625,6 @@ flutter analyze
 | `lib/features/editor/presentation/widgets/editor_chapter_sidebar.dart` | Desktop chapter nav |
 | `core/utils/error_messages.dart` | User-friendly error mapping |
 | `shared/widgets/error_state.dart` | Reusable error UI + snackbar helpers |
+| `deploy.sh` | One-command deploy script (Android APK + Linux desktop + GitHub Release) |
 | `shared/widgets/book_edit_dialog.dart` | Title + description editor |
 | `shared/widgets/book_description_card.dart` | Book detail description card |

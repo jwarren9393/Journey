@@ -52,6 +52,7 @@ flutter test
 flutter run                    # pick Android, Linux, or Windows device
 flutter build windows --release
 flutter build apk --release
+./deploy.sh "changelog message" # full deploy: git push + APK + phone install + Linux desktop + GitHub Release
 ```
 
 ## Conventions
