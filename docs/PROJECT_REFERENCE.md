@@ -44,6 +44,8 @@
 
 **Target platforms:** Android, Linux, Windows (iOS/macOS/web folders exist but are not prioritized for releases).
 
+> **Android system bars:** Journey targets SDK 36, so Android 15+ edge-to-edge is enforced. `main.dart` enables `SystemUiMode.edgeToEdge` with transparent bars, and the `MaterialApp` builder wraps the router in a bottom `SafeArea` (`_SystemBarsSync` in `lib/app/app.dart`) so content never sits behind the system navigation bar. System bar icon brightness follows the active theme.
+
 > **Android requirement:** The release manifest (`android/app/src/main/AndroidManifest.xml`) must declare `<uses-permission android:name="android.permission.INTERNET"/>` for AI API calls. Debug and profile manifests include it automatically.
 
 ---

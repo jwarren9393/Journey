@@ -88,6 +88,17 @@ Journey is a **personal, casual writing app** — not a commercial author platfo
 
 ## Changelog
 
+### 2026-09-07 — Fix backup restore crash on cross-platform import (build 32)
+- Drift's `toJson()` serializes DateTime values as **integers** (milliseconds since epoch), but the backup import code used `DateTime.parse(json['...'] as String)` which expected ISO 8601 strings — this crashed when restoring a backup exported from one device (phone) on another (laptop)
+- Added `_parseDate()` helper that accepts both `int` (ms since epoch) and `String` (ISO 8601), fixing the type error
+- Fixed all 10 date-field reads across books, chapters, notes, canon pins, story lab messages, and note relationships
+
+### 2026-08-23 — Android edge-to-edge + nav bar fix (build 31)
+- Android 15+ enforces edge-to-edge; the app drew behind the transparent system navigation bar, hiding content at the bottom of every screen
+- Enabled edge-to-edge explicitly, made status/nav bars transparent, and added a root bottom `SafeArea` so no screen content is covered by the system nav bar
+- System bar icons (status + nav) now follow light/dark theme brightness
+- Fixes the squeezed/bunched layout on mobile caused by double bottom insets in nested Scaffolds (Library / Settings inside the AppShell)
+
 ### 2026-08-23 — Fix Android release APK AI offline (build 30)
 - Added missing `INTERNET` permission to `android/app/src/main/AndroidManifest.xml` — release APKs could not make AI API calls, showing "You appear to be offline."
 - Debug and profile manifests already had the permission, so the issue only affected downloaded release builds

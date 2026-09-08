@@ -122,7 +122,7 @@ class BackupService {
                 id: row['id'] as String,
                 bookId: row['bookId'] as String,
                 pinText: row['text'] as String,
-                createdAt: DateTime.parse(row['createdAt'] as String),
+                createdAt: _parseDate(row['createdAt']),
               ),
             );
       }
@@ -133,7 +133,7 @@ class BackupService {
                 bookId: row['bookId'] as String,
                 role: row['role'] as String,
                 content: row['content'] as String,
-                createdAt: DateTime.parse(row['createdAt'] as String),
+                createdAt: _parseDate(row['createdAt']),
               ),
             );
       }
@@ -150,14 +150,28 @@ class BackupService {
                 targetNoteId: map['targetNoteId'] as String,
                 relationshipType: map['relationshipType'] as String,
                 description: Value(map['description'] as String? ?? ''),
-                createdAt: DateTime.parse(map['createdAt'] as String),
-                updatedAt: DateTime.parse(
-                  map['updatedAt'] as String? ?? map['createdAt'] as String,
+                createdAt: _parseDate(map['createdAt']),
+                updatedAt: _parseDate(
+                  map['updatedAt'],
+                  _parseDate(map['createdAt']),
                 ),
               ),
             );
       }
     }
+  }
+
+  /// Parses a DateTime from a JSON value that may be either:
+  ///   - an [int] (milliseconds since epoch, as produced by drift's toJson)
+  ///   - a [String] (ISO 8601, as produced by older backup versions)
+  static DateTime _parseDate(Object? value, [DateTime? fallback]) {
+    if (value is int) {
+      return DateTime.fromMillisecondsSinceEpoch(value);
+    }
+    if (value is String) {
+      return DateTime.parse(value);
+    }
+    return fallback ?? DateTime.now();
   }
 
   BooksTableCompanion _bookCompanion(
@@ -181,8 +195,8 @@ class BackupService {
       storyLabDraft: Value(
         version >= 4 ? json['storyLabDraft'] as String? ?? '' : '',
       ),
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      updatedAt: DateTime.parse(json['updatedAt'] as String),
+      createdAt: _parseDate(json['createdAt']),
+      updatedAt: _parseDate(json['updatedAt']),
     );
   }
 
@@ -194,8 +208,8 @@ class BackupService {
       content: Value(json['content'] as String? ?? ''),
       outlineSummary: Value(json['outlineSummary'] as String? ?? ''),
       sortOrder: json['sortOrder'] as int,
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      updatedAt: DateTime.parse(json['updatedAt'] as String),
+      createdAt: _parseDate(json['createdAt']),
+      updatedAt: _parseDate(json['updatedAt']),
     );
   }
 
@@ -227,8 +241,8 @@ class BackupService {
       ),
       era: Value(version >= 5 ? json['era'] as String? ?? '' : ''),
       sortOrder: json['sortOrder'] as int,
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      updatedAt: DateTime.parse(json['updatedAt'] as String),
+      createdAt: _parseDate(json['createdAt']),
+      updatedAt: _parseDate(json['updatedAt']),
     );
   }
 

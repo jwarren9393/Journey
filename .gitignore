@@ -36,6 +36,7 @@ migrate_working_dir/
 # Local release artifacts (published via GitHub Releases)
 /journey-*.apk
 /journey-*.zip
+/journey-*.tar.gz
 
 # Symbolication related
 app.*.symbols

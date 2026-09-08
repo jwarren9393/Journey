@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:journey/app/router.dart';
 import 'package:journey/core/constants/app_constants.dart';
@@ -51,16 +53,65 @@ class JourneyApp extends ConsumerWidget {
           builder: (context, child) {
             final media = MediaQuery.of(context);
             final systemScale = media.textScaler.scale(1.0);
-            return MediaQuery(
-              data: media.copyWith(
-                textScaler: TextScaler.linear(systemScale * prefs.uiFontScale),
+            return _SystemBarsSync(
+              child: MediaQuery(
+                data: media.copyWith(
+                  textScaler:
+                      TextScaler.linear(systemScale * prefs.uiFontScale),
+                ),
+                child: child ?? const SizedBox.shrink(),
               ),
-              child: child ?? const SizedBox.shrink(),
             );
           },
           routerConfig: router,
         ),
       ),
+    );
+  }
+}
+
+/// Syncs the Android system UI overlay style (status/nav bar icons) with the
+/// current theme brightness, and prevents content from sliding behind the
+/// system navigation bar via [SafeArea].
+class _SystemBarsSync extends StatefulWidget {
+  const _SystemBarsSync({required this.child});
+
+  final Widget child;
+
+  @override
+  State<_SystemBarsSync> createState() => _SystemBarsSyncState();
+}
+
+class _SystemBarsSyncState extends State<_SystemBarsSync> {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      final brightness = Theme.of(context).brightness;
+      final iconBrightness = brightness == Brightness.light
+          ? Brightness.dark
+          : Brightness.light;
+      SystemChrome.setSystemUIOverlayStyle(
+        SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness: iconBrightness,
+          statusBarBrightness: brightness,
+          systemNavigationBarColor: Colors.transparent,
+          systemNavigationBarDividerColor: Colors.transparent,
+          systemNavigationBarIconBrightness: iconBrightness,
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      // Only pad the bottom (system navigation bar). AppBar handles the status
+      // bar inset, and we don't want to interfere with that.
+      top: false,
+      bottom: true,
+      child: widget.child,
     );
   }
 }
