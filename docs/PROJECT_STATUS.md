@@ -92,6 +92,9 @@ Journey is a **personal, casual writing app** — not a commercial author platfo
 - Added **`android/keystore/journey-release.jks`** + **`android/key.properties`** (committed on purpose) and wired `android/app/build.gradle.kts` to use them, falling back to debug signing when absent
 - Root cause of the failed phone update: the stock template signed release APKs with the *machine-local* debug keystore, so the APK already on the phone (`com.journey.journey`) rejected the new build with `INSTALL_FAILED_UPDATE_INCOMPATIBLE`
 - `deploy.sh` now detects that case, prints the one-time fix (export a backup in the app → `adb uninstall com.journey.journey` → install → import) and **continues** so the Linux desktop + release steps still run
+- `deploy.sh`'s Linux step now calls `scripts/update_linux.sh`, so a deploy always installs the bundle **and** the menu entry/icon (previously it rsynced the bundle only)
+- Verified: `journey-android-build-32.apk` is signed by `CN=Journey (personal)`; the desktop app is installed at `~/.local/share/journey` with `journey.desktop` + icon; `journey-linux-x64-build-32.tar.gz` and the APK were uploaded to the `build-32` release (CI attaches the Windows zip)
+- **Still open on the phone:** the one-time export → uninstall → install → import (books live in app storage)
 
 ### 2026-09-24 — Dev-environment parity with Anima + one-command deploy checks
 - Added **`scripts/setup_linux_dev.sh`** (fresh Linux PC: apt build deps incl. `libsqlite3-dev`, JDK 17, Flutter stable, Android SDK platform 36 + build-tools 36, GitHub CLI, PATH/`JAVA_HOME`/`ANDROID_HOME`, Cursor Dart path, optional `--github` sign-in) and **`scripts/dev_copy_linux.sh`** (buildable copy when the source sits on a drive without symlink support)
