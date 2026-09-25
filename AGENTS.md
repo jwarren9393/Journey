@@ -86,6 +86,14 @@ fails (`flutter_plugins.dart` → `handleSymlinkException` only covers Windows) 
 `flutter test` and every build fail there. If a copy ever lands on such a drive, run
 `bash scripts/dev_copy_linux.sh` in it first.
 
+**Release signing / phone updates.** Release APKs are signed with the **committed** key
+`android/keystore/journey-release.jks` (settings in `android/key.properties`), so builds from this
+laptop and the Windows PC always produce installable updates. Before 2026-09-24 the stock Flutter
+template signed releases with the *machine-local* debug keystore, so the APK already on the phone
+could not be updated over (`INSTALL_FAILED_UPDATE_INCOMPATIBLE`). One-time cure: open Journey on the
+phone → **Settings → Backup → export**, then `adb uninstall com.journey.journey`, install the new
+build and import the backup. `deploy.sh` prints these steps and continues instead of aborting.
+
 ## Automation scripts
 
 | Script | When | What it does |

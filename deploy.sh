@@ -86,8 +86,21 @@ cp build/app/outputs/flutter-apk/app-release.apk "journey-android-build-${BUILD_
 
 if [ -n "$DEVICE_ID" ]; then
   echo "   Installing in-place onto device ($DEVICE_ID)..."
-  adb -s "$DEVICE_ID" install -r "journey-android-build-${BUILD_NUM}.apk"
-  echo "   ✅ Phone updated successfully!"
+  if INSTALL_OUT=$(adb -s "$DEVICE_ID" install -r "journey-android-build-${BUILD_NUM}.apk" 2>&1); then
+    echo "$INSTALL_OUT"
+    echo "   ✅ Phone updated successfully!"
+  else
+    echo "$INSTALL_OUT"
+    if echo "$INSTALL_OUT" | grep -q 'INSTALL_FAILED_UPDATE_INCOMPATIBLE'; then
+      echo "   ⚠️ The app on the phone was signed with a different key."
+      echo "      Journey's books live in app storage, so first open Journey on the phone and"
+      echo "      export a backup (Settings → Backup), then:"
+      echo "        adb -s $DEVICE_ID uninstall com.journey.journey"
+      echo "      re-run ./deploy.sh, open Journey and import the backup."
+      echo "      Every later update then installs in place."
+    fi
+    echo "   ⚠️ Phone install failed — continuing with the rest of the deploy."
+  fi
 else
   echo "   ⚠️ No ADB device found. Skipping physical phone install."
 fi
