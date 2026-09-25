@@ -90,9 +90,14 @@ fails (`flutter_plugins.dart` → `handleSymlinkException` only covers Windows) 
 `android/keystore/journey-release.jks` (settings in `android/key.properties`), so builds from this
 laptop and the Windows PC always produce installable updates. Before 2026-09-24 the stock Flutter
 template signed releases with the *machine-local* debug keystore, so the APK already on the phone
-could not be updated over (`INSTALL_FAILED_UPDATE_INCOMPATIBLE`). One-time cure: open Journey on the
-phone → **Settings → Backup → export**, then `adb uninstall com.journey.journey`, install the new
-build and import the backup. `deploy.sh` prints these steps and continues instead of aborting.
+could not be updated over (`INSTALL_FAILED_UPDATE_INCOMPATIBLE`). **That swap is done:** on
+2026-09-24 the owner confirmed there was nothing on the phone worth keeping, so
+`adb uninstall com.journey.journey` was run once and `./deploy.sh` installed **build 32 signed with
+`CN=Journey (personal)`** — the app opened straight to the welcome/onboarding screen, and every
+later update now installs in place. (A future agent who meets that error again: `deploy.sh` prints
+the steps — export a backup in the app if the library matters, `adb uninstall com.journey.journey`,
+install the new build, import the backup — and continues instead of aborting.) Journey's library
+lives in app storage, not a shared folder, so unlike Anima an uninstall loses it.
 
 ## Automation scripts
 

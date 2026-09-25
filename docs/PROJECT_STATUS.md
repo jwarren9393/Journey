@@ -2,7 +2,7 @@
 
 > **Living document for AI agents.** Read this first every session. Update before you finish any work.
 
-**Last updated:** 2026-08-23  
+**Last updated:** 2026-09-24  
 **Current phase:** 9 (Dynamic World Bible) — **COMPLETE** (polish: larger AI reading text)  
 **Previous:** Phase 8 (Lore collaboration loop) — complete  
 **Deferred (non-AI):** Rich text, cloud sync
@@ -88,13 +88,21 @@ Journey is a **personal, casual writing app** — not a commercial author platfo
 
 ## Changelog
 
+### 2026-09-24 (night) — Phone moved onto the committed release key (build 32)
+- `adb uninstall com.journey.journey` (owner confirmed **nothing on the phone was worth keeping**), then `./deploy.sh "Reinstall with the committed release key"`
+- Phone now runs **build 32 / versionCode 32, versionName 1.0.0** signed with `CN=Journey (personal)` — verified with `adb shell dumpsys package com.journey.journey`
+- Verified the app launches: it opens straight to the **Welcome to Journey** onboarding screen (fresh install, as expected)
+- The same deploy rebuilt + reinstalled the Linux desktop app (`~/.local/share/journey`), refreshed the APK + Linux tarball on the `build-32` GitHub release, and force-pushed tag `build-32` (`4345b17`) so GitHub Actions publishes the Windows portable zip
+- **From now on:** updates install in place over this build — no uninstall needed again. Journey keeps its library in app storage, so uninstalling it *does* lose books; back up from inside the app first if it ever matters
+- Repo clean and pushed: `4345b17` (`deploy: install desktop via update_linux.sh; docs record verified signing + desktop install`)
+
 ### 2026-09-24 (later) — Committed release signing key (phone updates install in place)
 - Added **`android/keystore/journey-release.jks`** + **`android/key.properties`** (committed on purpose) and wired `android/app/build.gradle.kts` to use them, falling back to debug signing when absent
 - Root cause of the failed phone update: the stock template signed release APKs with the *machine-local* debug keystore, so the APK already on the phone (`com.journey.journey`) rejected the new build with `INSTALL_FAILED_UPDATE_INCOMPATIBLE`
 - `deploy.sh` now detects that case, prints the one-time fix (export a backup in the app → `adb uninstall com.journey.journey` → install → import) and **continues** so the Linux desktop + release steps still run
 - `deploy.sh`'s Linux step now calls `scripts/update_linux.sh`, so a deploy always installs the bundle **and** the menu entry/icon (previously it rsynced the bundle only)
 - Verified: `journey-android-build-32.apk` is signed by `CN=Journey (personal)`; the desktop app is installed at `~/.local/share/journey` with `journey.desktop` + icon; `journey-linux-x64-build-32.tar.gz` and the APK were uploaded to the `build-32` release (CI attaches the Windows zip)
-- **Still open on the phone:** the one-time export → uninstall → install → import (books live in app storage)
+- **Phone swap completed the same day** — see the entry above the changelog top
 
 ### 2026-09-24 — Dev-environment parity with Anima + one-command deploy checks
 - Added **`scripts/setup_linux_dev.sh`** (fresh Linux PC: apt build deps incl. `libsqlite3-dev`, JDK 17, Flutter stable, Android SDK platform 36 + build-tools 36, GitHub CLI, PATH/`JAVA_HOME`/`ANDROID_HOME`, Cursor Dart path, optional `--github` sign-in) and **`scripts/dev_copy_linux.sh`** (buildable copy when the source sits on a drive without symlink support)

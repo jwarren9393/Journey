@@ -122,8 +122,9 @@ Your books are stored locally on that PC in the app’s data directory — copy 
 
 1. Download `journey-android-build-*.apk` from [Releases](https://github.com/jwarren9393/Journey/releases).
 2. Install the APK (enable “Install unknown apps” for your browser/files app if prompted).
+3. To update later, install the newer APK **over** the existing app — no uninstall needed, so your books stay put.
 
-**Note:** Release builds are currently signed with a debug key for convenience. For production distribution, use a proper signing key.
+**Signing:** every build is signed with Journey’s own release key (`android/keystore/journey-release.jks`, committed on purpose so this laptop and the Windows PC produce installable updates). It is a personal app, not a store release.
 
 ### Linux (portable)
 
