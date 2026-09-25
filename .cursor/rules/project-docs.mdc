@@ -17,4 +17,9 @@ Also update `docs/ROADMAP.md` when completing phase items.
 
 **Versioning:** Keep `pubspec.yaml` at `1.0.0+<build>` — only increment the build number after `+`, never the `1.0.0` unless the user asks.
 
+**Machine notes & scripts:** see `AGENTS.md` → *Machine notes* for this PC's toolchain (and the
+"never build from an exFAT drive" rule), and *Automation scripts* for `scripts/setup_linux_dev.sh`
+(fresh PC), `scripts/update_linux.sh` (desktop app), `./deploy.sh` (one-command release) and
+`scripts/dev_copy_linux.sh`.
+
 See `AGENTS.md` at repo root for full instructions.

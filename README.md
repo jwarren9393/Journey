@@ -148,6 +148,7 @@ Your books stay in the app’s local data directory on that machine — use Sett
 
 ### Prerequisites
 
+- **Linux (fastest):** `bash scripts/setup_linux_dev.sh --github` — installs everything listed below (Flutter, JDK 17, Android SDK, GTK/ninja/cmake, GitHub CLI) and wires up your PATH
 - [Flutter](https://docs.flutter.dev/get-started/install) (stable channel)
 - **Windows:** Visual Studio Build Tools with “Desktop development with C++”
 - **Linux:** GTK 3 dev packages (`libgtk-3-dev`, `cmake`, `ninja-build`, etc.)
@@ -160,6 +161,8 @@ flutter pub get
 flutter run                    # pick Windows, Linux, or Android device
 flutter test
 flutter analyze
+
+./scripts/update_linux.sh      # build + install the Linux desktop app for this user
 ```
 
 **Release builds**
@@ -182,6 +185,20 @@ dart run build_runner build
 ```
 
 ### GitHub Releases (maintainers)
+
+### One command to ship everything (dev machine)
+
+```bash
+./deploy.sh "what changed in this build"
+```
+
+It runs `flutter analyze` + `flutter test`, commits and pushes the source, builds the Android APK and
+installs it over the existing app on the connected phone (USB or **wireless debugging**), builds and
+installs the Linux desktop app, packages the release artifacts, pushes the `build-<N>` tag and updates
+the GitHub Release — then waits for GitHub Actions to attach the Windows zip. Use
+`./deploy.sh --skip-checks "message"` to bypass the analyze/test gate.
+
+Bump the build number in `pubspec.yaml` first (e.g. `1.0.0+33`) when you want a fresh tag.
 
 Pushing a **build tag** builds and publishes all release artifacts automatically:
 

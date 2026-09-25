@@ -88,6 +88,17 @@ Journey is a **personal, casual writing app** — not a commercial author platfo
 
 ## Changelog
 
+### 2026-09-24 — Dev-environment parity with Anima + one-command deploy checks
+- Added **`scripts/setup_linux_dev.sh`** (fresh Linux PC: apt build deps incl. `libsqlite3-dev`, JDK 17, Flutter stable, Android SDK platform 36 + build-tools 36, GitHub CLI, PATH/`JAVA_HOME`/`ANDROID_HOME`, Cursor Dart path, optional `--github` sign-in) and **`scripts/dev_copy_linux.sh`** (buildable copy when the source sits on a drive without symlink support)
+- `AGENTS.md` gained **Machine notes** (toolchain versions, phone, "never build from an exFAT drive"), **Automation scripts** and **Next actions**; README documents the one-command setup / desktop update / deploy paths; `.cursor` rule points at them
+- `deploy.sh` now runs **`flutter analyze` + `flutter test` before shipping** (bypass with `--skip-checks`) and its steps are labelled `[1/6]`…`[6/6]`
+- Verified on the rebuilt Linux Mint host: `flutter analyze` clean, **49 tests pass**, Journey installed to the Linux desktop and the phone (wireless debugging)
+
+### 2026-09-07 — deploy.sh waits for + confirms Windows CI build
+- `deploy.sh` previously printed "ALL DONE" right after uploading the Android APK + Linux tarball; the Windows zip is built by GitHub Actions and only appeared ~10–12 min later, making it look like the release was missing a Windows build
+- Script now waits for the CI workflow (interruptible via Ctrl+C) and confirms the `journey-windows-x64-build-*.zip` asset is attached before reporting success
+- Clarified messaging that Windows is built in CI (this dev machine is Linux) and can't be produced locally
+
 ### 2026-09-07 — Fix backup restore crash on cross-platform import (build 32)
 - Drift's `toJson()` serializes DateTime values as **integers** (milliseconds since epoch), but the backup import code used `DateTime.parse(json['...'] as String)` which expected ISO 8601 strings — this crashed when restoring a backup exported from one device (phone) on another (laptop)
 - Added `_parseDate()` helper that accepts both `int` (ms since epoch) and `String` (ISO 8601), fixing the type error
