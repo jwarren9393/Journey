@@ -94,6 +94,7 @@ Journey is a **personal, casual writing app** — not a commercial author platfo
 - Verified the app launches: it opens straight to the **Welcome to Journey** onboarding screen (fresh install, as expected)
 - The same deploy rebuilt + reinstalled the Linux desktop app (`~/.local/share/journey`), refreshed the APK + Linux tarball on the `build-32` GitHub release, and force-pushed tag `build-32` (`4345b17`) so GitHub Actions publishes the Windows portable zip
 - **From now on:** updates install in place over this build — no uninstall needed again. Journey keeps its library in app storage, so uninstalling it *does* lose books; back up from inside the app first if it ever matters
+- GitHub Actions finished **green** on tag `build-32` (run `36088017846`, **10m 25s**) and re-uploaded all three artifacts at 03:02 UTC: `journey-android-build-32.apk`, `journey-linux-x64-build-32.tar.gz`, `journey-windows-x64-build-32.zip`
 - Repo clean and pushed: `4345b17` (`deploy: install desktop via update_linux.sh; docs record verified signing + desktop install`)
 
 ### 2026-09-24 (later) — Committed release signing key (phone updates install in place)
