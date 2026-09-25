@@ -105,7 +105,7 @@ lives in app storage, not a shared folder, so unlike Anima an uninstall loses it
 |--------|------|--------------|
 | `scripts/setup_linux_dev.sh [--github]` | once per Linux PC | installs the whole toolchain, writes PATH/`JAVA_HOME`/`ANDROID_HOME` (`~/.bashrc` + `~/.config/environment.d/50-flutter-dev.conf`), points Cursor at the SDK, optionally signs in to GitHub |
 | `scripts/update_linux.sh [--pull]` | desktop app only | builds the Linux release and installs it to `~/.local/share/journey` with a menu entry |
-| **`./deploy.sh "message"`** | **when you finish changes** | checks (`flutter analyze` + `flutter test`) → commit + push → build APK → install on phone → build + install Linux desktop → package artifacts → tag `build-N` → GitHub Release (then waits for the CI Windows zip) |
+| **`./deploy.sh "message"`** | **when you finish changes** | checks (`flutter analyze` + `flutter test`) → commit + push → build APK → install on phone → build + install Linux desktop → package artifacts → tag `build-N` → GitHub Release (then waits for the CI Windows zip; if `gh` is unreachable it says so after ~1 minute instead of spinning silently) |
 | `./deploy.sh --skip-checks "message"` | same, without the checks | use only deliberately |
 | `scripts/dev_copy_linux.sh [target]` | source on exFAT | makes a buildable copy on an ext4 drive (default `~/Documents/App-Builds/Journey`) |
 
