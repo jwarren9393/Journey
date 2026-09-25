@@ -164,16 +164,41 @@ echo "      Press Ctrl+C to skip — the phone/desktop are already updated."
 if [ "$HAVE_GH" = true ]; then
   REPO="jwarren9393/Journey"
   ATTACHED=false
+  GH_ERRORS=0
+  ASSET_MISSES=0
+  GH_LOG="${TMPDIR:-/tmp}/journey_deploy_gh.log"
   for _ in $(seq 1 120); do
     sleep 15
 
     # The workflow run for a tag push lists the tag name in the branch column.
-    CONCLUSION=$(gh run list -R "$REPO" --branch "$TAG" --workflow Release --limit 1 \
-      --json conclusion -q '.[0].conclusion' 2>/dev/null || true)
+    if CONCLUSION=$(gh run list -R "$REPO" --branch "$TAG" --workflow Release --limit 1 \
+        --json conclusion -q '.[0].conclusion' 2>"$GH_LOG"); then
+      GH_ERRORS=0
+    else
+      # Never swallow this silently — a background shell can otherwise spin here
+      # for the full 30 minutes without saying why.
+      CONCLUSION=""
+      GH_ERRORS=$((GH_ERRORS + 1))
+      if [ "$GH_ERRORS" -ge 4 ]; then
+        echo "   ⚠️ Cannot reach GitHub to check the CI build (4 tries)."
+        echo "      Check it here: https://github.com/jwarren9393/Journey/actions"
+        [ -s "$GH_LOG" ] && echo "      Last message: $(head -n1 "$GH_LOG")"
+        break
+      fi
+      continue
+    fi
+
     if [ "$CONCLUSION" = "success" ]; then
       if gh release view "$TAG" -R "$REPO" --json assets -q '.[].name' 2>/dev/null |
           grep -q 'windows'; then
         ATTACHED=true
+        break
+      fi
+      # Green run but the zip is not attached yet — stop after ~3 minutes of that.
+      ASSET_MISSES=$((ASSET_MISSES + 1))
+      if [ "$ASSET_MISSES" -ge 12 ]; then
+        echo "   ⚠️ CI is green but no Windows zip on the release page yet."
+        echo "      Open https://github.com/jwarren9393/Journey/releases/tag/${TAG} to check."
         break
       fi
     elif [ -n "$CONCLUSION" ] && [ "$CONCLUSION" != "null" ]; then

@@ -95,6 +95,7 @@ Journey is a **personal, casual writing app** — not a commercial author platfo
 - The same deploy rebuilt + reinstalled the Linux desktop app (`~/.local/share/journey`), refreshed the APK + Linux tarball on the `build-32` GitHub release, and force-pushed tag `build-32` (`4345b17`) so GitHub Actions publishes the Windows portable zip
 - **From now on:** updates install in place over this build — no uninstall needed again. Journey keeps its library in app storage, so uninstalling it *does* lose books; back up from inside the app first if it ever matters
 - GitHub Actions finished **green** on tag `build-32` (run `36088017846`, **10m 25s**) and re-uploaded all three artifacts at 03:02 UTC: `journey-android-build-32.apk`, `journey-linux-x64-build-32.tar.gz`, `journey-windows-x64-build-32.zip`
+- **Fix (same session):** the CI wait loop could spin silently for the full 30 minutes — it swallowed every `gh` error (`2>/dev/null || true`) and also kept looping when a green run had no attached zip yet. It now captures the error text, **gives up after 4 failed checks (~1 minute)** with a plain-English message and a link, and stops after ~3 minutes of "green but no zip". Observed live on this deploy: the loop was still spinning long after CI had finished; the zip was confirmed attached by hand at 03:02 UTC
 - Repo clean and pushed: `4345b17` (`deploy: install desktop via update_linux.sh; docs record verified signing + desktop install`)
 
 ### 2026-09-24 (later) — Committed release signing key (phone updates install in place)
