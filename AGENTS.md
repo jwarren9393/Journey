@@ -80,6 +80,23 @@ bash scripts/setup_linux_dev.sh --github    # --github connects your GitHub acco
 
 **Project home:** `~/Documents/App-Builds/Journey` (ext4) — keep exactly one working copy.
 
+### Windows laptop — **JAYS-DELL** (second dev machine, rebuilt 2026-09-26)
+
+Fresh Windows 11 install. Flutter stable in `C:\src\flutter`, Temurin **JDK 17**
+(`C:\Program Files\Eclipse Adoptium\jdk-17.0.20.101-hotspot`), Android SDK at
+`%LOCALAPPDATA%\Android\Sdk` (cmdline-tools, platform-tools, platform 36, build-tools 36.0.0,
+licences accepted), **VS 2022 Build Tools + C++ workload + ATL** (for `flutter build windows`),
+GitHub CLI, **Developer Mode on**, and `JAVA_HOME` / `ANDROID_HOME` / `ANDROID_SDK_ROOT` + PATH set
+for the account (open a new terminal / restart Cursor afterwards). Cursor already has the Dart +
+Flutter extensions with `dart.flutterSdkPath` = `C:/src/flutter`.
+
+Work in **`C:\Users\jakwa\Documents\GitHub\Journey`** — one working copy. Never build from the `W:`
+(**Jay-Ex-SSD**, exFAT) or `G:` (Google Drive) drives: Flutter writes plugin symlinks and fails there.
+Commands are identical to the Linux list above (`flutter pub get`, `flutter run`, `flutter test`,
+`flutter build apk --release`, `flutter build windows --release`). Connect GitHub once with
+`gh auth login --web` then `gh auth setup-git`. The rebuild was driven by one-off helpers in
+`C:\Users\jakwa\anima-setup\` (log `setup.log`, summary `SUMMARY.txt`).
+
 **⚠️ Never build from an exFAT/FAT drive** (USB stick, portable SSD, the Jay-Storage drive). exFAT
 cannot store symlinks, and Flutter writes its plugin links as symlinks then **rethrows** when that
 fails (`flutter_plugins.dart` → `handleSymlinkException` only covers Windows) — so `flutter pub get`,
