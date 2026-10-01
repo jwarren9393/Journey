@@ -2,7 +2,7 @@
 
 > **Living document for AI agents.** Read this first every session. Update before you finish any work.
 
-**Last updated:** 2026-09-24  
+**Last updated:** 2026-10-01  
 **Current phase:** 9 (Dynamic World Bible) — **COMPLETE** (polish: larger AI reading text)  
 **Previous:** Phase 8 (Lore collaboration loop) — complete  
 **Deferred (non-AI):** Rich text, cloud sync
@@ -87,6 +87,25 @@ Journey is a **personal, casual writing app** — not a commercial author platfo
 ---
 
 ## Changelog
+
+### 2026-10-01 — Dev environment rebuilt on Kubuntu 26.04; repo verified + desktop app installed
+- Host reinstalled: **Kubuntu 26.04.1 LTS** (`jay@jaykubuntu`). Journey re-cloned to
+  **`~/Documents/Git Projects/Journey`** (ext4, branch `master`, `7e1e8e2`) — one working copy, beside
+  Anima. No app code was touched in this session.
+- Verified on the new host: `flutter analyze` **clean**, **49 tests pass**, debug APK built
+  (`build/app/outputs/flutter-apk/app-debug.apk`), Linux **debug** bundle built, and
+  `bash scripts/update_linux.sh` built the **release** bundle and installed the desktop app to
+  `~/.local/share/journey` (`journey.desktop` + icon in `~/.local/share/applications` /`icons`).
+- **No extra system packages needed:** Journey's `libsqlite3-dev` line is *not* required for the Linux
+  build on this host (`drift` / `sqlite3_flutter_libs` handle it) — `scripts/setup_linux_dev.sh` can stay
+  as-is for other machines.
+- **Fixed:** `deploy.sh` and every script in `scripts/` were committed with mode `100644` (a Windows
+  commit artefact), so the README's `./scripts/update_linux.sh` and `./deploy.sh` failed with
+  *Permission denied*. All four now carry the executable bit in git (`git update-index --chmod=+x`).
+- Toolchain on this host: Flutter **3.47.5** / Dart 3.13.4 (`~/development/flutter`), Temurin **JDK 17**
+  at `~/development/jdk-17`, Android SDK at `~/Android/Sdk` (platform 36 + build-tools 36.0.0, licences
+  accepted), GitHub CLI signed in as `jwarren9393`. `AGENTS.md` machine notes updated to match.
+- Run scripts with `bash <script>` if you ever pull on a machine where the exec bit is missing again.
 
 ### 2026-09-24 (night) — Phone moved onto the committed release key (build 32)
 - `adb uninstall com.journey.journey` (owner confirmed **nothing on the phone was worth keeping**), then `./deploy.sh "Reinstall with the committed release key"`

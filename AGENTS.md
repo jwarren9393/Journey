@@ -61,24 +61,27 @@ flutter build apk --release
 
 ## Machine notes (this PC)
 
-Main dev machine: **Linux Mint 22.3 Cinnamon** (`jay@jay-mint-laptop`). One idempotent command
-installs everything (build tools, JDK 17, Flutter, Android SDK, GitHub CLI, Cursor's Dart path):
-
-```bash
-bash scripts/setup_linux_dev.sh --github    # --github connects your GitHub account too
-```
+Main dev machine: **Kubuntu 26.04.1 LTS** (`jay@jaykubuntu`) — the host was reinstalled on 2026-09-30 and
+rebuilt with the same one-command setup (Anima's no-sudo variant, because the agent cannot type a sudo
+password). Everything Journey needs was already in place:
 
 | Tool | Status |
 |------|--------|
 | Flutter / Dart | **3.47.5** stable in `~/development/flutter` (Dart 3.13.4) |
-| JDK | **Temurin 17** at `/usr/lib/jvm/temurin-17-jdk-amd64` |
-| Android SDK | `~/Android/Sdk` — platform 36, build-tools 36.0.0, licences accepted |
-| Linux desktop toolchain | clang / cmake / ninja / GTK 3 / libsqlite3 |
-| GitHub CLI | signed in as `jwarren9393`; `gh auth setup-git` wires git push/pull |
-| Cursor | Dart + Flutter extensions; `dart.flutterSdkPath` set by the setup script |
-| Test phone | Samsung **SM-S731U** — USB *or* wireless debugging; `adb devices` should list it (e.g. `192.168.1.14:38613`) |
+| JDK | **Temurin 17.0.20.1** at `~/development/jdk-17` (Adoptium tarball — no apt needed) |
+| Android SDK | `~/Android/Sdk` — platform-tools 37.0.1, platforms 36/35/34, build-tools 36.0.0, licences accepted |
+| Linux desktop toolchain | clang / cmake / ninja / pkg-config / GTK 3 / libsecret / libjsoncpp (apt). **`libsqlite3-dev` is not needed** — `flutter build linux` succeeds without it (verified 2026-10-01) |
+| GitHub CLI | signed in as `jwarren9393`; `git push/pull` works without a prompt |
+| Cursor | `dart.flutterSdkPath = /home/jay/development/flutter` |
+| Test phone | Samsung **SM-S731U** — USB *or* wireless debugging; `adb devices` should list it (e.g. `192.168.1.14:41269`) |
 
-**Project home:** `~/Documents/App-Builds/Journey` (ext4) — keep exactly one working copy.
+**Project home:** `~/Documents/Git Projects/Journey` (ext4) — one working copy, cloned 2026-10-01. The
+folder path contains a space, so quote it in shell commands.
+
+**Verified on this host (2026-10-01):** `flutter analyze` clean, **49 tests pass**, debug APK built
+(`build/app/outputs/flutter-apk/app-debug.apk`), Linux debug bundle built, and
+`bash scripts/update_linux.sh` built the **release** bundle and installed the desktop app to
+`~/.local/share/journey` with `journey.desktop` + icon.
 
 ### Windows laptop — **JAYS-DELL** (second dev machine, rebuilt 2026-09-26)
 
