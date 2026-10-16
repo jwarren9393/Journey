@@ -18,7 +18,7 @@ A phased plan for building the book-writing app. Phases are flexible — we'll r
 - [x] Library, book detail, editor, settings screens
 - [x] Auto-save in editor (debounced)
 - [x] AI service abstraction + settings UI (stub, no API calls)
-- [x] Living documents for agents and Gemini (`PROJECT_STATUS`, `PROJECT_REFERENCE`)
+- [x] Living documents for agents and Gemini (`PROJECT_STATUS`, `PROJECT_REFERENCE_JOURNEY`, `AGENTS`, `README`)
 
 ## Phase 1: Core Writing Experience + AI (complete)
 
@@ -229,8 +229,14 @@ Use this section to capture decisions as we discuss them:
 
 ## Living documents
 
-Agents and collaborators should use:
+**Three living docs** (update after meaningful work — same pattern as Anima):
 
-- `docs/PROJECT_STATUS.md` — current state, changelog, next steps (agents read first)
-- `docs/PROJECT_REFERENCE.md` — full reference for Gemini/Notebook upload
-- `AGENTS.md` — agent instructions at repo root
+- `README.md` — user-facing features, install, AI tables
+- `AGENTS.md` — agent protocol, machine notes, conventions
+- `PROJECT_REFERENCE_JOURNEY.md` — full encyclopedia for Gemini / external AI
+
+Also:
+
+- `docs/PROJECT_STATUS.md` — current state, changelog, next steps (agents read first every session)
+- `docs/ROADMAP.md` — this file; check off phase items when done
+- `docs/PROJECT_REFERENCE.md` — stub only → points at `PROJECT_REFERENCE_JOURNEY.md`

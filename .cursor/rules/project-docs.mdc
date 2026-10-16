@@ -7,13 +7,18 @@ alwaysApply: true
 
 **Before any work:** Read `docs/PROJECT_STATUS.md`.
 
-**After any work:** Update:
+**Three living documents** (same pattern as Anima) — update after meaningful work:
 
-- `docs/PROJECT_STATUS.md` (status, changelog, next steps)
-- `docs/PROJECT_REFERENCE.md` (full project reference for Gemini/collaborators)
-- **`README.md`** when you add, remove, or materially change **user-visible** features (writing tools, AI actions, settings, export/backup, shortcuts, platforms, install/releases)
+1. **`AGENTS.md`** — protocol, machine notes, scripts, conventions (when those change)
+2. **`PROJECT_REFERENCE_JOURNEY.md`** — full encyclopedia (when mechanics, architecture, data, AI, or screens change; bump Last updated / build / test count)
+3. **`README.md`** — when you add, remove, or materially change **user-visible** features (writing tools, AI actions, settings, export/backup, shortcuts, platforms, install/releases)
 
-Also update `docs/ROADMAP.md` when completing phase items.
+Also update:
+
+- `docs/PROJECT_STATUS.md` (status, changelog, next steps) — every session
+- `docs/ROADMAP.md` when completing phase items
+
+`docs/PROJECT_REFERENCE.md` is a **stub** that points at `PROJECT_REFERENCE_JOURNEY.md` — do not maintain a second copy.
 
 **Versioning:** Keep `pubspec.yaml` at `1.0.0+<build>` — only increment the build number after `+`, never the `1.0.0` unless the user asks.
 

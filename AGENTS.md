@@ -2,15 +2,26 @@
 
 **Every agent working on Journey must read this file before making changes.**
 
+> **Three living documents** (same pattern as Anima) must stay current after meaningful work:
+>
+> 1. **`AGENTS.md`** (this file) — protocol, machine notes, conventions
+> 2. **`PROJECT_REFERENCE_JOURNEY.md`** — full technical encyclopedia (update when mechanics/architecture/screens/AI change)
+> 3. **`README.md`** — user-facing feature catalog (update when anything user-visible changes)
+>
+> Also update **`docs/PROJECT_STATUS.md`** every session (phase, changelog, next steps), and **`docs/ROADMAP.md`** when a phase item completes.
+
 ## Required reading order
 
 1. **`docs/PROJECT_STATUS.md`** — current phase, what's done, what's next, recent changes
-2. **`docs/PROJECT_REFERENCE.md`** — full project reference (update when you change behavior, structure, or features)
+2. **`PROJECT_REFERENCE_JOURNEY.md`** — full project encyclopedia (architecture, data, AI, screens)
 3. **`docs/ROADMAP.md`** — phased plan (update when phases complete or scope shifts)
+4. **`README.md`** — when changing user-visible behavior (features, install, AI tables)
 
 ## Versioning
 
-Journey stays at **version 1.0.0**. Only the **build number** after `+` in `pubspec.yaml` increments (e.g. `1.0.0+17`). Do not bump the major/minor/patch version unless the user explicitly asks.
+Journey stays at **version 1.0.0**. Only the **build number** after `+` in `pubspec.yaml` increments (e.g. `1.0.0+32`). Do not bump the major/minor/patch version unless the user explicitly asks.
+
+**Current ship:** `1.0.0+32` · schema v6 · backup format v5 · **49** tests.
 
 ## Required after every session
 
@@ -18,9 +29,10 @@ Before finishing, update these living documents:
 
 | Document | What to update |
 |----------|----------------|
+| **`AGENTS.md`** | Protocol, machine notes, scripts, conventions (when those change) |
+| **`PROJECT_REFERENCE_JOURNEY.md`** | Architecture, routes, screens, data models, AI actions, dependencies — bump Last updated / build / test count |
+| **`README.md`** | User-facing features, download/install notes, AI action tables — whenever you add, remove, or materially change a feature visible to users |
 | `docs/PROJECT_STATUS.md` | Phase progress, completed items, next steps, changelog entry |
-| `docs/PROJECT_REFERENCE.md` | Architecture, routes, screens, data models, dependencies, feature behavior |
-| **`README.md`** | **User-facing features, download/install notes, AI action tables — whenever you add, remove, or materially change a feature visible to users** |
 
 If you completed a roadmap item, check it off in `docs/ROADMAP.md`.
 
@@ -29,9 +41,17 @@ If you completed a roadmap item, check it off in `docs/ROADMAP.md`.
 `README.md` is the public face of the repo (GitHub visitors and release downloaders). Keep it in sync with the app:
 
 - **Do update** when adding/changing: screens, AI actions, settings, export/backup, keyboard shortcuts, platforms, or install/release process
-- **Don't duplicate** deep implementation detail — that belongs in `PROJECT_REFERENCE.md`
+- **Don't duplicate** deep implementation detail — that belongs in `PROJECT_REFERENCE_JOURNEY.md`
 - **Don't update** for internal refactors with no user-visible change
 - Match the tone: personal casual writing app, optional AI with own API keys
+
+### Project reference update rule
+
+`PROJECT_REFERENCE_JOURNEY.md` is the encyclopedia for Gemini / ChatGPT / collaborators (same role as Anima’s `PROJECT_REFERENCE_ANIMA.md`):
+
+- Update the **section you touched** (data model, AI actions, screens, build, etc.)
+- Keep the header **Last updated / build / test count** accurate
+- `docs/PROJECT_REFERENCE.md` is only a stub pointing here — do not fork a second copy
 
 ## Project summary
 
@@ -39,6 +59,7 @@ If you completed a roadmap item, check it off in `docs/ROADMAP.md`.
 - **Stack** — Flutter, Riverpod, go_router, Drift (SQLite), plain-text editor
 - **AI** — contextual actions via Google Gemini and/or NanoGPT (user-provided keys)
 - **Architecture** — feature-based clean architecture (`domain` / `data` / `presentation`)
+- **Maturity** — Phases 0–9 complete (Dynamic World Bible done); deferred: rich text, cloud sync, secure key storage
 - **Releases** — tag `build-*` pushes GitHub Actions build (Windows zip + Linux tarball + Android APK); see `README.md` and `.github/workflows/release.yml`
 
 ## Key commands
@@ -61,9 +82,7 @@ flutter build apk --release
 
 ## Machine notes (this PC)
 
-Main dev machine: **Kubuntu 26.04.1 LTS** (`jay@jaykubuntu`) — the host was reinstalled on 2026-09-30 and
-rebuilt with the same one-command setup (Anima's no-sudo variant, because the agent cannot type a sudo
-password). Everything Journey needs was already in place:
+Main Linux host: **Kubuntu 26.04.1 LTS** (`jay@jaykubuntu`) — reinstalled 2026-09-30 and rebuilt with Anima’s no-sudo setup (agent cannot type a sudo password). Everything Journey needs was already in place:
 
 | Tool | Status |
 |------|--------|
@@ -75,15 +94,15 @@ password). Everything Journey needs was already in place:
 | Cursor | `dart.flutterSdkPath = /home/jay/development/flutter` |
 | Test phone | Samsung **SM-S731U** — USB *or* wireless debugging; `adb devices` should list it (e.g. `192.168.1.14:41269`) |
 
-**Project home:** `~/Documents/Git Projects/Journey` (ext4) — one working copy, cloned 2026-10-01. The
-folder path contains a space, so quote it in shell commands.
+**Linux project home:** `~/Documents/Git Projects/Journey` (ext4) — one working copy, cloned 2026-10-01. The folder path contains a space, so quote it in shell commands.
 
-**Verified on this host (2026-10-01):** `flutter analyze` clean, **49 tests pass**, debug APK built
-(`build/app/outputs/flutter-apk/app-debug.apk`), Linux debug bundle built, and
-`bash scripts/update_linux.sh` built the **release** bundle and installed the desktop app to
-`~/.local/share/journey` with `journey.desktop` + icon.
+**Verified on Linux host (2026-10-01):** `flutter analyze` clean, **49 tests pass**, debug APK built, Linux debug + release desktop installed via `scripts/update_linux.sh` to `~/.local/share/journey`.
 
-### Windows laptop — **JAYS-DELL** (second dev machine, rebuilt 2026-09-26)
+### Windows — **this checkout** (`C:\Users\Jay\Documents\GitRepos\Journey`)
+
+Working copy beside Anima under `Documents\GitRepos\`. Flutter stable available on PATH (verified **3.47.6** / Dart **3.13.5** on 2026-10-12). Prefer NTFS paths only — never build from exFAT.
+
+### Windows laptop — **JAYS-DELL** (second machine, rebuilt 2026-09-26)
 
 Fresh Windows 11 install. Flutter stable in `C:\src\flutter`, Temurin **JDK 17**
 (`C:\Program Files\Eclipse Adoptium\jdk-17.0.20.101-hotspot`), Android SDK at
@@ -107,17 +126,17 @@ fails (`flutter_plugins.dart` → `handleSymlinkException` only covers Windows) 
 `bash scripts/dev_copy_linux.sh` in it first.
 
 **Release signing / phone updates.** Release APKs are signed with the **committed** key
-`android/keystore/journey-release.jks` (settings in `android/key.properties`), so builds from this
-laptop and the Windows PC always produce installable updates. Before 2026-09-24 the stock Flutter
-template signed releases with the *machine-local* debug keystore, so the APK already on the phone
-could not be updated over (`INSTALL_FAILED_UPDATE_INCOMPATIBLE`). **That swap is done:** on
-2026-09-24 the owner confirmed there was nothing on the phone worth keeping, so
-`adb uninstall com.journey.journey` was run once and `./deploy.sh` installed **build 32 signed with
-`CN=Journey (personal)`** — the app opened straight to the welcome/onboarding screen, and every
-later update now installs in place. (A future agent who meets that error again: `deploy.sh` prints
-the steps — export a backup in the app if the library matters, `adb uninstall com.journey.journey`,
-install the new build, import the backup — and continues instead of aborting.) Journey's library
-lives in app storage, not a shared folder, so unlike Anima an uninstall loses it.
+`android/keystore/journey-release.jks` (settings in `android/key.properties`), so builds from every
+dev machine produce installable updates. Before 2026-09-24 the stock Flutter template signed releases
+with the *machine-local* debug keystore, so the APK already on the phone could not be updated over
+(`INSTALL_FAILED_UPDATE_INCOMPATIBLE`). **That swap is done:** on 2026-09-24 the owner confirmed
+there was nothing on the phone worth keeping, so `adb uninstall com.journey.journey` was run once and
+`./deploy.sh` installed **build 32 signed with `CN=Journey (personal)`** — the app opened straight to
+the welcome/onboarding screen, and every later update now installs in place. (A future agent who meets
+that error again: `deploy.sh` prints the steps — export a backup in the app if the library matters,
+`adb uninstall com.journey.journey`, install the new build, import the backup — and continues instead
+of aborting.) Journey's library lives in app storage, not a shared folder, so unlike Anima an uninstall
+loses it.
 
 ## Automation scripts
 
@@ -135,6 +154,7 @@ lives in app storage, not a shared folder, so unlike Anima an uninstall loses it
 2. To ship everything at once: `./deploy.sh "what changed"` (phone + desktop + GitHub + CI Windows).
 3. To just run it: `flutter run -d linux` (desktop) or `flutter run` with the phone connected (USB or wireless debugging).
 4. AI keys (Gemini / NanoGPT) live in **Settings** on the device — they are never committed.
+5. Product work: phases 0–9 are complete; deferred items are rich text, cloud sync, and secure API key storage — only pick these up if the owner asks.
 
 ## Conventions
 
@@ -142,3 +162,4 @@ lives in app storage, not a shared folder, so unlike Anima an uninstall loses it
 - Keep changes focused; don't expand scope without user request
 - Domain models are plain Dart classes; repositories are abstract interfaces in `domain/`, implementations in `data/`
 - New features go under `lib/features/<name>/`
+- All AI is user-initiated; review-before-apply for lore/note mutations

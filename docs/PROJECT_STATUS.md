@@ -2,10 +2,11 @@
 
 > **Living document for AI agents.** Read this first every session. Update before you finish any work.
 
-**Last updated:** 2026-10-01  
-**Current phase:** 9 (Dynamic World Bible) — **COMPLETE** (polish: larger AI reading text)  
+**Last updated:** 2026-10-12  
+**Current phase:** 9 (Dynamic World Bible) — **COMPLETE** (shipped through build 32)  
 **Previous:** Phase 8 (Lore collaboration loop) — complete  
-**Deferred (non-AI):** Rich text, cloud sync
+**Deferred (non-AI):** Rich text, cloud sync, secure API key storage  
+**Living docs:** `README.md` · `AGENTS.md` · `PROJECT_REFERENCE_JOURNEY.md` (+ this status file)
 
 ---
 
@@ -87,6 +88,13 @@ Journey is a **personal, casual writing app** — not a commercial author platfo
 ---
 
 ## Changelog
+
+### 2026-10-12 — Living docs triad (Anima-style) + `PROJECT_REFERENCE_JOURNEY.md`
+- Created root **`PROJECT_REFERENCE_JOURNEY.md`** — full encyclopedia for external AI / collaborators (same role as Anima’s `PROJECT_REFERENCE_ANIMA.md`); header reflects build **32**, schema v6, backup v5, **49** tests
+- Wired the **three living documents**: `README.md` + `AGENTS.md` + `PROJECT_REFERENCE_JOURNEY.md` (protocol in `AGENTS.md` and `.cursor/rules/project-docs.mdc`)
+- `docs/PROJECT_REFERENCE.md` is now a stub pointing at the root file (no second copy)
+- README: version/build table, recent-builds highlights, living-docs section; AGENTS: current ship state, Windows `GitRepos` checkout note, deferred next-actions
+- Verified on this Windows checkout: **49 tests pass** (`flutter test`)
 
 ### 2026-10-01 — Dev environment rebuilt on Kubuntu 26.04; repo verified + desktop app installed
 - Host reinstalled: **Kubuntu 26.04.1 LTS** (`jay@jaykubuntu`). Journey re-cloned to
@@ -233,6 +241,7 @@ Journey is a **personal, casual writing app** — not a commercial author platfo
 ## Agent update checklist
 
 - [x] `PROJECT_STATUS.md` updated
-- [x] `PROJECT_REFERENCE.md` updated
+- [x] `PROJECT_REFERENCE_JOURNEY.md` updated
+- [x] `AGENTS.md` updated
 - [x] `README.md` updated
 - [x] `ROADMAP.md` updated

@@ -2,7 +2,27 @@
 
 A personal book-writing app for **Windows**, **Linux**, and **Android**. Write in a calm, distraction-friendly editor, organize your story with notes and outlines, and use built-in AI helpers when you want them — not as a chatbot bolted on the side.
 
+| | |
+|---|---|
+| **Version** | **1.0.0** build **32** |
+| **Platforms** | Windows · Linux · Android |
+| **Repo** | https://github.com/jwarren9393/Journey |
+| **Living docs** | [`README.md`](README.md) (this file) · [`AGENTS.md`](AGENTS.md) · [`PROJECT_REFERENCE_JOURNEY.md`](PROJECT_REFERENCE_JOURNEY.md) |
+
 **[Download the latest release](https://github.com/jwarren9393/Journey/releases/latest)** — Windows portable zip, Linux tarball, and Android APK. No account required for the app itself; AI features use your own API keys.
+
+### What’s in recent builds
+
+| Build | Highlights |
+|-------|------------|
+| **32** | Cross-device backup restore fix (DateTime int + ISO); committed release signing so phone updates install in place; `deploy.sh` CI wait fails fast; Linux desktop install via `update_linux.sh` |
+| **31** | Android edge-to-edge + system nav SafeArea |
+| **30** | Release APK `INTERNET` permission (AI worked in debug only before) |
+| **29** | App text size up to 200%; larger AI reading prose |
+| **28** | Appearance backgrounds + highlight colors; UI scale |
+| **26–27** | Dynamic World Bible (scaffolding, relationships, timeline, update world state); Foundations-aware empty states |
+| **25** | Promote to lore / deepen note / retire as spark; cross-screen Story Lab links |
+| **22–24** | NanoGPT Auto + usage; Story Lab draft persistence; Linux release artifacts |
 
 ---
 
@@ -232,12 +252,20 @@ Each feature uses `domain/` (models, repos), `data/` (implementations), and `pre
 
 ## Documentation
 
+Three **living documents** stay current with the app (same pattern as Anima):
+
 | Document | Audience | Purpose |
 |----------|----------|---------|
-| [docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md) | Agents | Current phase, changelog |
-| [docs/PROJECT_REFERENCE.md](docs/PROJECT_REFERENCE.md) | Collaborators | Full technical reference |
-| [docs/ROADMAP.md](docs/ROADMAP.md) | Everyone | Phased plan |
-| [AGENTS.md](AGENTS.md) | Cursor agents | Required read/update protocol |
+| **[README.md](README.md)** (this file) | Humans / GitHub | Features, install, AI action tables |
+| **[AGENTS.md](AGENTS.md)** | Cursor agents | Protocol, machine notes, commands |
+| **[PROJECT_REFERENCE_JOURNEY.md](PROJECT_REFERENCE_JOURNEY.md)** | External AI / deep onboarding | Full technical encyclopedia |
+
+Session changelog and phased plan:
+
+| Document | Purpose |
+|----------|---------|
+| [docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md) | Current phase, changelog, next steps (agents read first) |
+| [docs/ROADMAP.md](docs/ROADMAP.md) | Phased plan (phases 0–9 complete) |
 
 ---
 
@@ -245,7 +273,9 @@ Each feature uses `domain/` (models, repos), `data/` (implementations), and `pre
 
 Journey is a **personal, casual** writing app — not a commercial author platform. No word-count goals, streaks, or analytics dashboards unless you ask for them.
 
-**Deferred / not yet:** rich text editor, cloud sync, secure API key storage (keys are in local preferences today).
+**AI policy:** optional and **user-initiated** only — the app works fully offline with AI off.
+
+**Deferred / not yet:** rich text editor, cloud sync, secure API key storage (keys are in local preferences today). Phases 0–9 (through Dynamic World Bible) are shipped.
 
 ---
 
