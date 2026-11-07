@@ -98,26 +98,23 @@ Main Linux host: **Kubuntu 26.04.1 LTS** (`jay@jaykubuntu`) — reinstalled 2026
 
 **Verified on Linux host (2026-10-01):** `flutter analyze` clean, **49 tests pass**, debug APK built, Linux debug + release desktop installed via `scripts/update_linux.sh` to `~/.local/share/journey`.
 
-### Windows — **this checkout** (`C:\Users\Jay\Documents\GitRepos\Journey`)
+### Windows — **this checkout** (`C:\Users\Jay\Git and Cursor\Git Repos\Journey`)
 
-Working copy beside Anima under `Documents\GitRepos\`. Flutter stable available on PATH (verified **3.47.6** / Dart **3.13.5** on 2026-10-12). Prefer NTFS paths only — never build from exFAT.
+Current Windows host (**Jay**, rebuilt **2026-11-07**). Working copy beside Anima under
+`Git and Cursor\Git Repos\`. Shared toolchain with Anima:
 
-### Windows laptop — **JAYS-DELL** (second machine, rebuilt 2026-09-26)
+| Tool | Location / notes |
+|------|------------------|
+| Flutter | `C:\src\flutter` — stable **3.47.9** / Dart **3.13.7** |
+| JDK 17 | `C:\Program Files\Eclipse Adoptium\jdk-17.0.21.9-hotspot` |
+| Android SDK | `%LOCALAPPDATA%\Android\Sdk` (platform 36, build-tools 36.0.0) |
+| VS Build Tools | 2022 **17.14.44** + C++ workload + ATL |
+| `gh` | signed in as `jwarren9393` |
+| Cursor | `dart.flutterSdkPath` = `C:/src/flutter` |
 
-Fresh Windows 11 install. Flutter stable in `C:\src\flutter`, Temurin **JDK 17**
-(`C:\Program Files\Eclipse Adoptium\jdk-17.0.20.101-hotspot`), Android SDK at
-`%LOCALAPPDATA%\Android\Sdk` (cmdline-tools, platform-tools, platform 36, build-tools 36.0.0,
-licences accepted), **VS 2022 Build Tools + C++ workload + ATL** (for `flutter build windows`),
-GitHub CLI, **Developer Mode on**, and `JAVA_HOME` / `ANDROID_HOME` / `ANDROID_SDK_ROOT` + PATH set
-for the account (open a new terminal / restart Cursor afterwards). Cursor already has the Dart +
-Flutter extensions with `dart.flutterSdkPath` = `C:/src/flutter`.
-
-Work in **`C:\Users\jakwa\Documents\GitHub\Journey`** — one working copy. Never build from the `W:`
-(**Jay-Ex-SSD**, exFAT) or `G:` (Google Drive) drives: Flutter writes plugin symlinks and fails there.
-Commands are identical to the Linux list above (`flutter pub get`, `flutter run`, `flutter test`,
-`flutter build apk --release`, `flutter build windows --release`). Connect GitHub once with
-`gh auth login --web` then `gh auth setup-git`. The rebuild was driven by one-off helpers in
-`C:\Users\jakwa\anima-setup\` (log `setup.log`, summary `SUMMARY.txt`).
+Prefer NTFS only — never build from exFAT or a cloud mirror. Fresh PC: run Anima’s
+`scripts\setup_windows_dev.ps1` (elevated), reopen the terminal, then `flutter pub get` here.
+Verified 2026-11-07: `flutter doctor` clean, `flutter analyze` clean on this checkout.
 
 **⚠️ Never build from an exFAT/FAT drive** (USB stick, portable SSD, the Jay-Storage drive). exFAT
 cannot store symlinks, and Flutter writes its plugin links as symlinks then **rethrows** when that
