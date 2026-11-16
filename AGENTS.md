@@ -82,21 +82,22 @@ flutter build apk --release
 
 ## Machine notes (this PC)
 
-Main Linux host: **Kubuntu 26.04.1 LTS** (`jay@jaykubuntu`) — reinstalled 2026-09-30 and rebuilt with Anima’s no-sudo setup (agent cannot type a sudo password). Everything Journey needs was already in place:
+Main Linux host: **Kubuntu** (`jay`) — **2026-11-15 Windows→Kubuntu NVMe migration**. Checkout and install paths use `~/Git and Cursor/...` (spaces — always quote).
 
 | Tool | Status |
 |------|--------|
-| Flutter / Dart | **3.47.5** stable in `~/development/flutter` (Dart 3.13.4) |
-| JDK | **Temurin 17.0.20.1** at `~/development/jdk-17` (Adoptium tarball — no apt needed) |
-| Android SDK | `~/Android/Sdk` — platform-tools 37.0.1, platforms 36/35/34, build-tools 36.0.0, licences accepted |
-| Linux desktop toolchain | clang / cmake / ninja / pkg-config / GTK 3 / libsecret / libjsoncpp (apt). **`libsqlite3-dev` is not needed** — `flutter build linux` succeeds without it (verified 2026-10-01) |
-| GitHub CLI | signed in as `jwarren9393`; `git push/pull` works without a prompt |
+| Flutter / Dart | **3.50.0** stable in `~/development/flutter` (Dart 3.14.0) |
+| JDK | distro **openjdk-17-jdk** |
+| Android SDK | `~/Android/Sdk` — Linux cmdline-tools/platform-tools; licences accepted |
+| Linux desktop toolchain | clang / cmake / ninja / pkg-config / GTK 3 / libsecret (apt) |
+| GitHub CLI | signed in as `jwarren9393` |
 | Cursor | `dart.flutterSdkPath = /home/jay/development/flutter` |
-| Test phone | Samsung **SM-S731U** — USB *or* wireless debugging; `adb devices` should list it (e.g. `192.168.1.14:41269`) |
 
-**Linux project home:** `~/Documents/Git Projects/Journey` (ext4) — one working copy, cloned 2026-10-01. The folder path contains a space, so quote it in shell commands.
+**Linux project home:** `~/Git and Cursor/Git Repos/Journey` (ext4, `master`).
 
-**Verified on Linux host (2026-10-01):** `flutter analyze` clean, **49 tests pass**, debug APK built, Linux debug + release desktop installed via `scripts/update_linux.sh` to `~/.local/share/journey`.
+**Icons (2026-11-15):** transparent black/gold path+book logo (no square tile) in `assets/icons/app_icon.png` + launcher.
+
+**Linux install:** `~/Git and Cursor/Installed Linux Cursor Apps/Journey/` + `journey.desktop` launcher. Verified 2026-11-15: analyze OK, tests pass, Linux release smoke-launches. Do not depend on Jay-Storage at runtime.
 
 ### Windows — **this checkout** (`C:\Users\Jay\Git and Cursor\Git Repos\Journey`)
 
