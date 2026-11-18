@@ -630,7 +630,10 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
 
   Future<void> _pickAttachment(BookNote note) async {
     final result = await FilePicker.pickFiles();
-    final path = result?.files.single.path;
+    if (result.isEmpty) {
+      return;
+    }
+    final path = result.single.path;
     if (path == null) {
       return;
     }

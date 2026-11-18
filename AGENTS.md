@@ -82,22 +82,23 @@ flutter build apk --release
 
 ## Machine notes (this PC)
 
-Main Linux host: **Kubuntu** (`jay`) — **2026-11-15 Windows→Kubuntu NVMe migration**. Checkout and install paths use `~/Git and Cursor/...` (spaces — always quote).
+Main Linux host: **Kubuntu** (`jay@jay-kubuntu`) — **2026-11-18 clean reinstall restore** (after 2026-11-15 Windows→Kubuntu NVMe migration). Checkout and install paths use `~/Git and Cursor/...` (spaces — always quote). Clean app slate — no prior Journey DB/userdata restored.
 
 | Tool | Status |
 |------|--------|
 | Flutter / Dart | **3.50.0** stable in `~/development/flutter` (Dart 3.14.0) |
 | JDK | distro **openjdk-17-jdk** |
-| Android SDK | `~/Android/Sdk` — Linux cmdline-tools/platform-tools; licences accepted |
+| Android SDK | `~/Android/Sdk` — Linux cmdline-tools/platform-tools; platform 36; licences accepted |
 | Linux desktop toolchain | clang / cmake / ninja / pkg-config / GTK 3 / libsecret (apt) |
 | GitHub CLI | signed in as `jwarren9393` |
 | Cursor | `dart.flutterSdkPath = /home/jay/development/flutter` |
+| `flutter doctor` | All green (2026-11-18) |
 
 **Linux project home:** `~/Git and Cursor/Git Repos/Journey` (ext4, `master`).
 
-**Icons (2026-11-15):** transparent black/gold path+book logo (no square tile) in `assets/icons/app_icon.png` + launcher.
+**Icons:** transparent black/gold path+book logo in repo assets + `~/.local/share/icons/journey.png` for KDE.
 
-**Linux install:** `~/Git and Cursor/Installed Linux Cursor Apps/Journey/` + `journey.desktop` launcher. Verified 2026-11-15: analyze OK, tests pass, Linux release smoke-launches. Do not depend on Jay-Storage at runtime.
+**Linux install:** `~/Git and Cursor/Installed Linux Cursor Apps/Journey/` + `journey.desktop` launcher. Verified 2026-11-18: **49** tests pass, Linux release smoke-launches. Do not depend on Jay-Storage at runtime.
 
 ### Windows — **this checkout** (`C:\Users\Jay\Git and Cursor\Git Repos\Journey`)
 

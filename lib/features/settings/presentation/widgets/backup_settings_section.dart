@@ -112,11 +112,11 @@ class _BackupSettingsSectionState extends ConsumerState<BackupSettingsSection> {
       type: FileType.custom,
       allowedExtensions: const ['json'],
     );
-    if (result == null || result.files.isEmpty) {
+    if (result.isEmpty) {
       return;
     }
 
-    final file = result.files.first;
+    final file = result.first;
     String? content;
     try {
       content = utf8.decode(await file.readAsBytes());
