@@ -82,7 +82,7 @@ flutter build apk --release
 
 ## Machine notes (this PC)
 
-Main Linux host: **Kubuntu** (`jay@jay-kubuntu`) — **2026-11-18 clean reinstall restore** (after 2026-11-15 Windows→Kubuntu NVMe migration). Checkout and install paths use `~/Git and Cursor/...` (spaces — always quote). Clean app slate — no prior Journey DB/userdata restored.
+Main Linux host was **Kubuntu** (`jay@jay-kubuntu`) — leaving **2026-11-23** for Windows host **Jay**. Handoff: Jay-Storage `Migrate-Windows-2026-11/` + **Cursor Prompt** (no Journey DB in pack — app-local). Checkout paths use `~/Git and Cursor/...` (spaces — always quote).
 
 | Tool | Status |
 |------|--------|

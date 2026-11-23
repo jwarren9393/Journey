@@ -2,11 +2,12 @@
 
 > **Living document for AI agents.** Read this first every session. Update before you finish any work.
 
-**Last updated:** 2026-10-12  
+**Last updated:** 2026-11-23  
 **Current phase:** 9 (Dynamic World Bible) — **COMPLETE** (shipped through build 32)  
 **Previous:** Phase 8 (Lore collaboration loop) — complete  
 **Deferred (non-AI):** Rich text, cloud sync, secure API key storage  
-**Living docs:** `README.md` · `AGENTS.md` · `PROJECT_REFERENCE_JOURNEY.md` (+ this status file)
+**Living docs:** `README.md` · `AGENTS.md` · `PROJECT_REFERENCE_JOURNEY.md` (+ this status file)  
+**Host note:** Owner moving Kubuntu → Windows (**Jay**); handoff `Migrate-Windows-2026-11` on Jay-Storage (no Journey DB in pack).
 
 ---
 
@@ -88,6 +89,10 @@ Journey is a **personal, casual writing app** — not a commercial author platfo
 ---
 
 ## Changelog
+
+### 2026-11-23 — Windows migration handoff
+- Packed Jay-Storage `Migrate-Windows-2026-11/` + Cursor Prompt for restore on Windows host **Jay**
+- No Journey DB in pack (app-local); clone/pull `master` and run `setup_windows_dev.ps1` from Anima
 
 ### 2026-10-12 — Living docs triad (Anima-style) + `PROJECT_REFERENCE_JOURNEY.md`
 - Created root **`PROJECT_REFERENCE_JOURNEY.md`** — full encyclopedia for external AI / collaborators (same role as Anima’s `PROJECT_REFERENCE_ANIMA.md`); header reflects build **32**, schema v6, backup v5, **49** tests
